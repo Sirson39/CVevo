@@ -1,0 +1,11 @@
+<h2>Candidate Screening Form</h2>
+<form method="POST">
+    {% csrf_token %}
+    <input name="name" placeholder="Name"><br>
+    <input name="email" placeholder="Email"><br>
+    <input name="phone" placeholder="Phone"><br>
+    <textarea name="skills" placeholder="Skills (comma separated)"></textarea><br>
+    <input name="experience" placeholder="Experience (years)"><br>
+    <input name="education" placeholder="Education"><br>
+    <button>Submit</button>
+</form>

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="upload-section">
+    <div class="upload-left">
+        <h1>Find Out if Your Resume is ATS-Optimized</h1>
+        <p>Get your ATS compatibility score instantly with our free, AI-powered resume scanner.</p>
+        <form method="POST" enctype="multipart/form-data" action="{% url 'resume_upload' %}">
+    {% csrf_token %}
+    <input type="file" name="resume" required>
+
+    <button type="submit">Upload Resume</button>
+</form>
+
+    </div>
+    <div class="upload-right">
+        <img src="{% static 'img/ats-preview.png' %}" alt="Resume Scanner Preview">
+    </div>
+</div>
+{% endblock %}

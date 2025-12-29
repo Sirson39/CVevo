@@ -1,0 +1,15 @@
+<h2>Screening Results</h2>
+
+<table>
+    <tr>
+        <th>Resume</th>
+        <th>Match Score</th>
+    </tr>
+
+    {% for r in results %}
+    <tr>
+        <td>{{ r.resume_file }}</td>
+        <td>{{ r.match_score }}%</td>
+    </tr>
+    {% endfor %}
+</table>
