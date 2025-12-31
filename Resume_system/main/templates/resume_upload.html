@@ -1,9 +1,0 @@
-{% extends 'base.html' %}
-{% block content %}
-  <h2>Upload Your Resume</h2>
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <input type="file" name="resume">
-    <button type="submit">Upload</button>
-  </form>
-{% endblock %}
