@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Login • CVevo</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body data-page="login">
+
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="brand" href="index.html">
+      <span class="brand-mark"></span>
+      <div><div><span>CVevo</span> <span class="brand-sub">ATS Resume Analyzer & Builder</span></div></div>
+    </a>
+    <div class="actions">
+      <button class="iconbtn" id="themeToggle" aria-label="Toggle theme"><span id="themeIcon"></span></button>
+      <a class="btn primary" href="auth-register.html">Create account</a>
+    </div>
+  </div>
+</header>
+
+<main class="container" style="padding:28px 18px 36px">
+  <div class="grid cols2">
+    <section class="card padded">
+      <div class="title">Welcome back</div>
+      <div class="desc">Login to continue to CVevo.</div>
+
+      <div id="toast" class="hidden mt"></div>
+
+      <div class="field" style="margin-top:18px">
+        <label>Demo role (optional)</label>
+        <select id="demoRole">
+          <option value="jobseeker">Demo Jobseeker</option>
+          <option value="hr">Demo HR</option>
+        </select>
+      </div>
+
+      <form id="loginForm" class="mt">
+        <div class="field">
+          <label>Email</label>
+          <input id="l_email" required type="email" placeholder="jobseeker@cvevo.demo"/>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input id="l_password" required type="password" placeholder="Password123!"/>
+        </div>
+
+        <div class="pills mt">
+          <button class="btn primary" type="submit">Login</button>
+          <button class="btn" type="button" id="fillDemo">Fill demo</button>
+          <a class="btn ghost" href="auth-register.html">Create account</a>
+        </div>
+      </form>
+    </section>
+
+    <aside class="card padded">
+      <div class="title">Quick demo tips</div>
+      <div class="hr"></div>
+      <div class="alert good">Jobseeker: upload → analyze → edit → export.</div>
+      <div class="alert warn">HR: create JD → bulk upload → ranking → reports.</div>
+      <div class="alert">Everything works offline using localStorage.</div>
+    </aside>
+  </div>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

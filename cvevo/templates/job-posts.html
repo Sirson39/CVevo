@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Manage Job Posts • CVevo</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body data-page="job-posts">
+
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="brand" href="index.html"><span class="brand-mark"></span><div><div><span>CVevo</span> <span class="brand-sub">ATS Resume Analyzer & Builder</span></div></div></a>
+    <div class="actions">
+      <div id="topbarUser"></div>
+      <button class="iconbtn" id="themeToggle"><span id="themeIcon"></span></button>
+      <button class="btn danger" id="logoutBtn">Logout</button>
+    </div>
+  </div>
+</header>
+
+<div class="app">
+  <aside class="sidebar"><div class="navtitle">Navigation</div><nav class="nav" id="sideNav"></nav></aside>
+
+  <main class="main">
+    <div class="container">
+      <div class="pagehead">
+        <div><div class="h1">Manage Job Posts</div><div class="sub">Maintain job posts for consistent candidate evaluation.</div></div>
+      </div>
+
+      <div id="toast" class="hidden mt"></div>
+
+      <div class="card mt">
+        <div class="cardheader">
+          <div><div class="title">Manage Job Posts</div><div class="small">Edit skills, open/close roles, or delete posts.</div></div>
+          <div class="pills no-print">
+            <a class="btn small primary" href="jd-create.html">New JD</a>
+            <a class="btn small" href="ranking.html">Ranking</a>
+          </div>
+        </div>
+
+        <div class="cardcontent">
+          <div class="tablewrap">
+            <table id="jobsTable">
+              <thead>
+                <tr><th>Job</th><th>Skills</th><th>Status</th><th class="no-print">Actions</th></tr>
+              </thead>
+              <tbody id="jobsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="mhead"><div class="title" id="modalTitle">Modal</div><button class="iconbtn" id="modalCancel">X</button></div>
+    <div class="mbody" id="modalBody"></div>
+    <div class="mfoot"><button class="btn" id="modalCancel2">Cancel</button><button class="btn primary" id="modalOk">Save</button></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

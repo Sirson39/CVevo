@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Candidate Ranking • CVevo</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body data-page="ranking">
+
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="brand" href="index.html"><span class="brand-mark"></span><div><div><span>CVevo</span> <span class="brand-sub">ATS Resume Analyzer & Builder</span></div></div></a>
+    <div class="actions">
+      <div id="topbarUser"></div>
+      <button class="iconbtn" id="themeToggle"><span id="themeIcon"></span></button>
+      <button class="btn danger" id="logoutBtn">Logout</button>
+    </div>
+  </div>
+</header>
+
+<div class="app">
+  <aside class="sidebar"><div class="navtitle">Navigation</div><nav class="nav" id="sideNav"></nav></aside>
+
+  <main class="main">
+    <div class="container">
+      <div class="pagehead">
+        <div><div class="h1">Candidate Ranking</div><div class="sub">Rank candidates consistently using ATS-style keyword matching.</div></div>
+      </div>
+
+      <div id="toast" class="hidden mt"></div>
+
+      <div class="card mt padded">
+        <div class="title">Candidate Ranking</div>
+        <div class="desc">Candidates are scored against a selected job post (demo scoring).</div>
+        <div class="hr"></div>
+
+        <div class="formrow">
+          <div class="field"><label>Job post</label><select id="rank_job"></select></div>
+          <div class="field"><label>Filter by skill/keyword (optional)</label><input id="rank_skill" placeholder="e.g., React"/></div>
+        </div>
+        <div class="help">Showing <b id="rankCount">0</b> candidates.</div>
+      </div>
+
+      <div class="card mt">
+        <div class="cardcontent">
+          <div class="tablewrap">
+            <table id="rankTable">
+              <thead><tr><th>#</th><th>Candidate</th><th>ATS Score</th><th>Matched keywords</th><th class="no-print">Actions</th></tr></thead>
+              <tbody id="rankBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="mhead"><div class="title" id="modalTitle">Modal</div><button class="iconbtn" id="modalCancel">X</button></div>
+    <div class="mbody" id="modalBody"></div>
+    <div class="mfoot"><button class="btn" id="modalCancel2">Cancel</button><button class="btn primary" id="modalOk">Save</button></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

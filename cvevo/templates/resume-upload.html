@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Resume Upload • CVevo</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body data-page="resume-upload">
+
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="brand" href="index.html">
+      <span class="brand-mark"></span>
+      <div><div><span>CVevo</span> <span class="brand-sub">ATS Resume Analyzer & Builder</span></div></div>
+    </a>
+    <div class="actions">
+      <div id="topbarUser"></div>
+      <button class="iconbtn" id="themeToggle" aria-label="Toggle theme"><span id="themeIcon"></span></button>
+      <button class="btn danger" id="logoutBtn">Logout</button>
+    </div>
+  </div>
+</header>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="navtitle">Navigation</div>
+    <nav class="nav" id="sideNav"></nav>
+  </aside>
+
+  <main class="main">
+    <div class="container">
+      <div class="pagehead">
+        <div>
+          <div class="h1" id="uploadTitle">Resume Upload</div>
+          <div class="sub" id="uploadSubtitle">Upload your resume and start analysis.</div>
+        </div>
+      </div>
+
+      <div id="toast" class="hidden mt"></div>
+
+      <div class="card mt padded">
+        <div class="title">Upload</div>
+        <div class="desc">Jobseekers upload one resume. HR can use Bulk mode.</div>
+        <div class="hr"></div>
+
+        <form id="uploadForm">
+          <div class="field">
+            <label>Select file(s)</label>
+            <input id="u_file" type="file" multiple accept=".pdf,.doc,.docx"/>
+            <div class="help">Demo stores filenames only (not real file contents).</div>
+          </div>
+
+          <div class="field">
+            <label>Attach to Job Post (HR only)</label>
+            <select id="u_jobpost"><option value="">—</option></select>
+          </div>
+
+          <div class="pills mt">
+            <button class="btn primary" type="submit">Upload</button>
+            <a class="btn" href="candidate-detail.html">View uploads</a>
+          </div>
+        </form>
+      </div>
+
+      <div class="card mt padded">
+        <div class="title">Recent uploads</div>
+        <div class="desc">Last files stored in the demo.</div>
+        <div class="hr"></div>
+        <div id="uploadList"></div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="mhead">
+      <div class="title" id="modalTitle">Modal</div>
+      <button class="iconbtn" id="modalCancel">X</button>
+    </div>
+    <div class="mbody" id="modalBody"></div>
+    <div class="mfoot">
+      <button class="btn" id="modalCancel2">Cancel</button>
+      <button class="btn primary" id="modalOk">Save</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

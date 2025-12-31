@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>HR Dashboard • CVevo</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body data-page="hr-dashboard">
+
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="brand" href="index.html"><span class="brand-mark"></span><div><div><span>CVevo</span> <span class="brand-sub">ATS Resume Analyzer & Builder</span></div></div></a>
+    <div class="actions">
+      <div id="topbarUser"></div>
+      <button class="iconbtn" id="themeToggle"><span id="themeIcon"></span></button>
+      <button class="btn danger" id="logoutBtn">Logout</button>
+    </div>
+  </div>
+</header>
+
+<div class="app">
+  <aside class="sidebar"><div class="navtitle">Navigation</div><nav class="nav" id="sideNav"></nav></aside>
+
+  <main class="main">
+    <div class="container">
+      <div class="pagehead">
+        <div><div class="h1">HR Dashboard</div><div class="sub">Create job posts, upload candidates, rank and export reports.</div></div>
+      </div>
+
+      <div id="toast" class="hidden mt"></div>
+
+      <div class="grid cols3 mt">
+        <div class="card padded"><div class="title">Job posts</div><div class="desc">Total job posts</div><div class="hr"></div><div class="stat"><div><div class="label">Total</div><b id="hr_stat_jobs">0</b></div></div></div>
+        <div class="card padded"><div class="title">Open roles</div><div class="desc">Currently hiring</div><div class="hr"></div><div class="stat"><div><div class="label">Open</div><b id="hr_stat_open">0</b></div></div></div>
+        <div class="card padded"><div class="title">Candidate pool</div><div class="desc">Uploaded resumes</div><div class="hr"></div><div class="stat"><div><div class="label">Candidates</div><b id="hr_stat_pool">0</b></div></div></div>
+      </div>
+
+      <div class="card mt">
+        <div class="cardheader">
+          <div><div class="title">Recent job posts</div><div class="small">Edit and view ranking.</div></div>
+          <div class="pills no-print">
+            <a class="btn small primary" href="jd-create.html">Create JD</a>
+            <a class="btn small" href="job-posts.html">Manage</a>
+          </div>
+        </div>
+        <div class="cardcontent" id="hr_jobs_list"></div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="mhead"><div class="title" id="modalTitle">Modal</div><button class="iconbtn" id="modalCancel">X</button></div>
+    <div class="mbody" id="modalBody"></div>
+    <div class="mfoot"><button class="btn" id="modalCancel2">Cancel</button><button class="btn primary" id="modalOk">Save</button></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

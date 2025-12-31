@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Jobseeker Dashboard • CVevo</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body data-page="jobseeker-dashboard">
+
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="brand" href="index.html">
+      <span class="brand-mark"></span>
+      <div><div><span>CVevo</span> <span class="brand-sub">ATS Resume Analyzer & Builder</span></div></div>
+    </a>
+    <div class="actions">
+      <div id="topbarUser"></div>
+      <button class="iconbtn" id="themeToggle" aria-label="Toggle theme"><span id="themeIcon"></span></button>
+      <button class="btn danger" id="logoutBtn">Logout</button>
+    </div>
+  </div>
+</header>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="navtitle">Navigation</div>
+    <nav class="nav" id="sideNav"></nav>
+    <div class="hr"></div>
+    <div class="small"><div class="badge"><span class="badge-dot"></span><span>Offline demo (localStorage)</span></div></div>
+  </aside>
+
+  <main class="main">
+    <div class="container">
+      <div class="pagehead">
+        <div>
+          <div class="h1">Jobseeker Dashboard</div>
+          <div class="sub">Your ATS workspace: upload → analyze → improve → export.</div>
+        </div>
+      </div>
+
+      <div id="toast" class="hidden mt"></div>
+
+      <div class="grid cols3 mt">
+        <div class="card padded">
+          <div class="title">Resumes</div><div class="desc">Your uploaded resumes</div>
+          <div class="hr"></div>
+          <div class="stat"><div><div class="label">Total</div><b id="statResumes">0</b></div></div>
+        </div>
+        <div class="card padded">
+          <div class="title">Analyses</div><div class="desc">ATS analyses generated</div>
+          <div class="hr"></div>
+          <div class="stat"><div><div class="label">Total</div><b id="statAnalyses">0</b></div></div>
+        </div>
+        <div class="card padded">
+          <div class="title">Best score</div><div class="desc">Highest ATS score</div>
+          <div class="hr"></div>
+          <div class="stat"><div><div class="label">Best</div><b id="statBest">—</b></div></div>
+        </div>
+      </div>
+
+      <div class="card mt">
+        <div class="cardheader">
+          <div>
+            <div class="title">Recent resumes</div>
+            <div class="small">Quick actions to edit or run ATS analysis.</div>
+          </div>
+          <div class="pills no-print">
+            <a class="btn small" href="resume-upload.html">Upload</a>
+            <a class="btn small primary" href="analysis-results.html">Analyze</a>
+          </div>
+        </div>
+        <div class="cardcontent" id="recentList"></div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="mhead">
+      <div class="title" id="modalTitle">Modal</div>
+      <button class="iconbtn" id="modalCancel" aria-label="Close">X</button>
+    </div>
+    <div class="mbody" id="modalBody"></div>
+    <div class="mfoot">
+      <button class="btn" id="modalCancel2">Cancel</button>
+      <button class="btn primary" id="modalOk">Save</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
