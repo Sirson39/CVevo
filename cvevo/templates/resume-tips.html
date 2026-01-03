@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Resume Tips • CVevo{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top:90px">
+  <div class="container">
+    <div class="panel" style="padding:24px">
+      <h1 style="margin:0 0 8px;font-size:38px;line-height:1.1;font-weight:900">
+        Resume Tips that work with <span class="accent">ATS</span>
+      </h1>
+      <p class="muted" style="margin:0;max-width:70ch;line-height:1.7">
+        Practical tips to improve structure, clarity, and keywords — without making your resume look robotic.
+      </p>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+        <a class="btn btn-green" href="/resume-upload/">Analyze my resume →</a>
+        <a class="btn btn-outline" href="/templates/">Browse templates →</a>
+      </div>
+    </div>
+
+    <div class="card-grid" style="margin-top:18px">
+      <article class="card">
+        <h3>1) Use ATS-safe structure</h3>
+        <p>Keep headings simple: Summary, Skills, Experience, Education. Avoid tables, columns, and heavy icons.</p>
+      </article>
+
+      <article class="card">
+        <h3>2) Write impact bullets</h3>
+        <p><strong>Action + What you did + Result</strong>. Add numbers if possible (%, time saved, revenue, users).</p>
+      </article>
+
+      <article class="card">
+        <h3>3) Keyword strategy</h3>
+        <p>Use keywords from the job description naturally in Skills and Experience (tools, roles, tech, methods).</p>
+      </article>
+
+      <article class="card">
+        <h3>4) Keep it readable</h3>
+        <p>Use consistent font sizes, spacing, and bullet style. Recruiters scan fast — don’t make it hard.</p>
+      </article>
+
+      <article class="card">
+        <h3>5) Proofread like a system</h3>
+        <p>Fix dates, titles, spacing, and spelling. ATS parsing errors often come from inconsistent formatting.</p>
+      </article>
+
+      <article class="card">
+        <h3>Quick checklist</h3>
+        <p>
+          ✅ One column layout<br>
+          ✅ Standard headings<br>
+          ✅ PDF or DOCX (clean export)<br>
+          ✅ Skills aligned with role<br>
+          ✅ Recent experience first
+        </p>
+      </article>
+    </div>
+
+    <div class="panel" style="margin-top:18px;padding:22px">
+      <h3 style="margin:0 0 8px">Want CVevo to check it?</h3>
+      <p class="muted" style="margin:0 0 12px;line-height:1.7">
+        Upload your resume and get feedback on ATS score, missing keywords, and improvement suggestions.
+      </p>
+      <a class="btn btn-orange btn-lg" href="/resume-upload/">Upload & Analyze →</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

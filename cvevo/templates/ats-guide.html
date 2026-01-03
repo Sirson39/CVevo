@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}ATS Guide • CVevo{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top:90px">
+  <div class="container">
+    <div class="panel" style="padding:24px">
+      <h1 style="margin:0 0 8px;font-size:38px;line-height:1.1;font-weight:900">
+        ATS Guide: how systems read your resume
+      </h1>
+      <p class="muted" style="margin:0;max-width:75ch;line-height:1.7">
+        ATS (Applicant Tracking Systems) scan resumes for structure and keywords. If the content can’t be parsed clearly,
+        your score drops even if you’re qualified.
+      </p>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+        <a class="btn btn-green" href="/resume-upload/">Check my ATS score →</a>
+        <a class="btn btn-outline" href="/resume-tips/">Resume tips →</a>
+      </div>
+    </div>
+
+    <div class="card-grid" style="margin-top:18px">
+      <article class="card">
+        <h3>What ATS usually scans</h3>
+        <p>Headings, dates, job titles, company names, skills, tools, certifications, education, and keyword matches.</p>
+      </article>
+
+      <article class="card">
+        <h3>What ATS may ignore</h3>
+        <p>Text inside images, complex tables, multi-column layouts, fancy graphics, and unusual section titles.</p>
+      </article>
+
+      <article class="card">
+        <h3>Best file formats</h3>
+        <p>Clean PDF or DOCX. If your PDF is generated from images, ATS may fail to read the text correctly.</p>
+      </article>
+
+      <article class="card">
+        <h3>Keyword matching</h3>
+        <p>ATS often checks overlap with job description keywords. Use the same terms where accurate (tools, skills).</p>
+      </article>
+
+      <article class="card">
+        <h3>Ranking & shortlisting</h3>
+        <p>Recruiters may filter by score or required skills first. Clear structure helps both ATS and humans.</p>
+      </article>
+
+      <article class="card">
+        <h3>Safe formatting rules</h3>
+        <p>
+          ✅ One column<br>
+          ✅ Standard fonts<br>
+          ✅ Simple bullets<br>
+          ✅ Clear headings<br>
+          ✅ Consistent dates
+        </p>
+      </article>
+    </div>
+
+    <div class="panel" style="margin-top:18px;padding:22px">
+      <h3 style="margin:0 0 8px">Test your resume with CVevo</h3>
+      <p class="muted" style="margin:0 0 12px;line-height:1.7">
+        Upload your resume to get ATS-style feedback, missing keywords, and improvement ideas.
+      </p>
+      <a class="btn btn-orange btn-lg" href="/resume-upload/">Upload & Analyze →</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

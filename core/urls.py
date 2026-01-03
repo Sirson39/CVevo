@@ -1,3 +1,4 @@
+from django.contrib import admin
 from django.urls import path
 from . import views
 
@@ -6,6 +7,11 @@ urlpatterns = [
 
     path("login/", lambda r: views.page(r, "auth-login.html"), name="login"),
     path("register/", lambda r: views.page(r, "auth-register.html"), name="register"),
+
+    path("admin/", admin.site.urls),
+    path("", views.home, name="home"),
+    path("resume-tips/", views.resume_tips, name="resume_tips"),
+    path("ats-guide/", views.ats_guide, name="ats_guide"),
 
     path("jobseeker/dashboard/", lambda r: views.page(r, "jobseeker-dashboard.html")),
     path("analysis/results/", lambda r: views.page(r, "analysis-results.html")),
@@ -21,4 +27,5 @@ urlpatterns = [
     path("hr/ranking/", lambda r: views.page(r, "ranking.html")),
     path("hr/candidate/", lambda r: views.page(r, "candidate-detail.html")),
     path("hr/reports/", lambda r: views.page(r, "reports.html")),
+    path("organizations/", views.organizations, name="organizations"),
 ]

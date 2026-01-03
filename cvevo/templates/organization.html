@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}CVevo • For Organizations{% endblock %}
+
+{% block content %}
+<main class="orgpage">
+  <!-- Hero -->
+  <section class="org-hero">
+    <div class="container org-hero-grid">
+      <div class="org-hero-copy">
+        <div class="badge org-badge">For Recruitment & Consulting Companies</div>
+
+        <h1 class="org-title">
+          Deliver professional resumes fast, <span class="org-accent">at scale.</span>
+        </h1>
+
+        <p class="org-sub">
+          Tired of inconsistent resumes and slow manual screening? CVevo helps HR teams score, rank,
+          and export shortlists with a clean, ATS-first workflow.
+        </p>
+
+        <div class="org-cta">
+          <a class="btn btn-green btn-lg" href="/hr/dashboard/">Open HR Dashboard →</a>
+          <a class="btn btn-outline btn-lg" href="/#contact">Talk to support →</a>
+        </div>
+
+        <div class="trust-row">
+          <div class="trust-item"><span class="check">✓</span> Consistent scoring</div>
+          <div class="trust-item"><span class="check">✓</span> Faster shortlisting</div>
+          <div class="trust-item"><span class="check">✓</span> Export-ready reports</div>
+        </div>
+      </div>
+
+      <div class="org-hero-card">
+        <div class="org-preview">
+          <div class="org-chip">Template</div>
+          <div class="org-chip right">Accepted</div>
+          <div class="org-mock">
+            <div class="org-mock-title">Candidate Snapshot</div>
+            <div class="org-mock-row"><span>ATS Score</span><strong>86%</strong></div>
+            <div class="org-mock-row"><span>Matched Skills</span><strong>12</strong></div>
+            <div class="org-mock-row"><span>Missing Keywords</span><strong>4</strong></div>
+            <div class="org-mock-row"><span>Rank</span><strong>#3</strong></div>
+            <div class="org-mock-note">Preview mock only — your real dashboard will show full details.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dark features like your second screenshot -->
+  <section class="org-dark">
+    <div class="container">
+      <h2 class="section-title" style="color:#fff">AI-powered resume automation</h2>
+      <p class="section-sub" style="color:rgba(255,255,255,.75)">
+        Tools that help your organization screen faster and keep hiring consistent.
+      </p>
+
+      <div class="org-features">
+        <article class="org-fcard">
+          <div class="org-icon">📄</div>
+          <h3>Bulk resume uploads</h3>
+          <p>Upload multiple resumes and process them with the same rubric and scoring rules.</p>
+        </article>
+
+        <article class="org-fcard">
+          <div class="org-icon">🎯</div>
+          <h3>Match any job description</h3>
+          <p>Compare candidates against a JD to highlight fit, gaps, and missing keywords.</p>
+        </article>
+
+        <article class="org-fcard">
+          <div class="org-icon">🤖</div>
+          <h3>AI-assisted summaries</h3>
+          <p>Generate clean summaries, strengths, and improvement insights for recruiters.</p>
+        </article>
+
+        <article class="org-fcard">
+          <div class="org-icon">✅</div>
+          <h3>Always ATS-friendly</h3>
+          <p>Standardized formatting checks and keyword alignment for consistent screening.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+</main>
+{% endblock %}

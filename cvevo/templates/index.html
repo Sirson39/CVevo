@@ -1,325 +1,399 @@
-
+{% extends "base.html" %}
 {% load static %}
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>CVevo • ATS Resume Analyzer & Builder</title>
 
-  <link rel="stylesheet" href="{% static 'cvevo/styles.css' %}">
-  <script src="{% static 'cvevo/app.js' %}" defer></script>
-</head>
+{% block title %}CVevo • ATS Resume Analyzer & Builder{% endblock %}
 
-<body>
-  <!-- Header / Navbar -->
-  <header class="site-header">
-    <div class="container nav">
-      <a class="brand" href="/">
-        <span class="brand-icon" aria-hidden="true">
-          <!-- simple doc icon -->
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M7 3h7l3 3v15a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2"/>
-            <path d="M14 3v4a1 1 0 0 0 1 1h4" stroke="currentColor" stroke-width="2"/>
-            <path d="M8 12h8M8 16h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </span>
-        <span class="brand-text"><span class="c">CV</span><span class="e">evo</span></span>
+{% block content %}
+
+<!-- Hero -->
+<main class="hero-wrap" id="top">
+  <div class="hero-bg"></div>
+
+  <section class="container hero">
+    <h1 class="hero-title reveal">
+      Land Your Dream Job with an<br>
+      <span class="accent">ATS-Optimized</span> Resume
+    </h1>
+
+    <p class="hero-sub reveal">
+      Don’t let outdated resume formats hold you back. CVevo analyzes your resume against real ATS
+      systems and helps you build one that gets past the bots and into human hands.
+    </p>
+
+    <div class="hero-actions reveal">
+      <a class="btn btn-orange btn-lg" href="/resume-upload/">
+        Analyze My Resume Score <span class="arrow">→</span>
       </a>
-
-      <nav class="nav-links" id="navLinks">
-        <a href="#features">Features</a>
-        <a href="#how">How It Works</a>
-        <a href="#pricing">Pricing</a>
-      </nav>
-
-      <div class="nav-actions">
-        <a class="link" href="/login/">Sign In</a>
-        <a class="btn btn-green" href="/register/">Get Started</a>
-
-        <button class="burger" id="burgerBtn" aria-label="Open menu" aria-controls="navLinks" aria-expanded="false">
-          <span></span><span></span><span></span>
-        </button>
-      </div>
+      <a class="btn btn-outline btn-lg" href="#how">
+        <span class="play" aria-hidden="true">▶</span> See How It Works
+      </a>
     </div>
-  </header>
 
-  <!-- Hero -->
-  <main class="hero-wrap">
-    <div class="hero-bg"></div>
-    <section class="container hero">
-      
-      <h1 class="hero-title">
-        Land Your Dream Job with an<br>
-        <span class="accent">ATS-Optimized</span> Resume
-      </h1>
-
-      <p class="hero-sub">
-        Don’t let outdated resume formats hold you back. CVevo analyzes your resume against real ATS
-        systems and helps you build one that gets past the bots and into human hands.
-      </p>
-
-      <div class="hero-actions">
-        <a class="btn btn-orange btn-lg" href="/resume-upload/">
-          Analyze My Resume Free <span class="arrow">→</span>
-        </a>
-        <a class="btn btn-outline btn-lg" href="#how">
-          <span class="play" aria-hidden="true">▶</span> See How It Works
-        </a>
-      </div>
-
-      <div class="trust-row">
-        <div class="trust-item">
-          <span class="check">✓</span> Free to start
-        </div>
-        <div class="trust-item">
-          <span class="check">✓</span> No credit card required
-        </div>
-        <div class="trust-item">
-          <span class="check">✓</span> 50,000+ resumes optimized
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- Features -->
-  <section class="section" id="features">
-    <div class="container">
-      <h2 class="section-title">
-        Everything You Need to <span class="accent">Stand Out</span>
-      </h2>
-      <p class="section-sub">
-        Our comprehensive suite of tools helps both job seekers and recruiters make better decisions.
-      </p>
-
-      <div class="card-grid">
-        <article class="card">
-          <div class="icon-box">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M6 3h9l3 3v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2"/>
-              <path d="M8 12h8M8 16h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <h3>ATS Score Analysis</h3>
-          <p>Get instant feedback on how well your resume performs against Applicant Tracking Systems used by top companies.</p>
-        </article>
-
-        <article class="card">
-          <div class="icon-box">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2l1.3 4.1L17.5 7l-4.2 1.1L12 12l-1.3-3.9L6.5 7l4.2-.9L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-              <path d="M19 10l.8 2.5L22 13l-2.2.5L19 16l-.8-2.5L16 13l2.2-.5L19 10Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <h3>AI-Powered Suggestions</h3>
-          <p>Receive intelligent recommendations to improve your resume content, keywords, and formatting.</p>
-        </article>
-
-        <article class="card card-outline">
-          <div class="icon-box">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2a10 10 0 1 0 10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <h3>Job Match Score</h3>
-          <p>See how well your resume matches specific job descriptions and get tips to improve your fit.</p>
-        </article>
-
-        <article class="card">
-          <div class="icon-box">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4 14l5-5 4 4 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M4 20h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <h3>Career Insights</h3>
-          <p>Understand your strengths, gaps, and improvements to increase interview chances.</p>
-        </article>
-
-        <article class="card">
-          <div class="icon-box">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="currentColor" stroke-width="2"/>
-              <path d="M22 21v-2a4 4 0 0 0-3-3.87" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <h3>HR Dashboard</h3>
-          <p>Streamline screening, score candidates consistently, and rank applicants faster.</p>
-        </article>
-
-        <article class="card">
-          <div class="icon-box">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 22s8-4 8-10V6l-8-4-8 4v6c0 6 8 10 8 10Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <h3>Privacy First</h3>
-          <p>Your resumes and data are handled responsibly. You stay in control of what you upload and export.</p>
-        </article>
-      </div>
+    <div class="trust-row reveal">
+      <div class="trust-item"><span class="check">✓</span> Free to start</div>
+      <div class="trust-item"><span class="check">✓</span> No credit card required</div>
+      <div class="trust-item"><span class="check">✓</span> 50,000+ resumes optimized</div>
     </div>
   </section>
+</main>
 
-  <!-- CTA Banner -->
-  <section class="container cta">
-    <div class="cta-inner">
-      <h3>Ready to Get Noticed by Recruiters?</h3>
-      <p>Join thousands of job seekers who’ve already improved their chances of landing interviews. Start for free today.</p>
+<!-- Templates (Horizontal carousel like your screenshot) -->
+<section class="section" id="templates">
+  <div class="container">
+    <h2 class="section-title reveal">Pick a template and build your resume in minutes</h2>
+    <p class="section-sub reveal">Hover a template to start. Auto-slides like modern template galleries.</p>
 
-      <div class="cta-actions">
-        <a class="btn btn-orange btn-lg" href="/register/">Get Started Free <span class="arrow">→</span></a>
-        <a class="btn btn-outline-light btn-lg" href="/hr/dashboard/">I’m a Recruiter</a>
-      </div>
-    </div>
-  </section>
+    <div class="template-shell reveal" id="templateShell">
+      <button class="t-nav t-prev" type="button" aria-label="Previous templates">‹</button>
 
-  <!-- How it works -->
-  <section class="section" id="how">
-    <div class="container">
-      <h2 class="section-title">How CVevo <span class="accent">Works</span></h2>
-      <p class="section-sub">Get from upload to interview-ready in minutes, not hours.</p>
+      <div class="template-strip" id="templateStrip">
 
-      <div class="steps">
-        <div class="steps-line" aria-hidden="true"></div>
 
-        <div class="step">
-          <div class="step-num">01</div>
-          <h4>Upload Your Resume</h4>
-          <p>Simply drag and drop your resume or paste the text. We support PDF, DOC, and DOCX formats.</p>
-        </div>
+        <!-- Card 1 -->
+         <article class="template-card" tabindex="0">
+          <img src="{% static 'cvevo/img/Template1.webp' %}" alt="Template 1">
+          <div class="t-overlay">
+            <div class="t-name">Modern Minimal</div>
+            <a class="btn btn-green btn-sm" href="/resume/builder/?template=1">Use this template →</a>
+          </div>
+        </article>
 
-        <div class="step">
-          <div class="step-num">02</div>
-          <h4>Get Instant Analysis</h4>
-          <p>Our AI analyzes your resume against ATS requirements and provides a detailed score breakdown.</p>
-        </div>
+        <!-- Card 2 -->
+        <article class="template-card" tabindex="0">
+          <img src="{% static 'cvevo/img/Template2.webp' %}" alt="Template 2">
+          <div class="t-overlay">
+            <div class="t-name">Classic Pro</div>
+            <a class="btn btn-green btn-sm" href="/resume/builder/?template=2">Use this template →</a>
+          </div>
+        </article>
 
-        <div class="step">
-          <div class="step-num">03</div>
-          <h4>Apply Improvements</h4>
-          <p>Use our suggestions to enhance your resume or build a new one with our professional templates.</p>
-        </div>
+        <!-- Card 3 -->
+        <article class="template-card" tabindex="0">
+          <img src="{% static 'cvevo/img/template3.jpg' %}" alt="Template 3">
+          <div class="t-overlay">
+            <div class="t-name">Elegant Balance</div>
+            <a class="btn btn-green btn-sm" href="/resume/builder/?template=3">Use this template →</a>
+          </div>
+        </article>
 
-        <div class="step">
-          <div class="step-num">04</div>
-          <h4>Land Your Dream Job</h4>
-          <p>Download your optimized resume and apply with confidence knowing you’ll pass ATS filters.</p>
-        </div>
-      </div>
-    </div>
-  </section>
+        <!-- Card 4 -->
+        <article class="template-card" tabindex="0">
+          <img src="{% static 'cvevo/img/template4.jpg' %}" alt="Template 4">
+          <div class="t-overlay">
+            <div class="t-name">Clean Sidebar</div>
+            <a class="btn btn-green btn-sm" href="/resume/builder/?template=4">Use this template →</a>
+          </div>
+        </article>
 
-  <!-- Pricing anchor (simple section placeholder) -->
-  <section class="section" id="pricing">
-    <div class="container pricing">
-      <h2 class="section-title">Simple <span class="accent">Pricing</span></h2>
-      <p class="section-sub">Start free. Upgrade only when you need more exports and advanced matching.</p>
-
-      <div class="pricing-grid">
-        <div class="price-card">
-          <h3>Free</h3>
-          <div class="price">₹0</div>
-          <ul>
-            <li>1 Resume analysis</li>
-            <li>Basic ATS score</li>
-            <li>Template preview</li>
-          </ul>
-          <a class="btn btn-outline btn-block" href="/register/">Get Started</a>
-        </div>
-
-        <div class="price-card featured">
-          <div class="pill">Most Popular</div>
-          <h3>Pro</h3>
-          <div class="price">₹499<span>/mo</span></div>
-          <ul>
-            <li>Unlimited analysis</li>
-            <li>Job description matching</li>
-            <li>Export PDF/DOCX</li>
-          </ul>
-          <a class="btn btn-orange btn-block" href="/register/">Start Pro</a>
-        </div>
-
-        <div class="price-card">
-          <h3>Recruiter</h3>
-          <div class="price">₹999<span>/mo</span></div>
-          <ul>
-            <li>Candidate ranking</li>
-            <li>Reports export</li>
-            <li>Job posts management</li>
-          </ul>
-          <a class="btn btn-outline btn-block" href="/hr/dashboard/">Open HR</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container footer-top">
-      <div class="footer-brand">
-        <div class="brand mini">
-          <span class="brand-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7 3h7l3 3v15a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2"/>
-              <path d="M14 3v4a1 1 0 0 0 1 1h4" stroke="currentColor" stroke-width="2"/>
-            </svg>
-          </span>
-          <span class="brand-text"><span class="c">CV</span><span class="e">evo</span></span>
-        </div>
-
-        <p class="muted">
-          AI-powered ATS Resume Analyzer and Builder. Get your dream job with a resume that stands out.
-        </p>
-
-        <div class="social">
-          <a href="#" aria-label="Twitter">𝕏</a>
-          <a href="#" aria-label="LinkedIn">in</a>
-          <a href="#" aria-label="GitHub">⌂</a>
-          <a href="#" aria-label="Email">✉</a>
-        </div>
+        <!-- Card 5 -->
+        <article class="template-card" tabindex="0">
+          <img src="{% static 'cvevo/img/Template6.png' %}" alt="Template 5">
+          <div class="t-overlay">
+            <div class="t-name">Simple ATS</div>
+            <a class="btn btn-green btn-sm" href="/resume/builder/?template=5">Use this template →</a>
+          </div>
+        </article>
       </div>
 
-      <div class="footer-cols">
-        <div class="col">
-          <h5>Product</h5>
-          <a href="#features">Features</a>
-          <a href="#pricing">Pricing</a>
-          <a href="/templates/">Templates</a>
-          <a href="/resume/builder/">Resume Builder</a>
-        </div>
+      <button class="t-nav t-next" type="button" aria-label="Next templates">›</button>
+    </div>
 
-        <div class="col">
-          <h5>Company</h5>
-          <a href="#">About Us</a>
-          <a href="#">Careers</a>
-          <a href="#">Blog</a>
-          <a href="#">Contact</a>
-        </div>
+    <div class="dots" id="templateDots" aria-label="Template carousel dots"></div>
+  </div>
+</section>
 
-        <div class="col">
-          <h5>Resources</h5>
-          <a href="#">Help Center</a>
-          <a href="#">Resume Tips</a>
-          <a href="#">Interview Guide</a>
-          <a href="#">API Docs</a>
-        </div>
+<!-- Features -->
+<section class="section" id="features">
+  <div class="container">
+    <h2 class="section-title reveal">
+      Everything You Need to <span class="accent">Stand Out</span>
+    </h2>
+    <p class="section-sub reveal">
+      Our comprehensive suite of tools helps both job seekers and recruiters make better decisions.
+    </p>
 
-        <div class="col">
-          <h5>Legal</h5>
-          <a href="#">Privacy Policy</a>
-          <a href="#">Terms of Service</a>
-          <a href="#">Cookie Policy</a>
+    <div class="card-grid">
+      <article class="card reveal">
+        <div class="icon-box">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 3h9l3 3v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2"/>
+            <path d="M8 12h8M8 16h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
         </div>
+        <h3>ATS Score Analysis</h3>
+        <p>Get instant feedback on how well your resume performs against Applicant Tracking Systems used by top companies.</p>
+      </article>
+
+      <article class="card reveal">
+        <div class="icon-box">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2l1.3 4.1L17.5 7l-4.2 1.1L12 12l-1.3-3.9L6.5 7l4.2-.9L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M19 10l.8 2.5L22 13l-2.2.5L19 16l-.8-2.5L16 13l2.2-.5L19 10Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3>AI-Powered Suggestions</h3>
+        <p>Receive intelligent recommendations to improve your resume content, keywords, and formatting.</p>
+      </article>
+
+      <article class="card card-outline reveal">
+        <div class="icon-box">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2a10 10 0 1 0 10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3>Job Match Score</h3>
+        <p>See how well your resume matches specific job descriptions and get tips to improve your fit.</p>
+      </article>
+
+      <article class="card reveal">
+        <div class="icon-box">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 14l5-5 4 4 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M4 20h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3>Career Insights</h3>
+        <p>Understand your strengths, gaps, and improvements to increase interview chances.</p>
+      </article>
+
+      <article class="card reveal">
+        <div class="icon-box">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="currentColor" stroke-width="2"/>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3>HR Dashboard</h3>
+        <p>Streamline screening, score candidates consistently, and rank applicants faster.</p>
+      </article>
+
+      <article class="card reveal">
+        <div class="icon-box">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 22s8-4 8-10V6l-8-4-8 4v6c0 6 8 10 8 10Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3>Privacy First</h3>
+        <p>Your resumes and data are handled responsibly. You stay in control of what you upload and export.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="container cta">
+  <div class="cta-inner reveal">
+    <h3>Ready to Get Noticed by Recruiters?</h3>
+    <p>Join thousands of job seekers who’ve already improved their chances of landing interviews. Start for free today.</p>
+
+    <div class="cta-actions">
+      <a class="btn btn-orange btn-lg" href="/register/">Get Started Free <span class="arrow">→</span></a>
+      <a class="btn btn-outline-light btn-lg" href="/login/">Sign In</a>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section class="section" id="how">
+  <div class="container">
+    <h2 class="section-title reveal">How CVevo <span class="accent">Works</span></h2>
+    <p class="section-sub reveal">Get from upload to interview-ready in minutes, not hours.</p>
+
+    <div class="steps">
+      <div class="steps-line" aria-hidden="true"></div>
+
+      <div class="step reveal">
+        <div class="step-num">01</div>
+        <h4>Upload Your Resume</h4>
+        <p>Drag & drop your resume or paste the text. Supports PDF, DOC, and DOCX.</p>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">02</div>
+        <h4>Get Instant Analysis</h4>
+        <p>We scan your resume against ATS rules and show a score breakdown.</p>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">03</div>
+        <h4>Apply Improvements</h4>
+        <p>Follow suggestions and rebuild quickly using ATS-friendly templates.</p>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-num">04</div>
+        <h4>Export & Apply</h4>
+        <p>Download your improved resume and apply confidently.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Resources -->
+<!-- Resources (Landing section) -->
+<section class="section" id="resources">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-head-left"></div>
+
+      <div class="section-head-center">
+        <h2 class="section-title reveal">Resources</h2>
+        <p class="section-sub reveal">Guides to help you write better resumes and understand ATS.</p>
+      </div>
+
+      <div class="section-head-right">
+        <span class="chip">ATS-ready</span>
+        <span class="chip">Recruiter-approved</span>
+        <span class="chip">Quick reads</span>
       </div>
     </div>
 
-    <div class="container footer-bottom">
-      <span>© 2025 CVevo. All rights reserved.</span>
-      <span class="muted">Made with <span class="heart">❤</span> for job seekers everywhere</span>
+    <div class="resources-grid reveal">
+      <!-- Resume Tips -->
+      <article class="r-card">
+        <div class="r-top">
+          <div class="r-ic" aria-hidden="true">📝</div>
+          <div>
+            <h3 class="r-title">Resume Tips</h3>
+            <p class="r-sub">Structure, impact bullets, keyword strategy, and common mistakes.</p>
+          </div>
+        </div>
+
+        <ul class="r-points">
+          <li>ATS-safe formatting checklist</li>
+          <li>Strong bullet formula + examples</li>
+          <li>Skills & keywords placement</li>
+        </ul>
+
+        <div class="r-actions">
+          <a class="btn btn-green" href="/resume-tips/">Learn more →</a>
+          <a class="btn btn-outline" href="/resume-upload/">Analyze now →</a>
+        </div>
+      </article>
+
+      <!-- Resume Guide (ATS) -->
+      <article class="r-card r-card-accent">
+        <div class="r-top">
+          <div class="r-ic" aria-hidden="true">📘</div>
+          <div>
+            <h3 class="r-title">ATS Guide</h3>
+            <p class="r-sub">How ATS reads your resume, what it scans, and what to avoid.</p>
+          </div>
+        </div>
+
+        <ul class="r-points">
+          <li>What ATS reads vs ignores</li>
+          <li>Best file formats (PDF/DOCX)</li>
+          <li>Keyword matching explained</li>
+        </ul>
+
+        <div class="r-actions">
+          <a class="btn btn-green" href="/ats-guide/">Learn more →</a>
+          <a class="btn btn-outline" href="#features">See features →</a>
+        </div>
+      </article>
     </div>
-  </footer>
-</body>
-</html>
+  </div>
+</section>
+
+
+
+<!-- Contact / Support -->
+<section class="section contact-pro" id="contact">
+  <div class="container">
+    <header class="section-head reveal">
+      <h2 class="section-title">Contact / Support</h2>
+      <p class="section-sub">Need help? Send a message and we’ll respond as soon as possible.</p>
+    </header>
+
+    <div class="contact-grid reveal">
+      <!-- Left: Support card -->
+      <aside class="contact-card">
+        <div class="contact-card-top">
+          <div class="contact-badge">Support</div>
+          <h3>We’re here to help</h3>
+          <p class="muted">Questions, bugs, feedback, or feature requests — send it anytime.</p>
+        </div>
+
+        <div class="contact-list">
+          <div class="contact-item">
+            <div class="contact-ico" aria-hidden="true">✉</div>
+            <div class="contact-meta">
+              <strong>Email</strong>
+              <span class="muted">support@cvevo.com (placeholder)</span>
+            </div>
+            <span class="pill pill-green">24/7</span>
+          </div>
+
+          <div class="contact-item">
+            <div class="contact-ico" aria-hidden="true">⚡</div>
+            <div class="contact-meta">
+              <strong>Response time</strong>
+              <span class="muted">Usually within 24–48 hours</span>
+            </div>
+            <span class="pill pill-orange">Fast</span>
+          </div>
+
+          <div class="contact-item">
+            <div class="contact-ico" aria-hidden="true">🔒</div>
+            <div class="contact-meta">
+              <strong>Privacy</strong>
+              <span class="muted">Your message stays confidential</span>
+            </div>
+            <span class="pill">Secure</span>
+          </div>
+        </div>
+
+        <div class="contact-note">
+          <span class="dot"></span>
+          Tip: Include your resume filename + what page you were on.
+        </div>
+      </aside>
+
+      <!-- Right: Form card -->
+      <section class="contact-form-card">
+        <div class="form-head">
+          <h3>Send a message</h3>
+          <p class="muted">Fill this form — backend can be added later.</p>
+        </div>
+
+        <form class="contact-form" action="#" method="post">
+          <div class="form-grid">
+            <label class="field">
+              <span>Name</span>
+              <input class="input" type="text" placeholder="Your full name" required>
+            </label>
+
+            <label class="field">
+              <span>Email</span>
+              <input class="input" type="email" placeholder="you@email.com" required>
+            </label>
+
+            <label class="field full">
+              <span>Subject</span>
+              <input class="input" type="text" placeholder="e.g., Resume upload issue / Feature request" required>
+            </label>
+
+            <label class="field full">
+              <span>Message</span>
+              <textarea class="textarea" rows="6" placeholder="Tell us what you need..." required></textarea>
+            </label>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-green btn-lg" type="submit">
+              Send Message <span class="arrow">→</span>
+            </button>
+            <p class="muted small">By sending, you agree to be contacted about your request.</p>
+          </div>
+        </form>
+      </section>
+    </div>
+  </div>
+</section>
+
+
+{% endblock %}
