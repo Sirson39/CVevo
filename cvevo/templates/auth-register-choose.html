@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Choose account • CVevo{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'cvevo/css/auth.css' %}">
+<style>
+  .pick-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px; }
+  .pick{ border-radius: 22px; border: 1px solid rgba(15,23,42,.10); background: rgba(255,255,255,.72);
+         padding: 16px; box-shadow: 0 18px 55px rgba(15,23,42,.10); }
+  .pick h3{ margin: 0 0 6px; font-weight: 900; }
+  .pick p{ margin: 0 0 14px; color: rgba(100,116,139,.95); line-height: 1.6; }
+  @media (max-width: 720px){ .pick-grid{ grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="auth">
+  <section class="auth-shell" style="grid-template-columns: 1fr;">
+    <div class="auth-left">
+      <a class="brand" href="/">
+        <span class="brand-mark"></span>
+        <div class="brand-text">
+          <div class="brand-name">CVevo</div>
+          <div class="brand-sub">ATS Resume Analyzer & Builder</div>
+        </div>
+      </a>
+
+      <h1 class="auth-h1">Choose your account</h1>
+      <p class="auth-p">Pick what you want to do in CVevo. You can always create the other account later.</p>
+
+      <div class="pick-grid">
+        <div class="pick">
+          <h3>Jobseeker</h3>
+          <p>Build ATS-friendly resumes, check keywords, and export clean templates.</p>
+          <a class="btn primary w100" href="/register/jobseeker/">Continue as Jobseeker →</a>
+        </div>
+
+        <div class="pick">
+          <h3>HR / Recruiter</h3>
+          <p>Score candidates consistently, shortlist faster, and export reports.</p>
+          <a class="btn primary w100" href="/register/hr/">Continue as HR →</a>
+        </div>
+      </div>
+
+      <p class="small center mt">
+        Already have an account? <a class="link strong" href="/login/">Login</a>
+      </p>
+    </div>
+  </section>
+</main>
+{% endblock %}

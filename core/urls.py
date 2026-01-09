@@ -1,12 +1,14 @@
 from django.contrib import admin
 from django.urls import path
-from . import views
+from core import views 
 
 urlpatterns = [
     path("", views.home, name="home"),
 
-    path("login/", lambda r: views.page(r, "auth-login.html"), name="login"),
-    path("register/", lambda r: views.page(r, "auth-register.html"), name="register"),
+    path("register/", views.register_choose, name="register_choose"),
+    path("register/jobseeker/", views.register_jobseeker, name="register_jobseeker"),
+    path("register/hr/", views.register_hr, name="register_hr"),
+    path("login/", views.login_page, name="login"),
 
     path("admin/", admin.site.urls),
     path("", views.home, name="home"),
@@ -29,3 +31,4 @@ urlpatterns = [
     path("hr/reports/", lambda r: views.page(r, "reports.html")),
     path("organizations/", views.organizations, name="organizations"),
 ]
+

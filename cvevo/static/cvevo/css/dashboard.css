@@ -1,0 +1,447 @@
+/* =========================================================
+   CVevo — Dashboard CSS (Crazy but Professional)
+   File: static/cvevo/css/dashboard.css
+   Works for: HR Dashboard + Jobseeker Dashboard (your HTML)
+   Depends on: your existing styles.css (btn/card/grid/etc.)
+   ========================================================= */
+
+/* --------- Dashboard Theme Tokens (safe overrides) --------- */
+:root{
+  --dash-bg-0: #f7fafc;
+  --dash-bg-1: rgba(47,143,122,.10);
+  --dash-bg-2: rgba(240,122,60,.10);
+
+  --dash-ink: #0f172a;
+  --dash-muted: #64748b;
+
+  --dash-card: rgba(255,255,255,.72);
+  --dash-border: rgba(15,23,42,.10);
+  --dash-shadow: 0 22px 70px rgba(15, 23, 42, .12);
+  --dash-shadow-soft: 0 12px 36px rgba(15, 23, 42, .10);
+
+  --dash-radius: 22px;
+  --dash-radius-lg: 28px;
+
+  --dash-accent: #2f8f7a;     /* brand green */
+  --dash-accent2: #f07a3c;    /* warm orange */
+}
+
+/* Optional: darker mode if your styles.css toggles [data-theme="dark"] */
+:root[data-theme="dark"], body[data-theme="dark"]{
+  --dash-bg-0: #0b1220;
+  --dash-bg-1: rgba(47,143,122,.14);
+  --dash-bg-2: rgba(240,122,60,.12);
+
+  --dash-ink: #e5e7eb;
+  --dash-muted: rgba(226,232,240,.72);
+
+  --dash-card: rgba(17,24,39,.62);
+  --dash-border: rgba(226,232,240,.12);
+
+  --dash-shadow: 0 26px 90px rgba(0,0,0,.55);
+  --dash-shadow-soft: 0 14px 48px rgba(0,0,0,.40);
+}
+
+/* --------- Page Background + Fancy “Glow” Layer --------- */
+body[data-page="hr-dashboard"],
+body[data-page="jobseeker-dashboard"]{
+  background:
+    radial-gradient(1100px 600px at 12% 6%, var(--dash-bg-2), transparent 60%),
+    radial-gradient(1100px 600px at 88% 14%, var(--dash-bg-1), transparent 58%),
+    radial-gradient(900px 600px at 50% 100%, rgba(99,102,241,.08), transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,.65), rgba(255,255,255,.0) 45%),
+    var(--dash-bg-0);
+  color: var(--dash-ink);
+  overflow-x: hidden;
+}
+
+body[data-page="hr-dashboard"]::before,
+body[data-page="jobseeker-dashboard"]::before{
+  content:"";
+  position: fixed;
+  inset: -40px;
+  pointer-events: none;
+  background:
+    radial-gradient(900px 520px at 18% 10%, rgba(240,122,60,.18), transparent 62%),
+    radial-gradient(900px 520px at 82% 14%, rgba(47,143,122,.18), transparent 62%),
+    radial-gradient(700px 500px at 50% 105%, rgba(99,102,241,.10), transparent 60%);
+  filter: blur(10px);
+  opacity: .9;
+  z-index: 0;
+}
+
+/* Ensure your app sits above glow */
+.app, .topbar, .modal-overlay{ position: relative; z-index: 1; }
+
+/* --------- Topbar: Glass + subtle border + sticky --------- */
+.topbar{
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255,255,255,.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--dash-border);
+}
+
+:root[data-theme="dark"] .topbar,
+body[data-theme="dark"] .topbar{
+  background: rgba(15,23,42,.45);
+}
+
+/* Brand chip polish (uses your existing markup) */
+.topbar .brand{
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(15,23,42,.08);
+  background: rgba(255,255,255,.45);
+  box-shadow: 0 10px 30px rgba(15,23,42,.08);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.topbar .brand:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 18px 42px rgba(15,23,42,.12);
+}
+:root[data-theme="dark"] .topbar .brand,
+body[data-theme="dark"] .topbar .brand{
+  background: rgba(17,24,39,.40);
+  border-color: rgba(226,232,240,.10);
+}
+
+/* --------- Layout tweaks --------- */
+.app{
+  min-height: calc(100vh - 70px);
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 18px;
+  padding: 18px;
+}
+
+@media (max-width: 980px){
+  .app{ grid-template-columns: 1fr; }
+  .sidebar{ position: relative; }
+}
+
+/* --------- Sidebar: premium glass nav --------- */
+.sidebar{
+  border-radius: var(--dash-radius-lg);
+  border: 1px solid var(--dash-border);
+  background: rgba(255,255,255,.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: var(--dash-shadow-soft);
+  overflow: hidden;
+}
+
+:root[data-theme="dark"] .sidebar,
+body[data-theme="dark"] .sidebar{
+  background: rgba(17,24,39,.55);
+  border-color: rgba(226,232,240,.10);
+}
+
+/* Sidebar header */
+.sidebar .navtitle{
+  font-weight: 900;
+  letter-spacing: .2px;
+  padding: 14px 16px 10px;
+}
+
+/* Nav links (assumes your app.js injects .nav a) */
+.sidebar .nav{
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px 16px;
+}
+
+.sidebar .nav a{
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(15,23,42,.08);
+  color: var(--dash-ink);
+  text-decoration: none;
+  background: rgba(255,255,255,.55);
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+  overflow: hidden;
+}
+
+.sidebar .nav a::before{
+  content:"";
+  position:absolute;
+  inset: -2px;
+  background:
+    radial-gradient(420px 140px at 20% 0%, rgba(240,122,60,.20), transparent 60%),
+    radial-gradient(420px 140px at 80% 0%, rgba(47,143,122,.20), transparent 60%);
+  opacity: 0;
+  transition: opacity .18s ease;
+}
+
+.sidebar .nav a:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 16px 30px rgba(15,23,42,.10);
+  border-color: rgba(47,143,122,.22);
+}
+.sidebar .nav a:hover::before{ opacity: 1; }
+
+.sidebar .nav a.active,
+.sidebar .nav a[aria-current="page"]{
+  border-color: rgba(47,143,122,.35);
+  background: rgba(47,143,122,.10);
+  box-shadow: 0 18px 40px rgba(47,143,122,.14);
+}
+
+:root[data-theme="dark"] .sidebar .nav a,
+body[data-theme="dark"] .sidebar .nav a{
+  background: rgba(15,23,42,.40);
+  border-color: rgba(226,232,240,.08);
+}
+
+/* --------- Main: soften spacing --------- */
+.main .container{
+  padding: 6px 4px 40px;
+}
+
+/* Pagehead polish */
+.pagehead{
+  padding: 6px 2px 0;
+}
+.pagehead .h1{
+  font-weight: 950;
+  letter-spacing: -.02em;
+  font-size: clamp(24px, 2.2vw, 34px);
+  line-height: 1.12;
+}
+.pagehead .sub{
+  margin-top: 6px;
+  color: var(--dash-muted);
+  line-height: 1.6;
+}
+
+/* --------- Cards: make them “premium” --------- */
+.card{
+  border-radius: var(--dash-radius-lg) !important;
+  border: 1px solid var(--dash-border) !important;
+  background: var(--dash-card) !important;
+  box-shadow: var(--dash-shadow-soft) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  overflow: hidden;
+  position: relative;
+}
+
+.card::after{
+  content:"";
+  position:absolute;
+  inset: 0;
+  pointer-events:none;
+  background:
+    radial-gradient(520px 160px at 10% 0%, rgba(240,122,60,.16), transparent 55%),
+    radial-gradient(520px 160px at 90% 0%, rgba(47,143,122,.16), transparent 55%);
+  opacity: .55;
+}
+
+:root[data-theme="dark"] .card::after,
+body[data-theme="dark"] .card::after{
+  opacity: .40;
+}
+
+/* Lift on hover for any card that is not a full table */
+.card:hover{
+  transform: translateY(-2px);
+  transition: transform .18s ease, box-shadow .18s ease;
+  box-shadow: var(--dash-shadow) !important;
+}
+
+/* Card internal */
+.card.padded{ padding: 16px !important; }
+.card .title{
+  font-weight: 900;
+  letter-spacing: -.01em;
+}
+.card .desc, .card .small{
+  color: var(--dash-muted) !important;
+}
+
+/* HR line */
+.hr{
+  border-color: rgba(15,23,42,.10) !important;
+}
+:root[data-theme="dark"] .hr,
+body[data-theme="dark"] .hr{
+  border-color: rgba(226,232,240,.10) !important;
+}
+
+/* Stats blocks */
+.stat{
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 8px;
+}
+.stat .label{
+  color: var(--dash-muted);
+  font-size: 12px;
+}
+.stat b{
+  font-size: 30px;
+  letter-spacing: -.02em;
+  line-height: 1;
+}
+
+/* --------- Grid spacing improvements --------- */
+.grid.cols3{
+  gap: 16px !important;
+}
+@media (max-width: 980px){
+  .grid.cols3{ grid-template-columns: 1fr !important; }
+}
+
+/* --------- Buttons: make them look “app-like” --------- */
+.btn, .btn.small, .btn.primary, .btn.danger, .iconbtn{
+  border-radius: 16px !important;
+}
+
+.btn.primary{
+  background: linear-gradient(135deg, rgba(47,143,122,1), rgba(20,120,102,1)) !important;
+  border: 1px solid rgba(47,143,122,.35) !important;
+  box-shadow: 0 16px 34px rgba(47,143,122,.22);
+}
+.btn.primary:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 22px 48px rgba(47,143,122,.28);
+}
+
+.btn.danger{
+  box-shadow: 0 14px 30px rgba(239,68,68,.18);
+}
+
+.iconbtn{
+  background: rgba(255,255,255,.55) !important;
+  border: 1px solid rgba(15,23,42,.10) !important;
+  box-shadow: 0 12px 26px rgba(15,23,42,.10);
+}
+.iconbtn:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 18px 38px rgba(15,23,42,.14);
+}
+
+:root[data-theme="dark"] .iconbtn,
+body[data-theme="dark"] .iconbtn{
+  background: rgba(15,23,42,.50) !important;
+  border-color: rgba(226,232,240,.10) !important;
+}
+
+/* Pills area (top right actions in cards) */
+.pills{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* --------- Toast: nice floating notification --------- */
+#toast{
+  border-radius: 18px;
+  border: 1px solid rgba(47,143,122,.20);
+  background: rgba(47,143,122,.10);
+  padding: 12px 14px;
+  box-shadow: 0 16px 40px rgba(47,143,122,.12);
+}
+
+/* --------- Lists inside cardcontent (recent items) ---------
+   If app.js renders rows, these help automatically */
+.cardcontent{
+  position: relative;
+  z-index: 1;
+}
+
+.cardcontent .row,
+.cardcontent .item,
+#recentList > div,
+#hr_jobs_list > div{
+  border: 1px solid rgba(15,23,42,.08);
+  background: rgba(255,255,255,.55);
+  border-radius: 18px;
+  padding: 12px 12px;
+  margin: 10px 0;
+  box-shadow: 0 12px 30px rgba(15,23,42,.08);
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+.cardcontent .row:hover,
+.cardcontent .item:hover,
+#recentList > div:hover,
+#hr_jobs_list > div:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 18px 46px rgba(15,23,42,.12);
+  border-color: rgba(47,143,122,.22);
+}
+
+:root[data-theme="dark"] .cardcontent .row,
+:root[data-theme="dark"] .cardcontent .item,
+:root[data-theme="dark"] #recentList > div,
+:root[data-theme="dark"] #hr_jobs_list > div,
+body[data-theme="dark"] .cardcontent .row,
+body[data-theme="dark"] .cardcontent .item,
+body[data-theme="dark"] #recentList > div,
+body[data-theme="dark"] #hr_jobs_list > div{
+  background: rgba(15,23,42,.45);
+  border-color: rgba(226,232,240,.10);
+}
+
+/* --------- Modal: luxury glass modal --------- */
+.modal-overlay{
+  background: rgba(2,6,23,.45) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.modal{
+  border-radius: 22px !important;
+  border: 1px solid rgba(226,232,240,.14) !important;
+  background: rgba(255,255,255,.72) !important;
+  box-shadow: 0 30px 90px rgba(0,0,0,.25) !important;
+  overflow: hidden;
+}
+
+:root[data-theme="dark"] .modal,
+body[data-theme="dark"] .modal{
+  background: rgba(17,24,39,.75) !important;
+}
+
+.modal .mhead{
+  background: linear-gradient(135deg, rgba(240,122,60,.10), rgba(47,143,122,.10));
+  border-bottom: 1px solid rgba(15,23,42,.08);
+}
+
+/* --------- Micro animations (subtle, pro) --------- */
+@media (prefers-reduced-motion: no-preference){
+  .card, .sidebar .nav a, .btn, .iconbtn{
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+  }
+}
+
+/* --------- Fix: make both dashboard action buttons equal height --------- */
+.pills .btn.small{
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* --------- Optional: nicer scrollbar (Chrome/Edge) --------- */
+.sidebar, .main{
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100,116,139,.35) transparent;
+}
+.sidebar::-webkit-scrollbar,
+.main::-webkit-scrollbar{ width: 10px; }
+.sidebar::-webkit-scrollbar-thumb,
+.main::-webkit-scrollbar-thumb{
+  background: rgba(100,116,139,.28);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
