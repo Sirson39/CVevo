@@ -1,0 +1,93 @@
+{% extends "base_app.html" %}
+{% load static %}
+{% block title %}Templates Gallery • CVevo{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'cvevo/css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<header class="tg-head">
+  <div>
+    <h1 class="tg-h1">Templates Gallery</h1>
+    <p class="tg-sub">Choose your resume template</p>
+  </div>
+</header>
+
+<section class="card tg-wrap">
+  <div class="tg-top">
+    <div>
+      <h2 class="tg-title">Resume Templates</h2>
+      <p class="tg-desc">Choose a template that best represents your professional style</p>
+    </div>
+
+    <div class="tg-filters">
+      <button class="tg-filter-ico" type="button" aria-label="Filter">
+        <!-- funnel icon -->
+        <svg viewBox="0 0 24 24" fill="none"><path d="M3 5h18l-7 8v6l-4-2v-4L3 5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+      </button>
+
+      <button class="tg-chip is-active" type="button">All</button>
+      <button class="tg-chip" type="button">ATS-Friendly</button>
+      <button class="tg-chip" type="button">One-Page</button>
+      <button class="tg-chip" type="button">Two-Column</button>
+    </div>
+  </div>
+
+  <div class="tg-grid">
+    <!-- Card 1 -->
+    <article class="tg-card">
+      <div class="tg-img" style="background-image:url('https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=1200&q=70');"></div>
+      <div class="tg-info">
+        <div class="tg-name">Modern Professional</div>
+        <div class="tg-tags">
+          <span class="tg-tag">ATS-Friendly</span>
+          <span class="tg-tag">Clean</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card 2 -->
+    <article class="tg-card">
+      <div class="tg-img" style="background-image:url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=70');">
+        <span class="tg-pro">PRO</span>
+      </div>
+      <div class="tg-info">
+        <div class="tg-name">Executive Classic</div>
+        <div class="tg-tags">
+          <span class="tg-tag">Two-Column</span>
+          <span class="tg-tag">Executive</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card 3 -->
+    <article class="tg-card">
+      <div class="tg-img" style="background-image:url('https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=1200&q=70');"></div>
+      <div class="tg-info">
+        <div class="tg-name">Tech Minimalist</div>
+        <div class="tg-tags">
+          <span class="tg-tag">ATS-Friendly</span>
+          <span class="tg-tag">One-Page</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card 4 -->
+    <article class="tg-card">
+      <div class="tg-img" style="background-image:url('https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1200&q=70');">
+        <span class="tg-pro">PRO</span>
+      </div>
+      <div class="tg-info">
+        <div class="tg-name">Creative Bold</div>
+        <div class="tg-tags">
+          <span class="tg-tag">Creative</span>
+          <span class="tg-tag">Modern</span>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,145 @@
+{% extends "base_app.html" %}
+{% load static %}
+{% block title %}Help & Support • CVevo{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'cvevo/css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<header class="hs-head">
+  <div>
+    <div class="muted hs-kicker">Help & Support</div>
+    <h1 class="hs-h1">Help & Support</h1>
+    <p class="muted hs-sub">Get help with CVevo</p>
+  </div>
+</header>
+
+<section class="hs-grid">
+
+  <!-- LEFT -->
+  <div class="hs-col">
+    <div class="card hs-card">
+      <h3 class="hs-card-title">Contact Support</h3>
+      <p class="muted">Need help? Reach out to our support team.</p>
+
+      <div class="hs-actions">
+        <a class="btn btn-primary" href="mailto:support@cvevo.com">
+          <span class="hs-ico">✉️</span> Email Support
+        </a>
+        <button class="btn" type="button">
+          <span class="hs-ico">💬</span> Live Chat (Soon)
+        </button>
+      </div>
+
+      <div class="hs-meta">
+        <div class="hs-pill"><span class="hs-dot ok"></span> Avg response: 2–6 hours</div>
+        <div class="hs-pill"><span class="hs-dot"></span> Support: Sun–Fri</div>
+      </div>
+    </div>
+
+    <div class="card hs-card">
+      <h3 class="hs-card-title">Create a Support Ticket</h3>
+      <p class="muted">Describe your issue and we’ll get back to you.</p>
+
+      <form class="hs-form" action="#" method="post">
+        {% csrf_token %}
+        <div class="hs-row">
+          <div class="hs-field">
+            <label class="hs-label">Topic</label>
+            <select class="hs-input" name="topic">
+              <option>Account / Login</option>
+              <option>Resume Upload</option>
+              <option>ATS Analysis</option>
+              <option>Resume Builder</option>
+              <option>Export / Downloads</option>
+              <option>Other</option>
+            </select>
+          </div>
+
+          <div class="hs-field">
+            <label class="hs-label">Priority</label>
+            <select class="hs-input" name="priority">
+              <option>Normal</option>
+              <option>High</option>
+              <option>Urgent</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="hs-field">
+          <label class="hs-label">Subject</label>
+          <input class="hs-input" name="subject" placeholder="e.g., Export PDF not working" />
+        </div>
+
+        <div class="hs-field">
+          <label class="hs-label">Message</label>
+          <textarea class="hs-input hs-textarea" name="message" rows="6"
+            placeholder="Write details… (what you clicked, what happened, screenshot info)"></textarea>
+        </div>
+
+        <div class="hs-foot">
+          <button class="btn btn-primary" type="submit">Submit Ticket</button>
+          <span class="muted hs-hint">Tip: include your resume filename + date/time.</span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <aside class="hs-col">
+    <div class="card hs-card">
+      <h3 class="hs-card-title">System Status</h3>
+      <div class="hs-status">
+        <div class="hs-status-left">
+          <div class="hs-badge ok">Operational</div>
+          <div class="muted">All services are running normally.</div>
+        </div>
+        <button class="btn" type="button">Check Updates</button>
+      </div>
+    </div>
+
+    <div class="card hs-card">
+      <h3 class="hs-card-title">FAQs</h3>
+
+      <details class="hs-faq" open>
+        <summary>Why is my ATS score low?</summary>
+        <div class="hs-faq-body muted">
+          Usually missing keywords, weak summary, or formatting issues. Go to Analysis Results → Missing Keywords and apply suggestions.
+        </div>
+      </details>
+
+      <details class="hs-faq">
+        <summary>What file types can I upload?</summary>
+        <div class="hs-faq-body muted">
+          PDF and DOCX are recommended. If parsing fails, try exporting your resume again as a clean PDF.
+        </div>
+      </details>
+
+      <details class="hs-faq">
+        <summary>How do I analyze against a new job description?</summary>
+        <div class="hs-faq-body muted">
+          Analysis Results → Analyze New JD. Paste the JD and re-run scan.
+        </div>
+      </details>
+
+      <details class="hs-faq">
+        <summary>Why is Export PDF not downloading?</summary>
+        <div class="hs-faq-body muted">
+          Check if popups are blocked. Also try Export DOCX. If still failing, send a ticket with the browser name.
+        </div>
+      </details>
+
+      <details class="hs-faq">
+        <summary>Can I create multiple resumes?</summary>
+        <div class="hs-faq-body muted">
+          Yes. Use Resume Upload to store different versions and track scores per resume.
+        </div>
+      </details>
+    </div>
+  </aside>
+
+</section>
+
+{% endblock %}

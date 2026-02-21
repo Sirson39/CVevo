@@ -1,0 +1,192 @@
+{% extends "app_shell.html" %}
+{% block title %}CVevo • Candidate Detail{% endblock %}
+
+{% block app_content %}
+
+<section class="cd-head">
+  <div class="cd-left">
+    <div class="cd-ava">SS</div>
+    <div>
+      <h2 class="h2x">Sabin Shrestha</h2>
+      <div class="cd-sub muted">Frontend Developer • Remote • Uploaded 2 days ago</div>
+
+      <div class="cd-tags mt-10">
+        <span class="tag tag-green">ATS 82</span>
+        <span class="tag">Match 88%</span>
+        <span class="tag">Top: React</span>
+        <span class="tag">Status: Applied</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="cd-actions">
+    <button class="btnx btnx-ghost" type="button">Download Resume</button>
+    <button class="btnx btnx-primary" type="button">Shortlist</button>
+    <button class="btnx btnx-danger" type="button">Reject</button>
+  </div>
+</section>
+
+<section class="grid-2 mt-18">
+  <!-- Left: Details -->
+  <div class="panel">
+    <div class="panel-head">
+      <h3 class="panel-title">Score Breakdown</h3>
+      <span class="muted">ATS + Job fit</span>
+    </div>
+
+    <div class="sb mt-12">
+      <div class="sb-row">
+        <div class="sb-label">
+          <strong>Keywords Match</strong>
+          <div class="muted">JD keywords found in resume</div>
+        </div>
+        <div class="sb-right">
+          <span class="sb-num">34/42</span>
+          <div class="sb-bar"><div class="sb-in" style="width:81%"></div></div>
+        </div>
+      </div>
+
+      <div class="sb-row">
+        <div class="sb-label">
+          <strong>Formatting</strong>
+          <div class="muted">ATS-friendly layout & sections</div>
+        </div>
+        <div class="sb-right">
+          <span class="sb-num">18/20</span>
+          <div class="sb-bar"><div class="sb-in" style="width:90%"></div></div>
+        </div>
+      </div>
+
+      <div class="sb-row">
+        <div class="sb-label">
+          <strong>Experience Fit</strong>
+          <div class="muted">Role alignment and timeline</div>
+        </div>
+        <div class="sb-right">
+          <span class="sb-num">16/20</span>
+          <div class="sb-bar"><div class="sb-in" style="width:80%"></div></div>
+        </div>
+      </div>
+
+      <div class="sb-row">
+        <div class="sb-label">
+          <strong>Skills Coverage</strong>
+          <div class="muted">Required skills present</div>
+        </div>
+        <div class="sb-right">
+          <span class="sb-num">14/18</span>
+          <div class="sb-bar"><div class="sb-in" style="width:78%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-split mt-18">
+      <div class="pcol">
+        <h3 class="panel-title">Extracted Skills</h3>
+        <div class="chipgrid mt-10">
+          <span class="chipx">React</span>
+          <span class="chipx">TypeScript</span>
+          <span class="chipx">REST API</span>
+          <span class="chipx">Tailwind</span>
+          <span class="chipx">Git</span>
+          <span class="chipx">UI</span>
+        </div>
+      </div>
+
+      <div class="pcol">
+        <h3 class="panel-title">Missing Keywords</h3>
+        <div class="chipgrid mt-10">
+          <span class="chipx warn">Testing</span>
+          <span class="chipx warn">Accessibility</span>
+          <span class="chipx warn">CI/CD</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-18">
+      <div class="panel-head" style="padding:0; border:0;">
+        <h3 class="panel-title">Recruiter Notes</h3>
+        <span class="muted">Internal</span>
+      </div>
+
+      <textarea class="cd-notes mt-10" rows="5" placeholder="Write notes about this candidate..."></textarea>
+
+      <div class="cd-note-actions mt-10">
+        <button class="btnx btnx-primary" type="button">Save Notes</button>
+        <button class="btnx btnx-ghost" type="button">Add Tag</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Preview -->
+  <aside class="panel cd-side">
+    <div class="panel-head">
+      <h3 class="panel-title">Resume Preview</h3>
+      <span class="tag">PDF</span>
+    </div>
+
+    <div class="prev mt-12">
+      <div class="prev-sheet">
+        <div class="prev-line w80"></div>
+        <div class="prev-line w60"></div>
+        <div class="prev-line w90"></div>
+        <div class="prev-gap"></div>
+        <div class="prev-line w70"></div>
+        <div class="prev-line w85"></div>
+        <div class="prev-line w50"></div>
+        <div class="prev-gap"></div>
+        <div class="prev-line w95"></div>
+        <div class="prev-line w75"></div>
+        <div class="prev-line w65"></div>
+      </div>
+      <div class="muted" style="font-size:13px; margin-top:10px;">
+        Preview is mocked for frontend. Backend will render real PDF later.
+      </div>
+    </div>
+
+    <div class="mt-18">
+      <div class="panel-head" style="padding:0; border:0;">
+        <h3 class="panel-title">Hiring Timeline</h3>
+        <span class="muted">Stage</span>
+      </div>
+
+      <div class="timeline mt-12">
+        <div class="tl-item">
+          <span class="tl-dot"></span>
+          <div>
+            <strong>Applied</strong>
+            <div class="muted">2 days ago</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <span class="tl-dot"></span>
+          <div>
+            <strong>Screening</strong>
+            <div class="muted">Pending</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <span class="tl-dot off"></span>
+          <div>
+            <strong>Interview</strong>
+            <div class="muted">Not scheduled</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <span class="tl-dot off"></span>
+          <div>
+            <strong>Offer</strong>
+            <div class="muted">—</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btnx btnx-primary btnx-block mt-14" type="button">Move to Screening →</button>
+    </div>
+  </aside>
+</section>
+
+{% endblock %}

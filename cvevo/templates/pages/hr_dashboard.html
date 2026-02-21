@@ -1,0 +1,173 @@
+{% extends "base_app.html" %}
+{% block title %}HR Dashboard • CVevo{% endblock %}
+
+{% block content %}
+
+<!-- HR HEADER -->
+<section class="ru-head" style="margin-bottom: 2rem;">
+  <div>
+    <h2 class="ru-title">HR Overview</h2>
+    <p class="ru-sub">Track your candidate pipeline and job performance.</p>
+  </div>
+
+  <div class="actions-row">
+    <a class="btn btn-primary" href="{% url 'hr_create_job' %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px; height:18px;">
+        <path d="M12 5v14M5 12h14" />
+      </svg>
+      Post New Job
+    </a>
+  </div>
+</section>
+
+<!-- QUICK ACTIONS (Simplified) -->
+<div class="actions-row" style="margin-bottom: 2rem;">
+  <a class="btn btn-ghost" href="{% url 'hr_resume_upload' %}">Bulk Upload Resumes</a>
+  <a class="btn btn-ghost" href="{% url 'hr_manage_jobs' %}">Manage All Jobs</a>
+</div>
+
+<!-- TOP METRICS -->
+<section class="section">
+  <div class="grid grid-4">
+    <article class="card kpi">
+      <div class="kpi-body">
+        <div class="kpi-label">Open Jobs</div>
+        <div class="kpi-value">6</div>
+        <div class="kpi-sub">+2 this week</div>
+      </div>
+    </article>
+
+    <article class="card kpi">
+      <div class="kpi-body">
+        <div class="kpi-label">New Candidates</div>
+        <div class="kpi-value">48</div>
+        <div class="kpi-sub">Last 7 days</div>
+      </div>
+    </article>
+
+    <article class="card kpi">
+      <div class="kpi-body">
+        <div class="kpi-label">Shortlisted</div>
+        <div class="kpi-value">12</div>
+        <div class="kpi-sub">Ready to interview</div>
+      </div>
+    </article>
+
+    <article class="card kpi">
+      <div class="kpi-body">
+        <div class="kpi-label">Avg ATS Score</div>
+        <div class="kpi-value">73%</div>
+        <div class="kpi-sub">Across recent uploads</div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- MAIN CONTENT GRID -->
+<div class="grid grid-2" style="margin-top: 2rem;">
+  <!-- Job Posts Table -->
+  <section class="card pad-lg">
+    <div class="card-head">
+      <h3 class="card-title">Active Job Posts</h3>
+      <a class="small-link" href="{% url 'hr_manage_jobs' %}">View all →</a>
+    </div>
+
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ROLE</th>
+            <th>STATUS</th>
+            <th>CANDIDATES</th>
+            <th>TOP SCORE</th>
+            <th class="th-right">ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight: 500;">Frontend Developer</td>
+            <td><span class="status ok">Open</span></td>
+            <td class="muted">62</td>
+            <td><span class="status soft">91%</span></td>
+            <td class="td-right">
+              <button class="ticon" title="Edit">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  style="width:16px; height:16px;">
+                  <path
+                    d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td style="font-weight: 500;">UI/UX Intern</td>
+            <td><span class="status ok">Open</span></td>
+            <td class="muted">28</td>
+            <td><span class="status soft">84%</span></td>
+            <td class="td-right">
+              <button class="ticon" title="Edit">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  style="width:16px; height:16px;">
+                  <path
+                    d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Side Panel -->
+  <div class="stack">
+    <article class="card pad-lg">
+      <h3 class="card-title">Candidate Funnel</h3>
+      <div class="list" style="margin-top: 1rem;">
+        <div class="list-item">
+          <div>
+            <div class="list-title">Applied</div>
+            <div class="list-sub">128 candidates</div>
+          </div>
+          <span class="status soft">100%</span>
+        </div>
+        <div class="list-item">
+          <div>
+            <div class="list-title">Screening</div>
+            <div class="list-sub">46 candidates</div>
+          </div>
+          <span class="status soft">36%</span>
+        </div>
+        <div class="list-item">
+          <div>
+            <div class="list-title">Interview</div>
+            <div class="list-sub">18 candidates</div>
+          </div>
+          <span class="status soft">14%</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="card pad-lg">
+      <h3 class="card-title">Recent Activity</h3>
+      <div class="list" style="margin-top: 1rem;">
+        <div class="list-item">
+          <div>
+            <div class="list-title">Garima Karki</div>
+            <div class="list-sub">Uploaded a resume • 10m ago</div>
+          </div>
+          <span class="status soft">Parsed</span>
+        </div>
+        <div class="list-item">
+          <div>
+            <div class="list-title">Product Designer</div>
+            <div class="list-sub">New job post created • 2h ago</div>
+          </div>
+          <span class="status ok">Live</span>
+        </div>
+      </div>
+    </article>
+  </div>
+</div>
+
+{% endblock %}

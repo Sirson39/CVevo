@@ -1,0 +1,38 @@
+{% extends "base_app.html" %}
+{% load static %}
+{% block title %}Export & Downloads • CVevo{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'cvevo/css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<header class="ex-head">
+  <h1 class="ex-h1">Export & Downloads</h1>
+</header>
+
+<section class="card ex-card">
+  <h2 class="ex-title">Export Settings</h2>
+
+  <div class="ex-options">
+    <label class="ex-opt">
+      <input type="checkbox" checked>
+      <span class="ex-box"></span>
+      <span class="ex-text">Include contact information</span>
+    </label>
+
+    <label class="ex-opt">
+      <input type="checkbox" checked>
+      <span class="ex-box"></span>
+      <span class="ex-text">Include skills section</span>
+    </label>
+  </div>
+
+  <div class="ex-actions">
+    <button class="btn btn-primary ex-btn" type="button">Export PDF</button>
+    <button class="btn ex-btn" type="button">Export DOCX</button>
+  </div>
+</section>
+
+{% endblock %}

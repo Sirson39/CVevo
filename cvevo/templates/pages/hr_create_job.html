@@ -1,0 +1,149 @@
+{% extends "app_shell.html" %}
+{% block title %}CVevo • Create Job{% endblock %}
+
+{% block app_content %}
+
+<section class="cj-head">
+  <div>
+    <h2 class="h2x">Create Job Description</h2>
+    <p class="muted">Create a job post and start ranking candidates instantly.</p>
+  </div>
+
+  <div class="cj-actions">
+    <button class="btnx btnx-ghost" type="button">Save Draft</button>
+    <button class="btnx btnx-primary" type="button">Publish Job</button>
+  </div>
+</section>
+
+<section class="grid-2 mt-18">
+  <!-- Left: Form -->
+  <div class="panel">
+    <div class="panel-head">
+      <h3 class="panel-title">Job Details</h3>
+      <span class="muted">Required fields</span>
+    </div>
+
+    <div class="form2 mt-10">
+      <div class="row2">
+        <label class="f2">
+          <span>Job Title</span>
+          <input class="in2" type="text" placeholder="e.g., Frontend Developer" />
+        </label>
+        <label class="f2">
+          <span>Location</span>
+          <input class="in2" type="text" placeholder="Remote / Kathmandu" />
+        </label>
+      </div>
+
+      <div class="row2">
+        <label class="f2">
+          <span>Employment Type</span>
+          <select class="in2">
+            <option selected>Full-time</option>
+            <option>Part-time</option>
+            <option>Internship</option>
+            <option>Contract</option>
+          </select>
+        </label>
+        <label class="f2">
+          <span>Experience Level</span>
+          <select class="in2">
+            <option selected>Mid (1–3 years)</option>
+            <option>Junior (0–1 years)</option>
+            <option>Senior (4+ years)</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="row2">
+        <label class="f2">
+          <span>Salary Range (optional)</span>
+          <input class="in2" type="text" placeholder="e.g., ₹6–10 LPA / Negotiable" />
+        </label>
+
+        <label class="f2">
+          <span>Application Deadline</span>
+          <input class="in2" type="date" />
+        </label>
+      </div>
+    </div>
+
+    <div class="cj-split mt-18">
+      <div>
+        <div class="cj-label">Job Description</div>
+        <textarea class="cj-editor" rows="10" placeholder="Write the job description here..."></textarea>
+
+        <div class="cj-editor-actions">
+          <button class="btnx btnx-primary" type="button">✨ Generate JD (AI)</button>
+          <button class="btnx btnx-ghost" type="button">Insert Template</button>
+          <button class="btnx btnx-ghost" type="button">Clear</button>
+        </div>
+
+        <div class="muted cj-hint">
+          Tip: Include responsibilities, requirements, and keywords for better ranking accuracy.
+        </div>
+      </div>
+    </div>
+
+    <!-- Skills chips -->
+    <div class="cj-skills mt-18">
+      <div class="panel-head" style="padding:0; border:0;">
+        <h3 class="panel-title">Required Skills</h3>
+        <span class="muted">Add keywords</span>
+      </div>
+
+      <div class="skill-add mt-10">
+        <input class="in2" type="text" placeholder="Type a skill and press Add" />
+        <button class="btnx btnx-primary" type="button">Add</button>
+      </div>
+
+      <div class="skill-chips mt-10">
+        <span class="schip">React <button type="button">×</button></span>
+        <span class="schip">TypeScript <button type="button">×</button></span>
+        <span class="schip">REST API <button type="button">×</button></span>
+        <span class="schip">Tailwind <button type="button">×</button></span>
+        <span class="schip">Testing <button type="button">×</button></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Preview -->
+  <aside class="panel cj-preview">
+    <div class="panel-head">
+      <h3 class="panel-title">Live Preview</h3>
+      <span class="tag tag-green">ATS-ready</span>
+    </div>
+
+    <div class="cj-prev-body">
+      <div class="cj-prev-title">Frontend Developer</div>
+      <div class="muted cj-prev-sub">Remote • Full-time • Mid (1–3 years)</div>
+
+      <div class="cj-prev-sec">
+        <h4>Overview</h4>
+        <p class="muted">
+          We are looking for a Frontend Developer to build modern, fast, and accessible UI experiences.
+        </p>
+      </div>
+
+      <div class="cj-prev-sec">
+        <h4>Responsibilities</h4>
+        <ul class="cj-ul">
+          <li>Build responsive UI with React.</li>
+          <li>Integrate APIs and handle state cleanly.</li>
+          <li>Work with designers to deliver polished UX.</li>
+        </ul>
+      </div>
+
+      <div class="cj-prev-sec">
+        <h4>Required Skills</h4>
+        <div class="cj-tags">
+          <span>React</span><span>TypeScript</span><span>REST</span><span>Tailwind</span>
+        </div>
+      </div>
+
+      <button class="btnx btnx-primary btnx-block mt-18" type="button">Publish Job</button>
+    </div>
+  </aside>
+</section>
+
+{% endblock %}

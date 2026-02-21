@@ -1,0 +1,41 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{% block title %}CVevo{% endblock %}</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+
+  <!-- (Optional) global tokens -->
+  <link rel="stylesheet" href="{% static 'cvevo/css/styles.css' %}">
+
+  <!-- Dashboard/App layout css -->
+  <link rel="stylesheet" href="{% static 'cvevo/css/dashboard.css' %}">
+
+  {% block extra_head %}{% endblock %}
+</head>
+
+<body class="app-body">
+  <div class="app">
+    {% include "partials/sidebar.html" %}
+
+    <div class="main">
+      {% include "partials/topbar.html" %}
+
+      <main class="content">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+
+  <script src="{% static 'cvevo/js/app.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+
+</html>

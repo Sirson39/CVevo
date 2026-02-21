@@ -1,0 +1,202 @@
+{% extends "app_shell.html" %}
+{% block title %}CVevo • Candidate Ranking{% endblock %}
+
+{% block app_content %}
+
+<section class="cr-head">
+  <div>
+    <h2 class="h2x">Candidate Ranking</h2>
+    <p class="muted">Compare candidates by ATS score, job match, and skill fit.</p>
+  </div>
+
+  <div class="cr-actions">
+    <button class="btnx btnx-ghost" type="button">Export Ranking</button>
+    <button class="btnx btnx-primary" type="button">+ Add Candidates</button>
+  </div>
+</section>
+
+<!-- Filters -->
+<section class="cr-filters mt-18">
+  <div class="cr-search">
+    <span class="cr-ico">🔎</span>
+    <input type="text" placeholder="Search candidate name, skill, role..." />
+  </div>
+
+  <div class="cr-controls">
+    <select class="cr-select">
+      <option selected>Job: Frontend Developer</option>
+      <option>Job: Backend Engineer</option>
+      <option>Job: Data Analyst</option>
+      <option>All Jobs</option>
+    </select>
+
+    <select class="cr-select">
+      <option selected>Min Score: 60</option>
+      <option>Min Score: 70</option>
+      <option>Min Score: 80</option>
+      <option>Min Score: 90</option>
+    </select>
+
+    <button class="btnx btnx-ghost" type="button">Advanced Filters</button>
+  </div>
+</section>
+
+<!-- Top candidates quick cards -->
+<section class="cr-top mt-12">
+  <article class="cr-card">
+    <div class="cr-card-top">
+      <div class="cr-ava">SS</div>
+      <div>
+        <div class="cr-name">Sabin Shrestha</div>
+        <div class="muted cr-role">Frontend Developer</div>
+      </div>
+      <span class="tag tag-green">82</span>
+    </div>
+    <div class="cr-meta">
+      <span class="tag">Match 88%</span>
+      <span class="tag">React</span>
+      <span class="tag">TypeScript</span>
+      <span class="tag">API</span>
+    </div>
+    <div class="cr-btns">
+      <button class="btnx btnx-ghost sm" type="button">Shortlist</button>
+      <button class="btnx btnx-primary sm" type="button">View</button>
+    </div>
+  </article>
+
+  <article class="cr-card">
+    <div class="cr-card-top">
+      <div class="cr-ava">GK</div>
+      <div>
+        <div class="cr-name">Garima Karki</div>
+        <div class="muted cr-role">UI/UX Intern</div>
+      </div>
+      <span class="tag">76</span>
+    </div>
+    <div class="cr-meta">
+      <span class="tag">Match 74%</span>
+      <span class="tag">Figma</span>
+      <span class="tag">UX</span>
+      <span class="tag">Portfolio</span>
+    </div>
+    <div class="cr-btns">
+      <button class="btnx btnx-ghost sm" type="button">Shortlist</button>
+      <button class="btnx btnx-primary sm" type="button">View</button>
+    </div>
+  </article>
+
+  <article class="cr-card">
+    <div class="cr-card-top">
+      <div class="cr-ava">AK</div>
+      <div>
+        <div class="cr-name">Aisha Khan</div>
+        <div class="muted cr-role">Data Analyst</div>
+      </div>
+      <span class="tag tag-green">84</span>
+    </div>
+    <div class="cr-meta">
+      <span class="tag">Match 81%</span>
+      <span class="tag">SQL</span>
+      <span class="tag">Python</span>
+      <span class="tag">Dashboards</span>
+    </div>
+    <div class="cr-btns">
+      <button class="btnx btnx-ghost sm" type="button">Shortlist</button>
+      <button class="btnx btnx-primary sm" type="button">View</button>
+    </div>
+  </article>
+</section>
+
+<!-- Leaderboard table -->
+<section class="panel mt-18">
+  <div class="panel-head">
+    <h3 class="panel-title">Leaderboard</h3>
+    <div class="table-actions">
+      <button class="btnx btnx-ghost" type="button">Sort</button>
+      <button class="btnx btnx-ghost" type="button">Download CSV</button>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Candidate</th>
+          <th>Job</th>
+          <th>ATS Score</th>
+          <th>Match</th>
+          <th>Top Skills</th>
+          <th style="text-align:right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="rank">1</span></td>
+          <td>
+            <div class="t-main">Nina Joshi</div>
+            <div class="muted t-sub">Full-stack</div>
+          </td>
+          <td class="muted">Frontend Developer</td>
+          <td><span class="score">91</span></td>
+          <td><span class="tag tag-green">92%</span></td>
+          <td class="muted">React, Node, SQL</td>
+          <td style="text-align:right;">
+            <button class="btnx btnx-ghost sm" type="button">Shortlist</button>
+            <button class="btnx btnx-primary sm" type="button">View</button>
+          </td>
+        </tr>
+
+        <tr>
+          <td><span class="rank">2</span></td>
+          <td>
+            <div class="t-main">Sabin Shrestha</div>
+            <div class="muted t-sub">Frontend Developer</div>
+          </td>
+          <td class="muted">Frontend Developer</td>
+          <td><span class="score">82</span></td>
+          <td><span class="tag">88%</span></td>
+          <td class="muted">React, TypeScript, APIs</td>
+          <td style="text-align:right;">
+            <button class="btnx btnx-ghost sm" type="button">Shortlist</button>
+            <button class="btnx btnx-primary sm" type="button">View</button>
+          </td>
+        </tr>
+
+        <tr>
+          <td><span class="rank">3</span></td>
+          <td>
+            <div class="t-main">Aisha Khan</div>
+            <div class="muted t-sub">Data Analyst</div>
+          </td>
+          <td class="muted">Data Analyst</td>
+          <td><span class="score">84</span></td>
+          <td><span class="tag">81%</span></td>
+          <td class="muted">SQL, Python, Tableau</td>
+          <td style="text-align:right;">
+            <button class="btnx btnx-ghost sm" type="button">Shortlist</button>
+            <button class="btnx btnx-primary sm" type="button">View</button>
+          </td>
+        </tr>
+
+        <tr>
+          <td><span class="rank">4</span></td>
+          <td>
+            <div class="t-main">Garima Karki</div>
+            <div class="muted t-sub">UI/UX Intern</div>
+          </td>
+          <td class="muted">UI/UX Intern</td>
+          <td><span class="score">76</span></td>
+          <td><span class="tag">74%</span></td>
+          <td class="muted">Figma, UX, Wireframes</td>
+          <td style="text-align:right;">
+            <button class="btnx btnx-ghost sm" type="button">Shortlist</button>
+            <button class="btnx btnx-primary sm" type="button">View</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+{% endblock %}

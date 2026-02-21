@@ -1,0 +1,149 @@
+{% extends "app_shell.html" %}
+{% block title %}CVevo • Manage Job Posts{% endblock %}
+
+{% block app_content %}
+
+<section class="mj-head">
+  <div>
+    <h2 class="h2x">Manage Job Posts</h2>
+    <p class="muted">Edit, close, and track performance of your postings.</p>
+  </div>
+
+  <div class="mj-actions">
+    <button class="btnx btnx-ghost" type="button">Export</button>
+    <button class="btnx btnx-primary" type="button">+ New Job</button>
+  </div>
+</section>
+
+<!-- Filters -->
+<section class="mj-filters mt-18">
+  <div class="mj-search">
+    <span class="mj-ico">🔎</span>
+    <input type="text" placeholder="Search job title, location..." />
+  </div>
+
+  <div class="mj-controls">
+    <select class="mj-select">
+      <option selected>All Status</option>
+      <option>Active</option>
+      <option>Draft</option>
+      <option>Closed</option>
+    </select>
+
+    <select class="mj-select">
+      <option selected>Sort: Newest</option>
+      <option>Sort: Oldest</option>
+      <option>Sort: Applicants</option>
+      <option>Sort: Avg Score</option>
+    </select>
+
+    <button class="btnx btnx-ghost" type="button">Filter</button>
+  </div>
+</section>
+
+<!-- Summary mini stats -->
+<section class="mj-mini mt-12">
+  <div class="mj-mini-card">
+    <div class="muted">Active</div>
+    <div class="mj-mini-num">5</div>
+  </div>
+  <div class="mj-mini-card">
+    <div class="muted">Draft</div>
+    <div class="mj-mini-num">2</div>
+  </div>
+  <div class="mj-mini-card">
+    <div class="muted">Closed</div>
+    <div class="mj-mini-num">9</div>
+  </div>
+  <div class="mj-mini-card">
+    <div class="muted">Total Applicants</div>
+    <div class="mj-mini-num">128</div>
+  </div>
+</section>
+
+<!-- Jobs list -->
+<section class="mj-list mt-18">
+  <!-- Job row -->
+  <article class="mj-card">
+    <div class="mj-left">
+      <div class="mj-title">Frontend Developer</div>
+      <div class="mj-sub muted">Remote • Full-time • Mid • Posted 2 days ago</div>
+
+      <div class="mj-badges">
+        <span class="tag tag-green">Active</span>
+        <span class="tag">46 applicants</span>
+        <span class="tag">Avg score: 78</span>
+        <span class="tag">Updated: Today</span>
+      </div>
+    </div>
+
+    <div class="mj-right">
+      <button class="btnx btnx-ghost sm" type="button">View</button>
+      <button class="btnx btnx-ghost sm" type="button">Edit</button>
+      <button class="btnx btnx-ghost sm" type="button">Close</button>
+      <button class="btnx btnx-danger sm" type="button">Delete</button>
+    </div>
+  </article>
+
+  <article class="mj-card">
+    <div class="mj-left">
+      <div class="mj-title">Backend Engineer</div>
+      <div class="mj-sub muted">Remote • Full-time • Mid • Created Today</div>
+
+      <div class="mj-badges">
+        <span class="tag">Draft</span>
+        <span class="tag">0 applicants</span>
+        <span class="tag">Avg score: —</span>
+        <span class="tag">Updated: Today</span>
+      </div>
+    </div>
+
+    <div class="mj-right">
+      <button class="btnx btnx-ghost sm" type="button">Edit</button>
+      <button class="btnx btnx-primary sm" type="button">Publish</button>
+      <button class="btnx btnx-danger sm" type="button">Delete</button>
+    </div>
+  </article>
+
+  <article class="mj-card">
+    <div class="mj-left">
+      <div class="mj-title">Data Analyst</div>
+      <div class="mj-sub muted">Hybrid • Full-time • Junior • Posted 6 days ago</div>
+
+      <div class="mj-badges">
+        <span class="tag tag-green">Active</span>
+        <span class="tag">32 applicants</span>
+        <span class="tag">Avg score: 75</span>
+        <span class="tag">Updated: 2 days ago</span>
+      </div>
+    </div>
+
+    <div class="mj-right">
+      <button class="btnx btnx-ghost sm" type="button">View</button>
+      <button class="btnx btnx-ghost sm" type="button">Edit</button>
+      <button class="btnx btnx-ghost sm" type="button">Close</button>
+    </div>
+  </article>
+
+  <article class="mj-card">
+    <div class="mj-left">
+      <div class="mj-title">UI/UX Intern</div>
+      <div class="mj-sub muted">On-site • Internship • Posted 3 weeks ago</div>
+
+      <div class="mj-badges">
+        <span class="tag">Closed</span>
+        <span class="tag">18 applicants</span>
+        <span class="tag">Avg score: 71</span>
+        <span class="tag">Updated: 1 week ago</span>
+      </div>
+    </div>
+
+    <div class="mj-right">
+      <button class="btnx btnx-ghost sm" type="button">View</button>
+      <button class="btnx btnx-ghost sm" type="button">Re-open</button>
+      <button class="btnx btnx-danger sm" type="button">Delete</button>
+    </div>
+  </article>
+</section>
+
+{% endblock %}

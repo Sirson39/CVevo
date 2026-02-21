@@ -1,0 +1,210 @@
+{% extends "app_shell.html" %}
+{% block title %}CVevo • Resume Upload{% endblock %}
+
+{% block app_content %}
+
+<section class="ru-head">
+  <div>
+    <h2 class="h2x">Resume Upload</h2>
+    <p class="muted">Upload candidate resumes and let CVevo parse + score them.</p>
+  </div>
+
+  <div class="ru-actions">
+    <button class="btnx btnx-ghost" type="button">Download Template</button>
+    <button class="btnx btnx-primary" type="button">Bulk Upload</button>
+  </div>
+</section>
+
+<!-- Status -->
+<section class="ru-stats mt-18">
+  <article class="ru-stat">
+    <div class="ru-k muted">Parsed</div>
+    <div class="ru-v">24</div>
+    <div class="ru-s muted">Ready for ranking</div>
+  </article>
+
+  <article class="ru-stat">
+    <div class="ru-k muted">Pending</div>
+    <div class="ru-v">6</div>
+    <div class="ru-s muted">Processing now</div>
+  </article>
+
+  <article class="ru-stat">
+    <div class="ru-k muted">Failed</div>
+    <div class="ru-v">2</div>
+    <div class="ru-s muted">Needs re-upload</div>
+  </article>
+
+  <article class="ru-stat">
+    <div class="ru-k muted">Avg Score</div>
+    <div class="ru-v">73</div>
+    <div class="ru-s muted">Across last 30</div>
+  </article>
+</section>
+
+<section class="grid-2 mt-18">
+  <!-- Upload box -->
+  <div class="panel">
+    <div class="panel-head">
+      <h3 class="panel-title">Upload Resumes</h3>
+      <span class="muted">PDF / DOC / DOCX</span>
+    </div>
+
+    <div class="dropbox mt-12" role="button" tabindex="0" aria-label="Upload resumes">
+      <div class="drop-ic">⬆️</div>
+      <div class="drop-title">Drag & drop resumes here</div>
+      <div class="muted drop-sub">or click to browse files</div>
+
+      <div class="drop-actions">
+        <button class="btnx btnx-primary" type="button">Choose Files</button>
+        <button class="btnx btnx-ghost" type="button">Upload</button>
+      </div>
+    </div>
+
+    <!-- Fake progress UI -->
+    <div class="upload-list mt-14">
+      <div class="urow">
+        <div class="ufile">
+          <div class="uf-ic">📄</div>
+          <div>
+            <div class="uf-name">Sabin_Shrestha_Resume.pdf</div>
+            <div class="muted uf-sub">1.2 MB • Parsing...</div>
+          </div>
+        </div>
+        <div class="ubar">
+          <div class="ubar-in" style="width:72%"></div>
+        </div>
+        <span class="tag">72%</span>
+      </div>
+
+      <div class="urow">
+        <div class="ufile">
+          <div class="uf-ic">📄</div>
+          <div>
+            <div class="uf-name">Garima_Karki_CV.docx</div>
+            <div class="muted uf-sub">0.9 MB • Completed</div>
+          </div>
+        </div>
+        <div class="ubar">
+          <div class="ubar-in ok" style="width:100%"></div>
+        </div>
+        <span class="tag tag-green">Done</span>
+      </div>
+
+      <div class="urow">
+        <div class="ufile">
+          <div class="uf-ic">📄</div>
+          <div>
+            <div class="uf-name">Aisha_Khan.pdf</div>
+            <div class="muted uf-sub">1.8 MB • Failed</div>
+          </div>
+        </div>
+        <div class="ubar">
+          <div class="ubar-in bad" style="width:36%"></div>
+        </div>
+        <span class="tag" style="background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.22);color:#ef4444;">Failed</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tips / Rules -->
+  <aside class="panel">
+    <div class="panel-head">
+      <h3 class="panel-title">Upload Tips</h3>
+      <span class="muted">Better parsing</span>
+    </div>
+
+    <div class="tips mt-12">
+      <div class="tip">
+        <div class="tip-ic">✅</div>
+        <div>
+          <strong>Use ATS-friendly resumes</strong>
+          <div class="muted">Avoid heavy graphics and multi-column layouts.</div>
+        </div>
+      </div>
+      <div class="tip">
+        <div class="tip-ic">📌</div>
+        <div>
+          <strong>Consistent file names</strong>
+          <div class="muted">e.g., Name_Role_Resume.pdf</div>
+        </div>
+      </div>
+      <div class="tip">
+        <div class="tip-ic">🔒</div>
+        <div>
+          <strong>Privacy by default</strong>
+          <div class="muted">You control exports and sharing.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note-box mt-14">
+      <strong>Next step:</strong> Go to Candidate Ranking to see scored candidates.
+    </div>
+
+    <button class="btnx btnx-primary btnx-block mt-14" type="button">Go to Candidate Ranking →</button>
+  </aside>
+</section>
+
+<!-- Recent uploads table -->
+<section class="panel mt-18">
+  <div class="panel-head">
+    <h3 class="panel-title">Recent Uploads</h3>
+    <div class="table-actions">
+      <button class="btnx btnx-ghost" type="button">Filter</button>
+      <button class="btnx btnx-ghost" type="button">Export</button>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>Candidate</th>
+          <th>File</th>
+          <th>Status</th>
+          <th>Score</th>
+          <th>Uploaded</th>
+          <th style="text-align:right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div class="t-main">Garima Karki</div><div class="muted t-sub">UI/UX Intern</div></td>
+          <td class="muted">Garima_Karki_CV.docx</td>
+          <td><span class="tag tag-green">Parsed</span></td>
+          <td><span class="score">76</span></td>
+          <td class="muted">10 min ago</td>
+          <td style="text-align:right;">
+            <button class="btnx btnx-ghost sm" type="button">View</button>
+            <button class="btnx btnx-ghost sm" type="button">Rank</button>
+          </td>
+        </tr>
+
+        <tr>
+          <td><div class="t-main">Sabin Shrestha</div><div class="muted t-sub">Frontend Developer</div></td>
+          <td class="muted">Sabin_Shrestha_Resume.pdf</td>
+          <td><span class="tag">Pending</span></td>
+          <td class="muted">—</td>
+          <td class="muted">2 hours ago</td>
+          <td style="text-align:right;">
+            <button class="btnx btnx-ghost sm" type="button">Retry</button>
+          </td>
+        </tr>
+
+        <tr>
+          <td><div class="t-main">Aisha Khan</div><div class="muted t-sub">Data Analyst</div></td>
+          <td class="muted">Aisha_Khan.pdf</td>
+          <td><span class="tag" style="background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.22);color:#ef4444;">Failed</span></td>
+          <td class="muted">—</td>
+          <td class="muted">Yesterday</td>
+          <td style="text-align:right;">
+            <button class="btnx btnx-ghost sm" type="button">Re-upload</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+{% endblock %}

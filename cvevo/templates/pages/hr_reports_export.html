@@ -1,0 +1,231 @@
+{% extends "app_shell.html" %}
+{% block title %}CVevo • Reports & Exports{% endblock %}
+
+{% block app_content %}
+
+<section class="rp-head">
+  <div>
+    <h2 class="h2x">Reports & Exports</h2>
+    <p class="muted">Export candidate rankings, view summaries, and share with your team.</p>
+  </div>
+
+  <div class="rp-actions">
+    <button class="btnx btnx-ghost" type="button">Schedule Report</button>
+    <button class="btnx btnx-primary" type="button">Download Ranking CSV</button>
+  </div>
+</section>
+
+<!-- Filters -->
+<section class="rp-filters mt-18">
+  <div class="rp-search">
+    <span class="rp-ico">🔎</span>
+    <input type="text" placeholder="Search job / candidate / keyword..." />
+  </div>
+
+  <div class="rp-controls">
+    <select class="rp-select">
+      <option selected>Job: Frontend Developer</option>
+      <option>Job: Backend Engineer</option>
+      <option>Job: Data Analyst</option>
+      <option>All Jobs</option>
+    </select>
+
+    <select class="rp-select">
+      <option selected>Range: Last 7 days</option>
+      <option>Last 30 days</option>
+      <option>This month</option>
+      <option>Custom</option>
+    </select>
+
+    <label class="rp-check">
+      <input type="checkbox" />
+      <span>Shortlisted only</span>
+    </label>
+
+    <button class="btnx btnx-ghost" type="button">Apply</button>
+  </div>
+</section>
+
+<!-- Report cards -->
+<section class="rp-grid mt-18">
+  <article class="panel rp-card">
+    <div class="panel-head">
+      <h3 class="panel-title">Top Candidates</h3>
+      <span class="tag tag-green">Summary</span>
+    </div>
+
+    <div class="rp-kpis">
+      <div class="rp-kpi">
+        <div class="muted">Highest ATS</div>
+        <div class="rp-num">91</div>
+      </div>
+      <div class="rp-kpi">
+        <div class="muted">Avg ATS</div>
+        <div class="rp-num">73</div>
+      </div>
+      <div class="rp-kpi">
+        <div class="muted">Shortlisted</div>
+        <div class="rp-num">12</div>
+      </div>
+    </div>
+
+    <div class="rp-list">
+      <div class="rp-row">
+        <div>
+          <strong>Nina Joshi</strong>
+          <div class="muted">Frontend Developer</div>
+        </div>
+        <span class="tag tag-green">91</span>
+      </div>
+      <div class="rp-row">
+        <div>
+          <strong>Aisha Khan</strong>
+          <div class="muted">Data Analyst</div>
+        </div>
+        <span class="tag">84</span>
+      </div>
+      <div class="rp-row">
+        <div>
+          <strong>Sabin Shrestha</strong>
+          <div class="muted">Frontend Developer</div>
+        </div>
+        <span class="tag">82</span>
+      </div>
+    </div>
+
+    <div class="rp-card-actions mt-14">
+      <button class="btnx btnx-ghost sm" type="button">Download PDF</button>
+      <button class="btnx btnx-primary sm" type="button">Download CSV</button>
+    </div>
+  </article>
+
+  <article class="panel rp-card">
+    <div class="panel-head">
+      <h3 class="panel-title">Skills Gap</h3>
+      <span class="tag">Insights</span>
+    </div>
+
+    <div class="rp-chart">
+      <div class="bar"><span style="width:78%"></span><label>React</label><em>78%</em></div>
+      <div class="bar"><span style="width:62%"></span><label>TypeScript</label><em>62%</em></div>
+      <div class="bar"><span style="width:44%"></span><label>Testing</label><em>44%</em></div>
+      <div class="bar"><span style="width:38%"></span><label>Accessibility</label><em>38%</em></div>
+    </div>
+
+    <div class="note-box mt-14">
+      <strong>Suggestion:</strong> Add “Testing + Accessibility” to the job description to improve filtering.
+    </div>
+
+    <div class="rp-card-actions mt-14">
+      <button class="btnx btnx-ghost sm" type="button">Export Skills</button>
+      <button class="btnx btnx-primary sm" type="button">View Candidates</button>
+    </div>
+  </article>
+
+  <article class="panel rp-card">
+    <div class="panel-head">
+      <h3 class="panel-title">Hiring Pipeline</h3>
+      <span class="tag">Stages</span>
+    </div>
+
+    <div class="rp-pipe">
+      <div class="pipe-item">
+        <div class="pipe-top">
+          <strong>Applied</strong>
+          <span class="tag">128</span>
+        </div>
+        <div class="pipe-bar"><div style="width:100%"></div></div>
+      </div>
+
+      <div class="pipe-item">
+        <div class="pipe-top">
+          <strong>Screening</strong>
+          <span class="tag">46</span>
+        </div>
+        <div class="pipe-bar"><div style="width:36%"></div></div>
+      </div>
+
+      <div class="pipe-item">
+        <div class="pipe-top">
+          <strong>Interview</strong>
+          <span class="tag">18</span>
+        </div>
+        <div class="pipe-bar"><div style="width:14%"></div></div>
+      </div>
+
+      <div class="pipe-item">
+        <div class="pipe-top">
+          <strong>Offer</strong>
+          <span class="tag">4</span>
+        </div>
+        <div class="pipe-bar"><div style="width:3%"></div></div>
+      </div>
+    </div>
+
+    <div class="rp-card-actions mt-14">
+      <button class="btnx btnx-ghost sm" type="button">Download Summary</button>
+      <button class="btnx btnx-primary sm" type="button">Share</button>
+    </div>
+  </article>
+</section>
+
+<!-- Detailed export table -->
+<section class="panel mt-18">
+  <div class="panel-head">
+    <h3 class="panel-title">Export Preview</h3>
+    <div class="table-actions">
+      <button class="btnx btnx-ghost" type="button">Columns</button>
+      <button class="btnx btnx-ghost" type="button">Filters</button>
+      <button class="btnx btnx-primary" type="button">Download CSV</button>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Candidate</th>
+          <th>Job</th>
+          <th>ATS</th>
+          <th>Match</th>
+          <th>Stage</th>
+          <th style="text-align:right;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="rank">1</span></td>
+          <td><div class="t-main">Nina Joshi</div><div class="muted t-sub">Full-stack</div></td>
+          <td class="muted">Frontend Developer</td>
+          <td><span class="score">91</span></td>
+          <td><span class="tag tag-green">92%</span></td>
+          <td><span class="tag">Shortlisted</span></td>
+          <td style="text-align:right;"><button class="btnx btnx-ghost sm" type="button">Remove</button></td>
+        </tr>
+
+        <tr>
+          <td><span class="rank">2</span></td>
+          <td><div class="t-main">Sabin Shrestha</div><div class="muted t-sub">Frontend</div></td>
+          <td class="muted">Frontend Developer</td>
+          <td><span class="score">82</span></td>
+          <td><span class="tag">88%</span></td>
+          <td><span class="tag">Applied</span></td>
+          <td style="text-align:right;"><button class="btnx btnx-ghost sm" type="button">Remove</button></td>
+        </tr>
+
+        <tr>
+          <td><span class="rank">3</span></td>
+          <td><div class="t-main">Aisha Khan</div><div class="muted t-sub">Analyst</div></td>
+          <td class="muted">Data Analyst</td>
+          <td><span class="score">84</span></td>
+          <td><span class="tag">81%</span></td>
+          <td><span class="tag">Screening</span></td>
+          <td style="text-align:right;"><button class="btnx btnx-ghost sm" type="button">Remove</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+{% endblock %}

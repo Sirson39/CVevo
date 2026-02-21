@@ -1,0 +1,149 @@
+{% extends "base_app.html" %}
+{% block title %}Dashboard • CVevo{% endblock %}
+
+{% block content %}
+
+<!-- DASHBOARD HEADER -->
+<div class="ru-head" style="margin-bottom: 2rem;">
+  <div>
+    <h2 class="ru-title">Welcome back, {{ user.jobseeker_profile.full_name|default:user.email }}</h2>
+    <p class="ru-sub">Here's an overview of your resume performance and job matches.</p>
+  </div>
+  <div class="actions-row">
+    <a class="btn btn-primary" href="{% url 'resume_upload' %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px; height:18px;">
+        <path d="M12 3v10M7 8l5-5 5 5M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5" />
+      </svg>
+      Upload New Resume
+    </a>
+  </div>
+</div>
+
+<!-- TOP METRICS -->
+<section class="section">
+  <div class="grid grid-4">
+    <article class="card kpi">
+      <div class="kpi-body">
+        <div class="kpi-label">Average ATS Score</div>
+        <div class="kpi-value">--%</div>
+        <div class="kpi-sub">Across all resumes</div>
+      </div>
+    </article>
+
+    <article class="card kpi">
+      <div class="kpi-body">
+        <div class="kpi-label">Active Resumes</div>
+        <div class="kpi-value">{{ resumes.count }}</div>
+        <div class="kpi-sub">In your profile</div>
+      </div>
+    </article>
+
+    <article class="card kpi">
+      <div class="kpi-body">
+        <div class="kpi-label">Total Scans</div>
+        <div class="kpi-value">0</div>
+        <div class="kpi-sub">This month</div>
+      </div>
+    </article>
+
+    <article class="card kpi">
+      <div class="kpi-body">
+        <div class="kpi-label">Profile Strength</div>
+        <div class="kpi-value">Ready</div>
+        <div class="kpi-sub">All details complete</div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- MAIN CONTENT GRID -->
+<div class="grid grid-2" style="margin-top: 2rem;">
+  <!-- Resume History Table -->
+  <section class="card pad-lg">
+    <div class="card-head">
+      <h3 class="card-title">Resume History</h3>
+      <a class="small-link" href="{% url 'resume_upload' %}">Manage all →</a>
+    </div>
+
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>FILENAME</th>
+            <th>UPLOADED</th>
+            <th>SCORE</th>
+            <th class="th-right">ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for resume in resumes|slice:":5" %}
+          <tr>
+            <td style="font-weight: 500;">{{ resume.filename }}</td>
+            <td class="muted">{{ resume.uploaded_at|date:"M d, Y" }}</td>
+            <td><span class="status soft">--%</span></td>
+            <td class="td-right">
+              <a href="{{ resume.file.url }}" class="ticon" title="View" target="_blank">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  style="width:16px; height:16px;">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </a>
+              <a href="{% url 'analyze_resume' resume.id %}" class="ticon" title="Analyze">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  style="width:16px; height:16px;">
+                  <path d="M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z" />
+                </svg>
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="muted text-center" style="padding: 2rem;">No resumes found. <a
+                href="{% url 'resume_upload' %}">Upload one now</a>.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Side Panels -->
+  <div class="stack">
+    <!-- Analysis Placeholder -->
+    <article class="card pad-lg">
+      <h3 class="card-title">Quick Analysis</h3>
+      <p class="muted" style="margin-top: 0.5rem; font-size: 0.9rem;">Select a resume and a job description to get
+        instant feedback.</p>
+
+      <div class="divider"></div>
+
+      <button class="btn btn-primary wide" disabled>Start New Scan</button>
+      <p class="muted" style="text-align:center; font-size: 0.8rem; margin-top: 1rem;">Feature coming soon in Sprint 4
+      </p>
+    </article>
+
+    <!-- Quick Links -->
+    <article class="card pad-lg">
+      <h3 class="card-title">Tools & Resources</h3>
+      <div class="list" style="margin-top: 1rem;">
+        <a href="{% url 'resume_builder' %}" class="list-item">
+          <div>
+            <div class="list-title">Resume Builder</div>
+            <div class="list-sub">Create a professional resume from scratch.</div>
+          </div>
+          <span class="muted">→</span>
+        </a>
+        <a href="{% url 'templates_gallery' %}" class="list-item">
+          <div>
+            <div class="list-title">Template Gallery</div>
+            <div class="list-sub">Choose from verified ATS-friendly layouts.</div>
+          </div>
+          <span class="muted">→</span>
+        </a>
+      </div>
+    </article>
+  </div>
+</div>
+
+{% endblock %}

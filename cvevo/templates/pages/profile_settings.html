@@ -1,0 +1,66 @@
+{% extends "base_app.html" %}
+{% load static %}
+{% block title %}Profile & Settings • CVevo{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'cvevo/css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<header class="ps-head">
+  <div>
+    <div class="muted ps-kicker">Profile & Settings</div>
+    <h1 class="ps-h1">Profile & Settings</h1>
+    <p class="muted ps-sub">Manage your account information</p>
+  </div>
+</header>
+
+<section class="card ps-card">
+  <div class="ps-user">
+    <div class="ps-avatar">JD</div>
+    <div>
+      <div class="ps-name">John Doe</div>
+      <div class="ps-email muted">john.doe@email.com</div>
+    </div>
+  </div>
+
+  <div class="ps-form">
+    <div class="ps-field">
+      <label class="ps-label">Full Name</label>
+      <input class="ps-input" type="text" value="John Doe">
+    </div>
+
+    <div class="ps-field">
+      <label class="ps-label">Email</label>
+      <input class="ps-input" type="email" value="john.doe@email.com">
+    </div>
+  </div>
+</section>
+
+<section class="card ps-card">
+  <div class="ps-card-title">
+    <span class="ps-lock" aria-hidden="true">🔒</span>
+    <span>Change Password</span>
+  </div>
+
+  <div class="ps-form">
+    <div class="ps-field">
+      <input class="ps-input" type="password" placeholder="Current password">
+    </div>
+
+    <div class="ps-field">
+      <input class="ps-input" type="password" placeholder="New password">
+    </div>
+
+    <div class="ps-field">
+      <input class="ps-input" type="password" placeholder="Confirm new password">
+    </div>
+  </div>
+</section>
+
+<div class="ps-actions">
+  <button class="btn btn-primary ps-save" type="button">💾 Save Changes</button>
+</div>
+
+{% endblock %}
