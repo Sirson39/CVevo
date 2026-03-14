@@ -8,6 +8,9 @@
 
 {% block content %}
 
+<!-- STEPPER -->
+{% include "partials/jobseeker_stepper.html" with active_step="resume_upload" %}
+
 <section class="ru-page">
 
   <!-- Header -->
@@ -23,20 +26,24 @@
     <form method="post" enctype="multipart/form-data" action="{% url 'resume_upload' %}" id="uploadForm">
       {% csrf_token %}
       <div class="ru-drop" id="dropzone">
-        <input class="ru-input" id="resumeFile" name="resume_file" type="file" accept=".pdf,.docx" onchange="this.form.submit()" style="opacity: 0; position: absolute; z-index: -1;" />
+        <input class="ru-input" id="resumeFile" name="resume_file" type="file" accept=".pdf,.docx"
+          onchange="this.form.submit()" style="opacity: 0; position: absolute; z-index: -1;" />
 
         <div class="ru-icon" aria-hidden="true">
           <!-- upload icon -->
           <svg viewBox="0 0 24 24" fill="none">
-            <path d="M12 3v10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-            <path d="M7 8l5-5 5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M12 3v10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            <path d="M7 8l5-5 5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+              stroke-linejoin="round" />
+            <path d="M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round" />
           </svg>
         </div>
 
         <div class="ru-droptext">
           <div class="ru-drop-title">Drop your resume here</div>
-          <div class="ru-drop-sub">or <span class="ru-linklike" id="browseBtn">click to browse</span> • PDF or DOCX</div>
+          <div class="ru-drop-sub">or <span class="ru-linklike" id="browseBtn">click to browse</span> • PDF or DOCX
+          </div>
         </div>
       </div>
     </form>
@@ -52,11 +59,11 @@
         <span class="ru-pill-ico">!</span> Max 5MB per file
       </div>
     </div>
-    
+
     {% if form.resume_file.errors %}
-      <div style="color: var(--danger); margin-top: 1rem;">
-        {% for error in form.resume_file.errors %}{{ error }}{% endfor %}
-      </div>
+    <div style="color: var(--danger); margin-top: 1rem;">
+      {% for error in form.resume_file.errors %}{{ error }}{% endfor %}
+    </div>
     {% endif %}
   </div>
 
@@ -67,9 +74,10 @@
       <div class="ru-empty-ico" aria-hidden="true">
         <!-- doc icon -->
         <svg viewBox="0 0 24 24" fill="none">
-          <path d="M7 3h7l3 3v15a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3Z" stroke="currentColor" stroke-width="1.8"/>
-          <path d="M14 3v4a2 2 0 0 0 2 2h4" stroke="currentColor" stroke-width="1.8"/>
-          <path d="M9 13h6M9 17h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M7 3h7l3 3v15a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3Z" stroke="currentColor"
+            stroke-width="1.8" />
+          <path d="M14 3v4a2 2 0 0 0 2 2h4" stroke="currentColor" stroke-width="1.8" />
+          <path d="M9 13h6M9 17h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
         </svg>
       </div>
 
@@ -84,7 +92,8 @@
           <span class="ru-file-ico">📄</span>
           <div>
             <div class="ru-file-name">{{ resume.filename }}</div>
-            <div class="ru-file-sub">Uploaded: {{ resume.uploaded_at|date:"Y-m-d H:i" }} • {{ resume.file.size|filesizeformat }}</div>
+            <div class="ru-file-sub">Uploaded: {{ resume.uploaded_at|date:"Y-m-d H:i" }} • {{
+              resume.file.size|filesizeformat }}</div>
           </div>
         </div>
 
@@ -111,13 +120,13 @@
 
   browseBtn?.addEventListener('click', () => input.click());
 
-  ['dragenter','dragover'].forEach(ev => {
+  ['dragenter', 'dragover'].forEach(ev => {
     dropzone.addEventListener(ev, e => {
       e.preventDefault();
       dropzone.classList.add('is-drag');
     });
   });
-  ['dragleave','drop'].forEach(ev => {
+  ['dragleave', 'drop'].forEach(ev => {
     dropzone.addEventListener(ev, e => {
       e.preventDefault();
       dropzone.classList.remove('is-drag');

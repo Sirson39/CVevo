@@ -12,6 +12,8 @@
   </div>
 </div>
 
+{% include "partials/jobseeker_stepper.html" with active_step="analysis_results" %}
+
 <div class="grid grid-2">
   <section class="stack">
     {% for result in results %}

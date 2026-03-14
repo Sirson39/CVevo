@@ -1,45 +1,98 @@
 {% extends "base_app.html" %}
-{% block title %}Analyze Resume • CVevo{% endblock %}
+{% block title %}Analysis Results • CVevo{% endblock %}
 
 {% block content %}
-<div class="card pad-lg" style="max-width: 800px; margin: 0 auto;">
-    <h1 class="h2x">Analyze Resume Performance</h1>
-    <p class="muted">Select a job post to compare your resume against. We'll check for keyword matches and ATS
-        compatibility.</p>
 
-    <div class="divider" style="margin: 2rem 0;"></div>
+<!-- STEPPER -->
+{% include "partials/jobseeker_stepper.html" with active_step="analysis_results" %}
 
-    <div
-        style="display: grid; grid-template-columns: 100px 1fr; gap: 1.5rem; align-items: center; margin-bottom: 2rem;">
-        <div
-            style="width: 80px; height: 80px; background: #e2e8f0; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 2rem;">
-            📄</div>
+<div class="ru-head" style="margin-bottom: 2rem;">
+  <div>
+    <h2 class="ru-title">Analysis Results</h2>
+    <p class="ru-sub">Compare your resume performance against specific job requirements.</p>
+  </div>
+  <div class="actions-row">
+    <a class="btn btn-ghost" href="{% url 'jobseeker_dashboard' %}">Back to Dashboard</a>
+  </div>
+</div>
+
+<div class="grid grid-2">
+  <section class="stack">
+    {% for result in results %}
+    <article class="card pad-lg" style="margin-bottom: 1.5rem;">
+      <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
         <div>
-            <h3 style="margin:0;">{{ resume.filename }}</h3>
-            <p class="muted">Uploaded on {{ resume.uploaded_at|date:"M d, Y" }}</p>
+          <h3 style="margin:0;">{{ result.job_post.title }}</h3>
+          <p class="muted">{{ result.job_post.hr.company }} • Analyzed on {{ result.analyzed_at|date:"M d, Y" }}</p>
         </div>
+        <div style="text-align: right;">
+          <div class="kpi-value"
+            style="font-size: 2rem; color: {% if result.score >= 80 %}var(--green){% elif result.score >= 50 %}var(--orange){% else %}var(--red){% endif %};">
+            {{ result.score|floatformat:0 }}%
+          </div>
+          <div class="muted" style="font-size: 0.8rem;">ATS Match Score</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div style="margin-top: 1rem;">
+        <h4 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 0.5rem;">Feedback & Suggestions</h4>
+        <p style="font-size: 0.95rem; line-height: 1.5;">{{ result.feedback }}</p>
+      </div>
+
+      <div class="grid grid-2" style="margin-top: 1.5rem; gap: 1rem;">
+        <div class="card" style="padding: 1rem; background: #f0fdf4; border-color: #bcf0da;">
+          <h5 style="margin:0 0 0.5rem 0; color: #166534; font-size: 0.8rem;">MATCHED KEYWORDS</h5>
+          <div style="display:flex; flex-wrap: wrap; gap: 0.4rem;">
+            {% if result.matched_keywords %}
+            {% for kw in result.matched_keywords.split|slice:":10" %}
+            <span
+              style="font-size: 0.75rem; background: #fff; padding: 0.2rem 0.5rem; border-radius: 4px; border: 1px solid #bcf0da;">{{
+              kw|cut:"," }}</span>
+            {% endfor %}
+            {% else %}
+            <span class="muted" style="font-size: 0.8rem;">None detected</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="card" style="padding: 1rem; background: #fff1f2; border-color: #fecaca;">
+          <h5 style="margin:0 0 0.5rem 0; color: #991b1b; font-size: 0.8rem;">MISSING KEYWORDS</h5>
+          <div style="display:flex; flex-wrap: wrap; gap: 0.4rem;">
+            {% if result.missing_keywords %}
+            {% for kw in result.missing_keywords.split|slice:":10" %}
+            <span
+              style="font-size: 0.75rem; background: #fff; padding: 0.2rem 0.5rem; border-radius: 4px; border: 1px solid #fecaca;">{{
+              kw|cut:"," }}</span>
+            {% endfor %}
+            {% else %}
+            <span class="muted" style="font-size: 0.8rem;">Excellent matching!</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </article>
+    {% empty %}
+    <div class="card pad-lg text-center">
+      <p class="muted">No analysis results yet. Go to your dashboard and select a resume to analyze.</p>
     </div>
+    {% endfor %}
+  </section>
 
-    <form method="post">
-        {% csrf_token %}
-        <div class="field" style="margin-bottom: 2rem;">
-            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Target Job Post</label>
-            <select name="job_id" required
-                style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem;">
-                <option value="" disabled selected>Select a job...</option>
-                {% for job in job_posts %}
-                <option value="{{ job.id }}">{{ job.title }} at {{ job.hr.company }}</option>
-                {% endfor %}
-            </select>
-            <p class="muted" style="font-size: 0.85rem; margin-top: 0.5rem;">Select from active jobs to see how well
-                your resume matches their requirements.</p>
-        </div>
-
-        <div class="actions" style="display: flex; gap: 1rem;">
-            <button type="submit" class="btn btn-primary" style="flex: 1;">Start Analysis</button>
-            <a href="{% url 'jobseeker_dashboard' %}" class="btn btn-ghost"
-                style="flex: 1; text-align:center;">Cancel</a>
-        </div>
-    </form>
+  <aside class="stack">
+    <article class="card pad-lg" style="background: var(--primary); color: #fff;">
+      <h3 style="margin:0; color: #fff;">How we calculate scores</h3>
+      <p style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.8; line-height: 1.5;">
+        Our ATS engine scans your resume for specific technical skills, tools, and industry keywords defined in the job
+        post.
+        <br><br>
+        A higher score indicates better alignment with the recruiter's automated filters.
+      </p>
+      <div class="divider" style="background: rgba(255,255,255,0.1); margin: 1.5rem 0;"></div>
+      <button class="btn btn-primary wide" style="background: #fff; color: var(--primary); border: none;">Learn
+        More</button>
+    </article>
+  </aside>
 </div>
 {% endblock %}

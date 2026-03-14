@@ -8,6 +8,9 @@
 
 {% block content %}
 
+<!-- STEPPER -->
+{% include "partials/jobseeker_stepper.html" with active_step="templates_gallery" %}
+
 <header class="tg-head">
   <div>
     <h1 class="tg-h1">Templates Gallery</h1>
@@ -25,7 +28,9 @@
     <div class="tg-filters">
       <button class="tg-filter-ico" type="button" aria-label="Filter">
         <!-- funnel icon -->
-        <svg viewBox="0 0 24 24" fill="none"><path d="M3 5h18l-7 8v6l-4-2v-4L3 5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M3 5h18l-7 8v6l-4-2v-4L3 5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+        </svg>
       </button>
 
       <button class="tg-chip is-active" type="button">All</button>
@@ -38,7 +43,9 @@
   <div class="tg-grid">
     <!-- Card 1 -->
     <article class="tg-card">
-      <div class="tg-img" style="background-image:url('https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=1200&q=70');"></div>
+      <div class="tg-img"
+        style="background-image:url('https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=1200&q=70');">
+      </div>
       <div class="tg-info">
         <div class="tg-name">Modern Professional</div>
         <div class="tg-tags">
@@ -50,7 +57,8 @@
 
     <!-- Card 2 -->
     <article class="tg-card">
-      <div class="tg-img" style="background-image:url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=70');">
+      <div class="tg-img"
+        style="background-image:url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=70');">
         <span class="tg-pro">PRO</span>
       </div>
       <div class="tg-info">
@@ -64,7 +72,9 @@
 
     <!-- Card 3 -->
     <article class="tg-card">
-      <div class="tg-img" style="background-image:url('https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=1200&q=70');"></div>
+      <div class="tg-img"
+        style="background-image:url('https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=1200&q=70');">
+      </div>
       <div class="tg-info">
         <div class="tg-name">Tech Minimalist</div>
         <div class="tg-tags">
@@ -76,7 +86,8 @@
 
     <!-- Card 4 -->
     <article class="tg-card">
-      <div class="tg-img" style="background-image:url('https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1200&q=70');">
+      <div class="tg-img"
+        style="background-image:url('https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1200&q=70');">
         <span class="tg-pro">PRO</span>
       </div>
       <div class="tg-info">

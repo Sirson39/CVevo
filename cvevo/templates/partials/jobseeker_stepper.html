@@ -1,0 +1,189 @@
+<style>
+    /* 
+  Jobseeker Stepper Component - Redesigned
+*/
+    .stepper-container {
+        position: relative;
+        z-index: 1;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        padding: 1.5rem 1rem;
+        margin: 0 0 2rem 0;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        border-radius: 18px;
+    }
+
+    .jobseeker-stepper {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        width: 100%;
+        max-width: 900px;
+        margin: 0 auto;
+        position: relative;
+    }
+
+    .stepper-line {
+        position: absolute;
+        top: 24px;
+        left: 10%;
+        right: 10%;
+        height: 3px;
+        background-color: #e2e8f0;
+        z-index: 0;
+    }
+
+        .stepper-item {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
+        gap: 0.75rem;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+        .stepper-item:hover .stepper-icon-wrapper {
+        border-color: #0d9488;
+        color: #0d9488;
+        transform: translateY(-2px);
+    }
+
+    .stepper-item:hover .stepper-label {
+        color: #0d9488;
+    }
+
+    .stepper-icon-wrapper {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: white;
+        border: 2px solid #cbd5e1;
+        color: #94a3b8;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .stepper-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #64748b;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    /* Active State */
+    .stepper-item.active .stepper-icon-wrapper {
+        background-color: #0d9488;
+        /* CVevo theme greenish/teal */
+        border-color: #0d9488;
+        color: white;
+        box-shadow: 0 4px 12px rgba(13, 148, 136, 0.4);
+        transform: scale(1.15);
+    }
+
+    .stepper-item.active .stepper-label {
+        color: #0d9488;
+        font-weight: 700;
+    }
+
+    .stepper-icon-wrapper svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    @media (max-width: 768px) {
+        .stepper-label {
+            display: none;
+        }
+    }
+
+</style>
+
+<div class="stepper-container">
+    <div class="jobseeker-stepper">
+        <div class="stepper-line"></div>
+
+        <!-- Step 1: Resume Upload -->
+        <a href="{% url 'resume_upload' %}"
+           class="stepper-item {% if active_step == 'resume_upload' %}active{% endif %}"
+           title="Resume Upload">
+            <div class="stepper-icon-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+            </div>
+            <div class="stepper-label">Resume Upload</div>
+        </a>
+
+        <!-- Step 2: Analysis Results -->
+        <a href="{% url 'analysis_results' %}"
+           class="stepper-item {% if active_step == 'analysis_results' %}active{% endif %}"
+           title="Analysis Results">
+            <div class="stepper-icon-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+            </div>
+            <div class="stepper-label">Analysis Results</div>
+        </a>
+
+        <!-- Step 3: Resume Builder -->
+        <a href="{% url 'resume_builder' %}"
+           class="stepper-item {% if active_step == 'resume_builder' %}active{% endif %}"
+           title="Resume Builder">
+            <div class="stepper-icon-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+            </div>
+            <div class="stepper-label">Resume Builder</div>
+        </a>
+
+        <!-- Step 4: Templates Gallery -->
+        <a href="{% url 'templates_gallery' %}"
+           class="stepper-item {% if active_step == 'templates_gallery' %}active{% endif %}"
+           title="Templates Gallery">
+            <div class="stepper-icon-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+            </div>
+            <div class="stepper-label">Templates Gallery</div>
+        </a>
+
+        <!-- Step 5: Export / Downloads -->
+        <a href="{% url 'export_downloads' %}"
+           class="stepper-item {% if active_step == 'export_downloads' %}active{% endif %}"
+           title="Export / Downloads">
+            <div class="stepper-icon-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+            </div>
+            <div class="stepper-label">Export / Downloads</div>
+        </a>
+    </div>
+</div>
