@@ -5,14 +5,14 @@
     .stepper-container {
         position: relative;
         z-index: 1;
-        background: rgba(255, 255, 255, 0.9);
+        background: rgba(255, 255, 255, 0.92);
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
         padding: 1.5rem 1rem;
         margin: 0 0 2rem 0;
-        border-bottom: 1px solid rgba(226, 232, 240, 0.8);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        border-radius: 18px;
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        border-radius: 22px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
 
     .jobseeker-stepper {
@@ -35,7 +35,7 @@
         z-index: 0;
     }
 
-        .stepper-item {
+    .stepper-item {
         position: relative;
         z-index: 1;
         display: flex;
@@ -47,7 +47,7 @@
         cursor: pointer;
     }
 
-        .stepper-item:hover .stepper-icon-wrapper {
+    .stepper-item:hover .stepper-icon-wrapper {
         border-color: #0d9488;
         color: #0d9488;
         transform: translateY(-2px);

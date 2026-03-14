@@ -1,96 +1,122 @@
 {% extends "base_app.html" %}
+{% load static %}
 {% block title %}Analysis Results • CVevo{% endblock %}
 
-{% block content %}
-<div class="ru-head" style="margin-bottom: 2rem;">
-  <div>
-    <h2 class="ru-title">Analysis Results</h2>
-    <p class="ru-sub">Compare your resume performance against specific job requirements.</p>
-  </div>
-  <div class="actions-row">
-    <a class="btn btn-ghost" href="{% url 'jobseeker_dashboard' %}">Back to Dashboard</a>
-  </div>
-</div>
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'cvevo/css/dashboard.css' %}">
+{% endblock %}
 
+{% block content %}
+
+<!-- STEPPER -->
 {% include "partials/jobseeker_stepper.html" with active_step="analysis_results" %}
 
-<div class="grid grid-2">
-  <section class="stack">
-    {% for result in results %}
-    <article class="card pad-lg" style="margin-bottom: 1.5rem;">
-      <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <div>
-          <h3 style="margin:0;">{{ result.job_post.title }}</h3>
-          <p class="muted">{{ result.job_post.hr.company }} • Analyzed on {{ result.analyzed_at|date:"M d, Y" }}</p>
-        </div>
-        <div style="text-align: right;">
-          <div class="kpi-value"
-            style="font-size: 2rem; color: {% if result.score >= 80 %}var(--green){% elif result.score >= 50 %}var(--orange){% else %}var(--red){% endif %};">
-            {{ result.score|floatformat:0 }}%
-          </div>
-          <div class="muted" style="font-size: 0.8rem;">ATS Match Score</div>
-        </div>
-      </div>
+<section class="ru-page">
 
-      <div class="divider"></div>
-
-      <div style="margin-top: 1rem;">
-        <h4 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 0.5rem;">Feedback & Suggestions</h4>
-        <p style="font-size: 0.95rem; line-height: 1.5;">{{ result.feedback }}</p>
-      </div>
-
-      <div class="grid grid-2" style="margin-top: 1.5rem; gap: 1rem;">
-        <div class="card" style="padding: 1rem; background: #f0fdf4; border-color: #bcf0da;">
-          <h5 style="margin:0 0 0.5rem 0; color: #166534; font-size: 0.8rem;">MATCHED KEYWORDS</h5>
-          <div style="display:flex; flex-wrap: wrap; gap: 0.4rem;">
-            {% if result.matched_keywords %}
-            {% for kw in result.matched_keywords.split|slice:":10" %}
-            <span
-              style="font-size: 0.75rem; background: #fff; padding: 0.2rem 0.5rem; border-radius: 4px; border: 1px solid #bcf0da;">{{
-              kw|cut:"," }}</span>
-            {% endfor %}
-            {% else %}
-            <span class="muted" style="font-size: 0.8rem;">None detected</span>
-            {% endif %}
-          </div>
-        </div>
-
-        <div class="card" style="padding: 1rem; background: #fff1f2; border-color: #fecaca;">
-          <h5 style="margin:0 0 0.5rem 0; color: #991b1b; font-size: 0.8rem;">MISSING KEYWORDS</h5>
-          <div style="display:flex; flex-wrap: wrap; gap: 0.4rem;">
-            {% if result.missing_keywords %}
-            {% for kw in result.missing_keywords.split|slice:":10" %}
-            <span
-              style="font-size: 0.75rem; background: #fff; padding: 0.2rem 0.5rem; border-radius: 4px; border: 1px solid #fecaca;">{{
-              kw|cut:"," }}</span>
-            {% endfor %}
-            {% else %}
-            <span class="muted" style="font-size: 0.8rem;">Excellent matching!</span>
-            {% endif %}
-          </div>
-        </div>
-      </div>
-    </article>
-    {% empty %}
-    <div class="card pad-lg text-center">
-      <p class="muted">No analysis results yet. Go to your dashboard and select a resume to analyze.</p>
+  <!-- Header -->
+  <div class="ru-head">
+    <div>
+      <h2 class="ru-title">Analysis Results</h2>
+      <p class="ru-sub">Compare your resume performance against specific job requirements.</p>
     </div>
-    {% endfor %}
-  </section>
 
-  <aside class="stack">
-    <article class="card pad-lg" style="background: var(--primary); color: #fff;">
-      <h3 style="margin:0; color: #fff;">How we calculate scores</h3>
-      <p style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.8; line-height: 1.5;">
-        Our ATS engine scans your resume for specific technical skills, tools, and industry keywords defined in the job
-        post.
-        <br><br>
-        A higher score indicates better alignment with the recruiter's automated filters.
-      </p>
-      <div class="divider" style="background: rgba(255,255,255,0.1); margin: 1.5rem 0;"></div>
-      <button class="btn btn-primary wide" style="background: #fff; color: var(--primary); border: none;">Learn
-        More</button>
-    </article>
-  </aside>
-</div>
+    <div class="actions-row">
+      <a class="btn btn-ghost" href="{% url 'jobseeker_dashboard' %}">Back to Dashboard</a>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="grid grid-2">
+    <section class="stack">
+      {% for result in results %}
+      <article class="card pad-lg">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
+          <div>
+            <h3 style="margin:0; font-size:1.2rem;">{{ result.job_post.title }}</h3>
+            <p class="muted" style="margin:.35rem 0 0;">
+              {{ result.job_post.hr.company }} • Analyzed on {{ result.analyzed_at|date:"M d, Y" }}
+            </p>
+          </div>
+
+          <div style="text-align:right;">
+            <div class="kpi-value"
+              style="font-size:2rem; color:{% if result.score >= 80 %}var(--green){% elif result.score >= 50 %}var(--orange){% else %}var(--red){% endif %};">
+              {{ result.score|floatformat:0 }}%
+            </div>
+            <div class="muted" style="font-size:.82rem;">ATS Match Score</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div>
+          <h4 style="font-size:.95rem; font-weight:800; margin:0 0 .6rem 0;">Feedback & Suggestions</h4>
+          <p style="margin:0; font-size:.95rem; line-height:1.65;">{{ result.feedback }}</p>
+        </div>
+
+        <div class="grid" style="grid-template-columns:1fr 1fr; gap:1rem; margin-top:1.25rem;">
+          <div class="card" style="padding:1rem; background:#f0fdf4; border-color:#bcf0da;">
+            <h5 style="margin:0 0 .6rem 0; color:#166534; font-size:.82rem; font-weight:900;">MATCHED KEYWORDS</h5>
+            <div style="display:flex; flex-wrap:wrap; gap:.45rem;">
+              {% if result.matched_keywords %}
+                {% for kw in result.matched_keywords.split|slice:":10" %}
+                <span style="font-size:.75rem; background:#fff; padding:.28rem .55rem; border-radius:999px; border:1px solid #bcf0da;">
+                  {{ kw|cut:"," }}
+                </span>
+                {% endfor %}
+              {% else %}
+                <span class="muted" style="font-size:.82rem;">None detected</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="card" style="padding:1rem; background:#fff1f2; border-color:#fecaca;">
+            <h5 style="margin:0 0 .6rem 0; color:#991b1b; font-size:.82rem; font-weight:900;">MISSING KEYWORDS</h5>
+            <div style="display:flex; flex-wrap:wrap; gap:.45rem;">
+              {% if result.missing_keywords %}
+                {% for kw in result.missing_keywords.split|slice:":10" %}
+                <span style="font-size:.75rem; background:#fff; padding:.28rem .55rem; border-radius:999px; border:1px solid #fecaca;">
+                  {{ kw|cut:"," }}
+                </span>
+                {% endfor %}
+              {% else %}
+                <span class="muted" style="font-size:.82rem;">Excellent matching!</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </article>
+      {% empty %}
+      <div class="ru-card">
+        <div class="ru-empty" style="padding:2rem 1rem;">
+          <div class="ru-empty-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <line x1="18" y1="20" x2="18" y2="10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="12" y1="20" x2="12" y2="4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="6" y1="20" x2="6" y2="14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3 class="ru-empty-title">No analysis results yet</h3>
+          <p class="ru-empty-sub">Go to your dashboard and select a resume to analyze.</p>
+        </div>
+      </div>
+      {% endfor %}
+    </section>
+
+    <aside class="stack">
+      <article class="card pad-lg" style="background:var(--primary); color:#fff;">
+        <h3 style="margin:0; color:#fff; font-size:1.15rem;">How we calculate scores</h3>
+        <p style="margin-top:1rem; font-size:.95rem; opacity:.88; line-height:1.7;">
+          Our ATS engine scans your resume for specific technical skills, tools, and industry keywords defined in the job post.
+          <br><br>
+          A higher score indicates better alignment with the recruiter’s automated filters.
+        </p>
+        <div class="divider" style="background:rgba(255,255,255,.12); margin:1.5rem 0;"></div>
+        <button class="btn wide" style="background:#fff; color:var(--primary); border:none;">Learn More</button>
+      </article>
+    </aside>
+  </div>
+
+</section>
+
 {% endblock %}

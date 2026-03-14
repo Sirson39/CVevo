@@ -36,10 +36,14 @@ body {
 body {
   overflow: hidden;
   margin: 0;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-family:'Inter', sans-serif;
   color: var(--text);
   background: var(--bg);
   line-height: 1.5;
+}
+
+h1, h2, h3, h4, .brand-text, .ru-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 a {
