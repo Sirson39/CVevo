@@ -370,6 +370,23 @@ def resume_delete(request, pk):
     return redirect('resume_upload')
 
 
+@jobseeker_required
+def select_template(request, template_name):
+    valid_templates = [
+        'modern_professional', 'executive_classic', 'tech_minimalist', 'creative_bold',
+        't1_kelly', 't2_howard', 't3_samantha_beige', 't4_samantha_white', 't5_jessie'
+    ]
+    if template_name in valid_templates:
+        profile = request.user.jobseeker_profile
+        profile.selected_template = template_name
+        profile.save()
+        
+        display_name = template_name.replace('_', ' ').replace('t1 ', '').replace('t2 ', '').replace('t3 ', '').replace('t4 ', '').replace('t5 ', '').title()
+        messages.success(request, f"Template '{display_name}' selected successfully.")
+    else:
+        messages.error(request, "Invalid template selection.")
+    return redirect('resume_builder')
+
 # Protected HR Views
 @hr_required
 def hr_dashboard(request):

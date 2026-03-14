@@ -37,6 +37,7 @@ urlpatterns = [
     path("resume/builder/skill/add/", views.add_skill, name="add_skill"),
     path("resume/builder/skill/delete/<int:pk>/", views.delete_skill, name="delete_skill"),
     path("templates/",            lambda r: views.page(r, "templates_gallery.html"),    name="templates_gallery"),
+    path("templates/select/<str:template_name>/", views.select_template, name="select_template"),
     path("export/",               lambda r: views.page(r, "export_downloads.html"),     name="export_downloads"),
     path("profile/",              lambda r: views.page(r, "profile_settings.html"),     name="profile_settings"),
     path("jobseeker/help-support/", views.help_support, name="help_support"),

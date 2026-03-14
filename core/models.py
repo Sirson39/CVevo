@@ -11,6 +11,7 @@ class JobseekerProfile(models.Model):
     linkedin = models.URLField(blank=True)
     portfolio = models.URLField(blank=True)
     summary = models.TextField(blank=True)
+    selected_template = models.CharField(max_length=50, default='modern_professional')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
