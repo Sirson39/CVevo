@@ -1,0 +1,83 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap');
+  .t10-wrap { font-family: 'Space Grotesk', sans-serif; background: #f0fcd4; color: #111; padding: 3rem; text-align: left; min-height: 850px; }
+  .t10-head { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; margin-bottom: 3rem; align-items: start; }
+  .t10-name { font-size: 3.5rem; font-weight: 700; line-height: 0.9; margin: 0; letter-spacing: -2px; }
+  .t10-role-wrap { margin-top: 1rem; display: flex; align-items: center; gap: 1rem; }
+  .t10-arrow { width: 30px; height: 30px; border: 1px solid #111; border-radius: 50%; display: flex; align-items: center; justify-content: center; transform: rotate(45deg); }
+  .t10-role { font-size: 1.1rem; font-weight: 400; }
+  
+  .t10-details-box { border-top: 1px solid #111; padding-top: 1rem; }
+  .t10-detail-row { display: grid; grid-template-columns: 80px 1fr; font-size: 0.9rem; margin-bottom: 0.8rem; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 0.5rem; }
+  .t10-detail-row strong { color: #000; }
+  
+  .t10-section { margin-top: 3rem; }
+  .t10-sect-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #111; padding-bottom: 0.5rem; margin-bottom: 1rem; }
+  .t10-sect-title { font-size: 1.4rem; font-weight: 700; }
+  .t10-icon { font-size: 1.5rem; }
+  
+  .t10-p { font-size: 0.95rem; line-height: 1.5; color: #333; }
+  
+  .t10-item { margin-bottom: 1.5rem; }
+  .t10-item-date { font-size: 0.85rem; color: #555; margin-bottom: 0.3rem; }
+  .t10-item-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.2rem; }
+  .t10-item-desc { padding-left: 1.2rem; margin-top: 0.5rem; font-size: 0.95rem; line-height: 1.5; }
+  
+  .t10-skills { display: grid; grid-template-columns: 1fr; gap: 0.5rem; }
+  .t10-skill { display: flex; align-items: center; gap: 1rem; }
+  .t10-skill::before { content: "•"; font-size: 1.5rem; }
+</style>
+<div class="card rb-preview t10-wrap" style="padding:0; border:none; border-radius: 0;">
+  <div class="t10-head">
+    <div>
+        <h1 class="t10-name">{{ first_name }}<br>{{ last_name }}</h1>
+        <div class="t10-role-wrap">
+            <div class="t10-arrow">→</div>
+            <div class="t10-role">{{ user.jobseeker_profile.experiences.first.position|default:"Professional" }}</div>
+        </div>
+    </div>
+    <div class="t10-details-box">
+        <div style="font-weight: 700; margin-bottom: 1rem; font-size: 1.1rem;">Details</div>
+        <div class="t10-detail-row"><strong>Phone</strong> <span>{{ user.jobseeker_profile.phone }}</span></div>
+        <div class="t10-detail-row"><strong>Email</strong> <span>{{ user.email }}</span></div>
+        <div class="t10-detail-row"><strong>Location</strong> <span>{{ user.jobseeker_profile.location }}</span></div>
+    </div>
+  </div>
+
+  <section class="t10-section">
+    <div class="t10-sect-header">
+        <div class="t10-sect-title">Summary</div>
+        <div class="t10-icon">✦</div>
+    </div>
+    <p class="t10-p">{{ user.jobseeker_profile.summary }}</p>
+  </section>
+
+  <section class="t10-section">
+    <div class="t10-sect-header">
+        <div class="t10-sect-title">Experience</div>
+        <div class="t10-icon">✦</div>
+    </div>
+    {% for exp in experiences %}
+    <div class="t10-item">
+        <div class="t10-item-date">{{ exp.start_date|date:"M Y" }} - {{ exp.end_date|date:"M Y"|default:"Current" }}</div>
+        <div class="t10-item-title">{{ exp.company }}</div>
+        <div style="font-style: italic;">{{ exp.position }}</div>
+        <ul class="t10-item-desc">
+            <li>{{ exp.description }}</li>
+        </ul>
+    </div>
+    {% endfor %}
+  </section>
+
+  <section class="t10-section">
+    <div class="t10-sect-header">
+        <div class="t10-sect-title">Skills</div>
+        <div class="t10-icon">✦</div>
+    </div>
+    <div class="t10-skills">
+        {% for skill in skills %}
+        <div class="t10-skill">{{ skill.name }}</div>
+        {% endfor %}
+    </div>
+  </section>
+</div>

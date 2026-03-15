@@ -287,25 +287,18 @@
       <h2 class="card-title">Live Preview</h2>
     </div>
 
-    {% with template_name=user.jobseeker_profile.selected_template %}
-      {% if template_name == 't1_kelly' %}
-        {% include 'partials/resume_templates/t1_kelly.html' %}
-      {% elif template_name == 't2_howard' %}
-        {% include 'partials/resume_templates/t2_howard.html' %}
-      {% elif template_name == 't3_samantha_beige' %}
-        {% include 'partials/resume_templates/t3_samantha_beige.html' %}
-      {% elif template_name == 't4_samantha_white' %}
-        {% include 'partials/resume_templates/t4_samantha_white.html' %}
-      {% elif template_name == 't5_jessie' %}
-        {% include 'partials/resume_templates/t5_jessie.html' %}
-      {% elif template_name == 'executive_classic' %}
-        {% include 'partials/resume_templates/executive_classic.html' %}
-      {% elif template_name == 'tech_minimalist' %}
-        {% include 'partials/resume_templates/tech_minimalist.html' %}
-      {% elif template_name == 'creative_bold' %}
-        {% include 'partials/resume_templates/creative_bold.html' %}
-      {% else %}
-        {% include 'partials/resume_templates/modern_professional.html' %}
+    {% with t=user.jobseeker_profile.selected_template %}
+      {% if t == 't1_kelly' %}{% include 'partials/resume_templates/t1_kelly.html' %}
+      {% elif t == 't2_howard' %}{% include 'partials/resume_templates/t2_howard.html' %}
+      {% elif t == 't3_samantha_beige' %}{% include 'partials/resume_templates/t3_samantha_beige.html' %}
+      {% elif t == 't4_samantha_white' %}{% include 'partials/resume_templates/t4_samantha_white.html' %}
+      {% elif t == 't5_jessie' %}{% include 'partials/resume_templates/t5_jessie.html' %}
+      {% elif t == 't6_taylor' %}{% include 'partials/resume_templates/t6_taylor.html' %}
+      {% elif t == 't7_blue_jessie' %}{% include 'partials/resume_templates/t7_blue_jessie.html' %}
+      {% elif t == 't8_sebastian' %}{% include 'partials/resume_templates/t8_sebastian.html' %}
+      {% elif t == 't9_travis' %}{% include 'partials/resume_templates/t9_travis.html' %}
+      {% elif t == 't10_daniel' %}{% include 'partials/resume_templates/t10_daniel.html' %}
+      {% else %}{% include 'partials/resume_templates/t1_kelly.html' %}
       {% endif %}
     {% endwith %}
 

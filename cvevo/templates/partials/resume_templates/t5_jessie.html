@@ -28,7 +28,7 @@
   <div class="t5-header">
     <div class="t5-initial-wrap">
       <h1 class="t5-name">{{ user.jobseeker_profile.full_name|make_list|first|upper }}{{ user.jobseeker_profile.full_name|slice:"1:2"|upper }}</h1>
-      <h1 class="t5-name" style="margin-top: -10px;">{{ user.jobseeker_profile.full_name|split:" "|last|make_list|first|upper }}</h1>
+      <h1 class="t5-name" style="margin-top: -10px;">{{ last_name|make_list|first|upper }}</h1>
     </div>
     <div class="t5-bio">
       <h1 class="t5-name" style="font-size: 2.22rem; line-height: 1;">{{ user.jobseeker_profile.full_name }}</h1>
