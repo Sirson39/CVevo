@@ -1,0 +1,95 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Montserrat:wght@400;700&display=swap');
+  .t23-wrap { font-family: 'Crimson Pro', serif; background: #fff; min-height: 850px; text-align: left; }
+  .t23-top { display: grid; grid-template-columns: 45% 55%; border-bottom: 2px solid #eee; padding-bottom: 2rem; }
+  .t23-name-box { padding: 3rem 2.5rem; background: radial-gradient(circle at 50% 50%, #fff0f5 0%, #fff 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  .t23-name { font-family: 'Crimson Pro', serif; font-size: 3.5rem; font-weight: 700; color: #1a1a1a; line-height: 1; margin: 0; letter-spacing: -1px; }
+  .t23-role { font-family: 'Montserrat', sans-serif; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: #666; letter-spacing: 2px; margin-top: 1rem; }
+  
+  .t23-contact-box { padding: 3rem 2.5rem; border-left: 1px solid #eee; display: flex; flex-direction: column; justify-content: center; gap: 0.8rem; }
+  .t23-contact-item { font-size: 0.95rem; color: #333; }
+  
+  .t23-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-top: 2px solid #eee; }
+  .t23-cell { padding: 2.5rem; border-right: 1px solid #eee; border-bottom: 1px solid #eee; }
+  .t23-cell:nth-child(2n) { border-right: none; }
+  
+  .t23-sect-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+  .t23-sect-title { font-family: 'Crimson Pro', serif; font-size: 1.5rem; font-weight: 700; color: #1a1a1a; }
+  .t23-sparkle { color: #ffb6c1; font-size: 1.5rem; }
+  
+  .t23-p { font-size: 1rem; line-height: 1.6; color: #333; text-align: justify; }
+  
+  .t23-item { margin-bottom: 1.5rem; }
+  .t23-item-date { font-weight: 700; font-size: 0.9rem; color: #1a1a1a; text-transform: uppercase; margin-bottom: 0.3rem; }
+  .t23-item-title { font-weight: 700; font-size: 1.1rem; text-transform: uppercase; color: #1a1a1a; }
+  .t23-item-sub { font-size: 1rem; color: #666; font-style: italic; margin-bottom: 0.8rem; }
+  .t23-desc { font-size: 0.95rem; line-height: 1.6; color: #333; padding-left: 1.2rem; }
+  
+  .t23-skill-list { list-style: none; padding: 0; margin: 0; line-height: 2; font-size: 1.05rem; }
+</style>
+<div class="card rb-preview t23-wrap" style="padding:0; border:none; border-radius: 0;">
+  <div class="t23-top">
+    <div class="t23-name-box">
+      <h1 class="t23-name">{{ user.jobseeker_profile.full_name }}</h1>
+      <div class="t23-role">{{ user.jobseeker_profile.experiences.first.position|default:"Web Designer" }}</div>
+    </div>
+    <div class="t23-contact-box">
+      <div class="t23-contact-item">{{ user.email }}</div>
+      <div class="t23-contact-item">{{ user.jobseeker_profile.phone }}</div>
+      <div class="t23-contact-item">{{ user.jobseeker_profile.location }}</div>
+    </div>
+  </div>
+
+  <div class="t23-grid">
+    <div class="t23-cell">
+      <div class="t23-sect-header">
+        <div class="t23-sect-title">Experience</div>
+        <div class="t23-sparkle">✦</div>
+      </div>
+      {% for exp in experiences %}
+      <div class="t23-item">
+        <div class="t23-item-date">{{ exp.start_date|date:"M Y" }} - {{ exp.end_date|date:"M Y"|default:"Current" }}</div>
+        <div class="t23-item-title">{{ exp.position }}</div>
+        <div class="t23-item-sub">{{ exp.company }}, {{ exp.location }}</div>
+        <ul class="t23-desc">
+          <li>{{ exp.description|truncatewords:20 }}</li>
+        </ul>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="t23-cell">
+      <div class="t23-sect-header">
+        <div class="t23-sect-title">Summary</div>
+        <div class="t23-sparkle">✦</div>
+      </div>
+      <p class="t23-p">{{ user.jobseeker_profile.summary }}</p>
+    </div>
+
+    <div class="t23-cell">
+      <div class="t23-sect-header">
+        <div class="t23-sect-title">Education</div>
+        <div class="t23-sparkle">✦</div>
+      </div>
+      {% for edu in educations %}
+      <div class="t23-item">
+        <div class="t23-item-date">{{ edu.start_date|date:"Y" }} - {{ edu.end_date|date:"Y"|default:"Current" }}</div>
+        <div class="t23-item-title">{{ edu.degree }}</div>
+        <div class="t23-item-sub">{{ edu.institution }}</div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="t23-cell" style="border-right:none;">
+      <div class="t23-sect-header">
+        <div class="t23-sect-title">Skills</div>
+        <div class="t23-sparkle">✦</div>
+      </div>
+      <ul class="t23-skill-list">
+        {% for skill in skills %}
+        <li>{{ skill.name }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>

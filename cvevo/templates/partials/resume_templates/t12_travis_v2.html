@@ -1,0 +1,79 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+  .t12-wrap { font-family: 'Roboto', sans-serif; background: #fff; color: #333; text-align: left; padding-bottom: 2rem; }
+  .t12-top { background-color: #fce7e7; padding: 1.5rem; text-align: center; border-bottom: 1px solid #ddd; }
+  .t12-contact-top { font-size: 0.85rem; color: #555; margin-bottom: 1rem; }
+  .t12-name { font-size: 2.2rem; font-weight: 400; color: #111; letter-spacing: 1px; text-transform: uppercase; margin: 0; }
+  .t12-role { font-size: 0.9rem; font-weight: 700; color: #555; margin-top: 0.5rem; letter-spacing: 0.5px; }
+  
+  .t12-main { padding: 2rem; }
+  .t12-sect { display: flex; gap: 2rem; margin-bottom: 2rem; }
+  .t12-label { width: 120px; font-weight: 700; text-transform: uppercase; font-size: 0.9rem; border-bottom: 2px solid #fce7e7; height: fit-content; padding-bottom: 2px; }
+  .t12-content { flex: 1; }
+  
+  .t12-p { font-size: 0.95rem; line-height: 1.6; color: #333; margin: 0; }
+  
+  .t12-item { margin-bottom: 1.5rem; }
+  .t12-item-title { font-weight: 700; font-size: 1.05rem; color: #111; margin-bottom: 0.3rem; }
+  .t12-item-date { font-weight: 700; font-size: 0.85rem; color: #000; margin-bottom: 0.5rem; }
+  .t12-desc { font-size: 0.9rem; line-height: 1.6; padding-left: 1.2rem; margin: 0.5rem 0 0 0; }
+  
+  .t12-skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .t12-skill { display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; }
+  .t12-skill::before { content: "•"; color: #fce7e7; font-size: 1.5rem; }
+</style>
+<div class="card rb-preview t12-wrap" style="padding:0; border:none; border-radius: 0;">
+  <div class="t12-top">
+    <div class="t12-contact-top">{{ user.jobseeker_profile.location }} &bull; {{ user.jobseeker_profile.phone }} &bull; {{ user.email }}</div>
+    <h1 class="t12-name">{{ user.jobseeker_profile.full_name }}</h1>
+    <div class="t12-role">{{ user.jobseeker_profile.experiences.first.position|default:"IT Manager" }}</div>
+  </div>
+
+  <div class="t12-main">
+    <div class="t12-sect">
+      <div class="t12-label">Summary</div>
+      <div class="t12-content">
+        <p class="t12-p">{{ user.jobseeker_profile.summary }}</p>
+      </div>
+    </div>
+
+    <div class="t12-sect">
+      <div class="t12-label">Skills</div>
+      <div class="t12-content">
+        <div class="t12-skills-grid">
+          {% for skill in skills %}
+          <div class="t12-skill">{{ skill.name }}</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="t12-sect">
+      <div class="t12-label">Experience</div>
+      <div class="t12-content">
+        {% for exp in experiences %}
+        <div class="t12-item">
+          <div class="t12-item-title">{{ exp.position|upper }} AT {{ exp.company|upper }}</div>
+          <div class="t12-item-date">{{ exp.location }}, {{ exp.start_date|date:"m/Y" }} - {{ exp.end_date|date:"m/Y"|default:"Current" }}</div>
+          <ul class="t12-desc">
+            <li>{{ exp.description }}</li>
+          </ul>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="t12-sect" style="margin-bottom:0;">
+      <div class="t12-label">Education</div>
+      <div class="t12-content">
+        {% for edu in educations %}
+        <div class="t12-item">
+          <div class="t12-item-title">{{ edu.institution|upper }}</div>
+          <div class="t12-item-date">{{ edu.start_date|date:"Y" }} - {{ edu.end_date|date:"Y"|default:"Current" }}</div>
+          <p class="t12-p">{{ edu.degree }}</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>

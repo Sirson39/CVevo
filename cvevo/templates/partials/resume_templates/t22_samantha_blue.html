@@ -1,0 +1,93 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&display=swap');
+  .t22-wrap { font-family: 'Public Sans', sans-serif; background: #fff; text-align: left; min-height: 850px; }
+  .t22-header { background-color: #a8bdca; padding: 2.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; border-bottom: 2px solid #8e9fab; }
+  
+  .t22-name-box h1 { font-size: 2.5rem; font-weight: 700; color: #1e293b; margin: 0; }
+  .t22-role { font-size: 1.1rem; font-weight: 500; color: #475569; margin-top: 0.5rem; }
+  .t22-contact { margin-top: 1.5rem; font-size: 0.9rem; color: #334155; }
+  .t22-contact-item { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem; }
+  
+  .t22-summary-box { border-left: 1px solid rgba(0,0,0,0.1); padding-left: 2rem; }
+  .t22-summ-title { font-weight: 700; text-transform: uppercase; font-size: 0.9rem; color: #1e293b; margin-bottom: 1rem; border-bottom: 1px solid #1e293b; display: inline-block; }
+  .t22-summ-p { font-size: 0.95rem; line-height: 1.5; color: #334155; }
+  
+  .t22-main { display: grid; grid-template-columns: 33.3% 66.6%; gap: 0; margin-top:0; border-top:none; }
+  .t22-left { padding: 2.5rem; border-right: 1px solid #e2e8f0; }
+  .t22-right { padding: 2.5rem 3rem; }
+  
+  .t22-sect-side { margin-bottom: 3rem; }
+  .t22-side-title { font-weight: 700; text-transform: uppercase; font-size: 0.9rem; color: #1e293b; margin-bottom: 1.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.4rem; letter-spacing: 1px; }
+  
+  .t22-side-v { margin-bottom: 1.5rem; }
+  .t22-side-v strong { display: block; font-size: 0.95rem; color: #0f172a; margin-bottom: 0.2rem; }
+  .t22-side-v span { font-size: 0.85rem; color: #64748b; font-style: italic; }
+  
+  .t22-skill-list { list-style: none; padding: 0; margin: 0; }
+  .t22-skill-list li { font-size: 0.9rem; margin-bottom: 0.8rem; color: #334155; }
+  
+  .t22-main-title { font-weight: 700; text-transform: uppercase; font-size: 1rem; color: #1e293b; margin-bottom: 1.5rem; border-bottom: 2px solid #a8bdca; padding-bottom: 0.4rem; letter-spacing: 1px; }
+  
+  .t22-item { margin-bottom: 2.5rem; }
+  .t22-item-head { font-weight: 700; font-size: 1.05rem; color: #0f172a; margin-bottom: 0.3rem; }
+  .t22-item-sub { font-weight: 600; font-size: 0.9rem; font-style: italic; color: #64748b; margin-bottom: 1rem; }
+  .t22-desc { font-size: 0.9rem; line-height: 1.6; color: #334155; }
+</style>
+<div class="card rb-preview t22-wrap" style="padding:0; border:none; border-radius: 0;">
+  <div class="t22-header">
+    <div class="t22-name-box">
+      <h1>{{ user.jobseeker_profile.full_name }}</h1>
+      <div class="t22-role">{{ user.jobseeker_profile.experiences.first.position|default:"Professional" }}</div>
+      <div class="t22-contact">
+        <div class="t22-contact-item">✉ {{ user.email }}</div>
+        <div class="t22-contact-item">📞 {{ user.jobseeker_profile.phone }}</div>
+        <div class="t22-contact-item">📍 {{ user.jobseeker_profile.location }}</div>
+      </div>
+    </div>
+    <div class="t22-summary-box">
+      <div class="t22-summ-title">Summary</div>
+      <p class="t22-summ-p">{{ user.jobseeker_profile.summary }}</p>
+    </div>
+  </div>
+
+  <div class="t22-main">
+    <div class="t22-left">
+      {% if educations %}
+      <div class="t22-sect-side">
+        <div class="t22-side-title">Education</div>
+        {% for edu in educations %}
+        <div class="t22-side-v">
+          <strong>{{ edu.institution }}</strong>
+          <span>{{ edu.location }} / {{ edu.start_date|date:"Y" }} - {{ edu.end_date|date:"Y"|default:"Current" }}</span><br>
+          <div style="font-size:0.9rem; margin-top:0.3rem;">{{ edu.degree }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if skills %}
+      <div class="t22-sect-side">
+        <div class="t22-side-title">Skills</div>
+        <ul class="t22-skill-list">
+          {% for skill in skills %}
+          <li>{{ skill.name }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="t22-right">
+      {% if experiences %}
+      <div class="t22-main-title">Experience</div>
+      {% for exp in experiences %}
+      <div class="t22-item">
+        <div class="t22-item-head">{{ exp.position }} — {{ exp.company }}</div>
+        <div class="t22-item-sub">{{ exp.location }} / {{ exp.start_date|date:"M Y" }} - {{ exp.end_date|date:"M Y"|default:"Current" }}</div>
+        <div class="t22-desc">{{ exp.description }}</div>
+      </div>
+      {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+</div>

@@ -4,6 +4,8 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'cvevo/css/dashboard.css' %}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 <style>
   .rb-form-grid {
     display: grid;
@@ -49,7 +51,21 @@
     border: none;
     background: none;
   }
+
+  /* Focus Mode Classes */
+  .rb-grid.focus-mode {
+    grid-template-columns: 1fr !important;
+  }
+  .focus-mode .rb-left {
+    display: none;
+  }
+  .focus-mode .rb-right {
+    max-width: 850px;
+    margin: 0 auto;
+    width: 100%;
+  }
 </style>
+
 {% endblock %}
 
 {% block content %}
@@ -82,10 +98,10 @@
   <button class="rb-tab" data-tab="projects" type="button">Projects</button>
 </nav>
 
-<div class="rb-grid" style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 2rem; align-items: start;">
+<div id="builder-container" class="rb-grid" style="display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 2rem; align-items: start;">
   <!-- LEFT: Editor -->
   <section class="rb-left">
-    {% include "partials/messages.html" %}
+
 
     <!-- CONTACT & SUMMARY -->
     <article class="card rb-panel is-active" data-panel="contact" style="padding: 1.5rem;">
@@ -283,9 +299,15 @@
   </section>
 
   <aside class="rb-right">
-    <div class="rb-preview-head" style="margin-bottom: 1rem;">
+    <div class="rb-preview-head" style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
       <h2 class="card-title">Live Preview</h2>
+      <button class="btn btn-ghost btn-sm" onclick="toggleFocusMode()" id="focus-btn">
+        <span>🔍 Focus View</span>
+      </button>
     </div>
+
+    <div id="resume-preview-container" style="background: white; transform-origin: top center;">
+
 
     {% with t=user.jobseeker_profile.selected_template %}
       {% if t == 't1_kelly' %}{% include 'partials/resume_templates/t1_kelly.html' %}
@@ -298,14 +320,32 @@
       {% elif t == 't8_sebastian' %}{% include 'partials/resume_templates/t8_sebastian.html' %}
       {% elif t == 't9_travis' %}{% include 'partials/resume_templates/t9_travis.html' %}
       {% elif t == 't10_daniel' %}{% include 'partials/resume_templates/t10_daniel.html' %}
+      {% elif t == 't11_mira' %}{% include 'partials/resume_templates/t11_mira.html' %}
+      {% elif t == 't12_travis_v2' %}{% include 'partials/resume_templates/t12_travis_v2.html' %}
+      {% elif t == 't13_kelly_v2' %}{% include 'partials/resume_templates/t13_kelly_v2.html' %}
+      {% elif t == 't14_wes' %}{% include 'partials/resume_templates/t14_wes.html' %}
+      {% elif t == 't15_matthew' %}{% include 'partials/resume_templates/t15_matthew.html' %}
+      {% elif t == 't16_james' %}{% include 'partials/resume_templates/t16_james.html' %}
+      {% elif t == 't17_james_navy' %}{% include 'partials/resume_templates/t17_james_navy.html' %}
+      {% elif t == 't18_james_sidebar' %}{% include 'partials/resume_templates/t18_james_sidebar.html' %}
+      {% elif t == 't19_daryl' %}{% include 'partials/resume_templates/t19_daryl.html' %}
+      {% elif t == 't20_wes_v2' %}{% include 'partials/resume_templates/t20_wes_v2.html' %}
+      {% elif t == 't21_daryl_clean' %}{% include 'partials/resume_templates/t21_daryl_clean.html' %}
+      {% elif t == 't22_samantha_blue' %}{% include 'partials/resume_templates/t22_samantha_blue.html' %}
+      {% elif t == 't23_olivia_pink' %}{% include 'partials/resume_templates/t23_olivia_pink.html' %}
       {% else %}{% include 'partials/resume_templates/t1_kelly.html' %}
       {% endif %}
     {% endwith %}
 
-    <div style="margin-top: 1rem;">
-      <button class="btn btn-primary wide" disabled>Export as PDF (Coming Soon)</button>
+    </div>
+
+    <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+      <button class="btn btn-primary wide" onclick="exportToPDF()">
+        <span>📄 Export as PDF</span>
+      </button>
     </div>
   </aside>
+
 </div>
 
 <script>
@@ -325,7 +365,39 @@
     }
 
     tabs.forEach(t => t.addEventListener("click", () => activate(t.dataset.tab)));
+
+    // PDF Export Logic
+    window.exportToPDF = function() {
+      const element = document.getElementById('resume-preview-container');
+      const opt = {
+        margin: 0.2,
+        filename: 'CVevo_Resume.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+      };
+      
+      const btn = event.currentTarget;
+      const originalText = btn.innerHTML;
+      btn.innerHTML = "<span>⏳ Generating...</span>";
+      btn.disabled = true;
+
+      html2pdf().set(opt).from(element).save().then(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      });
+    }
+
+    // Focus Mode Toggle
+    window.toggleFocusMode = function() {
+      const container = document.getElementById('builder-container');
+      const btn = document.getElementById('focus-btn');
+      const isFocus = container.classList.toggle('focus-mode');
+      
+      btn.innerHTML = isFocus ? "<span>⬅ Exit Focus</span>" : "<span>🔍 Focus View</span>";
+    }
   })();
 </script>
+
 
 {% endblock %}

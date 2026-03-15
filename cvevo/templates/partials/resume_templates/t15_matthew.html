@@ -1,0 +1,76 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap');
+  .t15-wrap { font-family: 'Segoe UI', sans-serif; background: #fff; color: #1a2b3c; padding: 2.5rem; text-align: left; }
+  .t15-head { display: flex; gap: 2rem; align-items: center; margin-bottom: 2.5rem; }
+  .t15-img { width: 90px; height: 90px; background: #eee; border-radius: 4px; overflow: hidden; }
+  .t15-img img { width: 100%; height: 100%; object-fit: cover; }
+  .t15-title-wrap h1 { font-size: 2rem; font-weight: 700; margin: 0; color: #0f172a; }
+  .t15-role { font-size: 0.95rem; color: #64748b; font-weight: 600; }
+  
+  .t15-main { display: grid; grid-template-columns: 1fr 220px; gap: 3rem; }
+  .t15-sect-title { font-size: 1.1rem; font-weight: 700; color: #0f172a; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.8rem; }
+  .t15-sect-title i { font-size: 1.2rem; width: 24px; text-align: center; }
+  
+  .t15-p { font-size: 0.95rem; line-height: 1.6; color: #334155; margin-bottom: 2rem; }
+  
+  .t15-item { margin-bottom: 1.8rem; border-left: 2px solid #e2e8f0; padding-left: 1.5rem; position: relative; }
+  .t15-item::before { content: ""; position: absolute; left: -7px; top: 0; width: 12px; height: 12px; background: #0f172a; border-radius: 50%; }
+  .t15-item-title { font-weight: 700; font-size: 1.05rem; color: #0f172a; }
+  .t15-item-date { font-size: 0.85rem; color: #64748b; margin: 0.2rem 0 0.5rem 0; }
+  .t15-desc { font-size: 0.9rem; line-height: 1.6; color: #334155; margin: 0; }
+  
+  .t15-side-sect { margin-bottom: 2.5rem; }
+  .t15-side-title { font-size: 1rem; font-weight: 700; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem; margin-bottom: 1rem; }
+  .t15-side-item { font-size: 0.9rem; margin-bottom: 0.8rem; color: #334155; line-height: 1.5; }
+</style>
+<div class="card rb-preview t15-wrap" style="padding:0; border:none; border-radius: 0;">
+  <div class="t15-head">
+    <div class="t15-img">
+        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80" alt="Profile">
+    </div>
+    <div class="t15-title-wrap">
+        <h1>{{ user.jobseeker_profile.full_name }}</h1>
+        <div class="t15-role">{{ user.jobseeker_profile.experiences.first.position|default:"Financial Analyst" }}</div>
+    </div>
+  </div>
+
+  <div class="t15-main">
+    <div class="t15-content">
+      <div class="t15-sect-title">👤 Summary</div>
+      <p class="t15-p">{{ user.jobseeker_profile.summary }}</p>
+
+      <div class="t15-sect-title">💼 Experience</div>
+      {% for exp in experiences %}
+      <div class="t15-item">
+        <div class="t15-item-title">{{ exp.position }}, {{ exp.company }}</div>
+        <div class="t15-item-date">{{ exp.start_date|date:"M Y" }} — {{ exp.end_date|date:"M Y"|default:"Current" }}</div>
+        <p class="t15-desc">{{ exp.description }}</p>
+      </div>
+      {% endfor %}
+
+      <div class="t15-sect-title">🎓 Education</div>
+      {% for edu in educations %}
+      <div class="t15-item">
+        <div class="t15-item-title">{{ edu.degree }}, {{ edu.institution }}</div>
+        <div class="t15-item-date">{{ edu.start_date|date:"Y" }} — {{ edu.end_date|date:"Y"|default:"Current" }}</div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="t15-sidebar">
+      <div class="t15-side-sect">
+        <div class="t15-side-title">Details</div>
+        <div class="t15-side-item">{{ user.email }}</div>
+        <div class="t15-side-item">{{ user.jobseeker_profile.location }}</div>
+        <div class="t15-side-item">{{ user.jobseeker_profile.phone }}</div>
+      </div>
+
+      <div class="t15-side-sect">
+        <div class="t15-side-title">Skills</div>
+        {% for skill in skills %}
+        <div class="t15-side-item">• {{ skill.name }}</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>

@@ -381,7 +381,10 @@ def resume_delete(request, pk):
 def select_template(request, template_name):
     valid_templates = [
         't1_kelly', 't2_howard', 't3_samantha_beige', 't4_samantha_white', 't5_jessie',
-        't6_taylor', 't7_blue_jessie', 't8_sebastian', 't9_travis', 't10_daniel'
+        't6_taylor', 't7_blue_jessie', 't8_sebastian', 't9_travis', 't10_daniel',
+        't11_mira', 't12_travis_v2', 't13_kelly_v2', 't14_wes', 't15_matthew',
+        't16_james', 't17_james_navy', 't18_james_sidebar', 't19_daryl', 't20_wes_v2',
+        't21_daryl_clean', 't22_samantha_blue', 't23_olivia_pink'
     ]
     if template_name in valid_templates:
         profile = request.user.jobseeker_profile

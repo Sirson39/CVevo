@@ -1,0 +1,95 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&display=swap');
+  .t19-wrap { font-family: 'Roboto Slab', serif; background: #fff; color: #1a1a1b; min-height: 850px; text-align: left; }
+  .t19-header { background-color: #333; color: #fff; padding: 2rem 3rem; display: flex; align-items: center; gap: 2rem; }
+  
+  .t19-img-mini { width: 80px; height: 80px; border-radius: 4px; border: 2px solid rgba(255,255,255,0.2); overflow: hidden; }
+  .t19-img-mini img { width: 100%; height: 100%; object-fit: cover; }
+  
+  .t19-title-box h1 { font-size: 2.22rem; font-weight: 700; margin: 0; letter-spacing: 0.5px; }
+  .t19-role { font-size: 1rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 2px; margin-top: 0.4rem; }
+  
+  .t19-contact-strip { background-color: #1a1a1b; color: #fff; padding: 0.8rem 3rem; display: flex; gap: 1.5rem; font-size: 0.8rem; }
+  .t19-contact-item { display: flex; align-items: center; gap: 0.5rem; opacity: 0.9; }
+  
+  .t19-content { padding: 3rem; }
+  .t19-sect { margin-bottom: 2.5rem; }
+  .t19-sect-title { font-size: 1.2rem; font-weight: 700; border-bottom: 1.5px solid #1a1a1b; padding-bottom: 0.5rem; margin-bottom: 1.2rem; text-transform: uppercase; color: #1a1a1b; }
+  
+  .t19-p { font-size: 0.95rem; line-height: 1.6; color: #333; }
+  
+  .t19-item { margin-bottom: 1.5rem; }
+  .t19-item-title { font-weight: 700; font-size: 1rem; margin-bottom: 0.2rem; }
+  .t19-item-date { font-size: 0.85rem; color: #666; font-style: italic; margin-bottom: 0.6rem; }
+  .t19-desc { font-size: 0.9rem; line-height: 1.6; padding-left: 1.2rem; }
+  
+  .t19-skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .t19-skill { font-size: 0.95rem; color: #333; }
+</style>
+<div class="card rb-preview t19-wrap" style="padding:0; border:none; border-radius: 0;">
+  <div class="t19-header">
+    <div class="t19-img-mini">
+      <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80" alt="Profile">
+    </div>
+    <div class="t19-title-box">
+      <h1>{{ user.jobseeker_profile.full_name }}</h1>
+      <div class="t19-role">{{ user.jobseeker_profile.experiences.first.position|default:"Professional" }}</div>
+    </div>
+  </div>
+
+  <div class="t19-contact-strip">
+    <div class="t19-contact-item">✉ {{ user.email }}</div>
+    <div class="t19-contact-item">📍 {{ user.jobseeker_profile.location }}</div>
+    <div class="t19-contact-item">📞 {{ user.jobseeker_profile.phone }}</div>
+  </div>
+
+  <div class="t19-content">
+    {% if user.jobseeker_profile.summary %}
+    <div class="t19-sect">
+      <div class="t19-sect-title">Summary</div>
+      <p class="t19-p">{{ user.jobseeker_profile.summary }}</p>
+    </div>
+    {% endif %}
+
+    {% if experiences %}
+    <div class="t19-sect">
+      <div class="t19-sect-title">Experience</div>
+      {% for exp in experiences %}
+      <div class="t19-item">
+        <div class="t19-item-title">{{ exp.position }}, {{ exp.company }}</div>
+        <div class="t19-item-date">{{ exp.start_date|date:"M Y" }} — {{ exp.end_date|date:"M Y"|default:"Current" }}</div>
+        <ul class="t19-desc">
+          <li>{{ exp.description }}</li>
+        </ul>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3.33rem;">
+        {% if educations %}
+        <div class="t19-sect">
+          <div class="t19-sect-title">Education</div>
+          {% for edu in educations %}
+          <div class="t19-item">
+            <div class="t19-item-title">{{ edu.degree }}</div>
+            <div class="t19-item-date">{{ edu.start_date|date:"Y" }} — {{ edu.end_date|date:"Y"|default:"Current" }}</div>
+            <div style="font-size: 0.9rem;">{{ edu.institution }}</div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if skills %}
+        <div class="t19-sect">
+          <div class="t19-sect-title">Skills</div>
+          <div class="t19-skills-grid">
+            {% for skill in skills %}
+            <div class="t19-skill">• {{ skill.name }}</div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+    </div>
+  </div>
+</div>
