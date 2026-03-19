@@ -14,10 +14,10 @@
 <section class="ru-page">
 
   <!-- Header -->
-  <div class="ru-head">
+  <div class="ru-head" style="margin-bottom: 1.5rem;">
     <div>
-      <h2 class="ru-title">Resume Upload</h2>
-      <p class="ru-sub">Upload and manage your resumes</p>
+      <h1 class="ru-title" style="font-size: 24px;">Resume Upload</h1>
+      <p class="ru-sub" style="font-size: 13px; color: #64748b;">Upload and manage your resumes</p>
     </div>
   </div>
 
@@ -25,11 +25,11 @@
   <div class="ru-card">
     <form method="post" enctype="multipart/form-data" action="{% url 'resume_upload' %}" id="uploadForm">
       {% csrf_token %}
-      <div class="ru-drop" id="dropzone">
+      <div class="ru-drop" id="dropzone" style="min-height: 180px; border-radius: 12px; gap: 10px;">
         <input class="ru-input" id="resumeFile" name="resume_file" type="file" accept=".pdf,.docx"
           onchange="this.form.submit()" style="opacity: 0; position: absolute; z-index: -1;" />
 
-        <div class="ru-icon" aria-hidden="true">
+        <div class="ru-icon" aria-hidden="true" style="width: 48px; height: 48px; border-radius: 12px;">
           <!-- upload icon -->
           <svg viewBox="0 0 24 24" fill="none">
             <path d="M12 3v10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
@@ -41,22 +41,22 @@
         </div>
 
         <div class="ru-droptext">
-          <div class="ru-drop-title">Drop your resume here</div>
-          <div class="ru-drop-sub">or <span class="ru-linklike" id="browseBtn">click to browse</span> • PDF or DOCX
+          <div class="ru-drop-title" style="font-size: 18px; font-weight: 700;">Drop your resume here</div>
+          <div class="ru-drop-sub" style="font-size: 13px; color: #64748b;">or <span class="ru-linklike" id="browseBtn" style="color: #10b981; font-weight: 600;">click to browse</span> • PDF or DOCX
           </div>
         </div>
       </div>
     </form>
 
-    <div class="ru-meta">
-      <div class="ru-pill ok">
-        <span class="ru-pill-ico">✓</span> PDF files
+    <div class="ru-meta" style="margin-top: 1rem; gap: 8px;">
+      <div class="ru-pill ok" style="padding: 6px 12px; font-size: 12px; border-radius: 999px;">
+        <span class="ru-pill-ico" style="font-size: 11px;">✓</span> PDF files
       </div>
-      <div class="ru-pill ok">
-        <span class="ru-pill-ico">✓</span> DOCX files
+      <div class="ru-pill ok" style="padding: 6px 12px; font-size: 12px; border-radius: 999px;">
+        <span class="ru-pill-ico" style="font-size: 11px;">✓</span> DOCX files
       </div>
-      <div class="ru-pill warn">
-        <span class="ru-pill-ico">!</span> Max 5MB per file
+      <div class="ru-pill warn" style="padding: 6px 12px; font-size: 12px; border-radius: 999px;">
+        <span class="ru-pill-ico" style="font-size: 11px;">!</span> Max 5MB
       </div>
     </div>
 
@@ -87,22 +87,21 @@
     {% else %}
     <div class="ru-list" id="resumeList">
       {% for resume in resumes %}
-      <div class="ru-row">
+      <div class="ru-row" style="padding: 12px 16px; border-radius: 12px; background: #f8fafc; border: 1px solid #f1f5f9;">
         <div class="ru-file">
-          <span class="ru-file-ico">📄</span>
+          <span class="ru-file-ico" style="width: 36px; height: 36px; border-radius: 10px; font-size: 16px;">📄</span>
           <div>
-            <div class="ru-file-name">{{ resume.filename }}</div>
-            <div class="ru-file-sub">Uploaded: {{ resume.uploaded_at|date:"Y-m-d H:i" }} • {{
-              resume.file.size|filesizeformat }}</div>
+            <div class="ru-file-name" style="font-size: 14px; font-weight: 600;">{{ resume.filename }}</div>
+            <div class="ru-file-sub" style="font-size: 11px; color: #64748b;">Uploaded: {{ resume.uploaded_at|date:"Y-m-d" }} • {{ resume.file.size|filesizeformat }}</div>
           </div>
         </div>
 
-        <div class="ru-actions">
-          <a href="{{ resume.file.url }}" class="ru-btn ghost" target="_blank">View</a>
-          <button class="ru-btn primary" type="button">Analyze</button>
+        <div class="ru-actions" style="gap: 8px;">
+          <a href="{{ resume.file.url }}" class="ru-btn ghost" target="_blank" style="padding: 6px 12px; font-size: 13px; border-radius: 8px;">View</a>
+          <button class="ru-btn primary" type="button" style="padding: 6px 12px; font-size: 13px; border-radius: 8px; background: #10b981; color: #fff;">Analyze</button>
           <form action="{% url 'resume_delete' resume.pk %}" method="post" style="display:inline;">
             {% csrf_token %}
-            <button class="ru-btn danger" type="submit" onclick="return confirm('Are you sure?')">Delete</button>
+            <button class="ru-btn danger" type="submit" onclick="return confirm('Are you sure?')" style="padding: 6px 12px; font-size: 13px; border-radius: 8px;">Delete</button>
           </form>
         </div>
       </div>

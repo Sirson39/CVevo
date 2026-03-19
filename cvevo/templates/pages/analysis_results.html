@@ -14,14 +14,14 @@
 <section class="ru-page">
 
   <!-- Header -->
-  <div class="ru-head">
+  <div class="ru-head" style="margin-bottom: 1.5rem;">
     <div>
-      <h2 class="ru-title">Analysis Results</h2>
-      <p class="ru-sub">Compare your resume performance against specific job requirements.</p>
+      <h1 class="ru-title" style="font-size: 24px;">Analysis Results</h1>
+      <p class="ru-sub" style="font-size: 13px; color: #64748b;">Compare your resume performance against specific job requirements.</p>
     </div>
 
     <div class="actions-row">
-      <a class="btn btn-ghost" href="{% url 'jobseeker_dashboard' %}">Back to Dashboard</a>
+      <a class="btn btn-ghost" href="{% url 'jobseeker_dashboard' %}" style="padding: 8px 16px; font-size: 14px; border-radius: 8px;">Back to Dashboard</a>
     </div>
   </div>
 
@@ -40,10 +40,10 @@
 
           <div style="text-align:right;">
             <div class="kpi-value"
-              style="font-size:2rem; color:{% if result.score >= 80 %}var(--green){% elif result.score >= 50 %}var(--orange){% else %}var(--red){% endif %};">
+              style="font-size: 24px; font-weight: 800; color: {% if result.score >= 80 %}#10b981{% elif result.score >= 50 %}#f59e0b{% else %}#ef4444{% endif %};">
               {{ result.score|floatformat:0 }}%
             </div>
-            <div class="muted" style="font-size:.82rem;">ATS Match Score</div>
+            <div class="muted" style="font-size: 11px; font-weight: 600;">ATS Match Score</div>
           </div>
         </div>
 

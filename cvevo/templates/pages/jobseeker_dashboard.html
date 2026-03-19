@@ -4,14 +4,14 @@
 {% block content %}
 
 <!-- DASHBOARD HEADER -->
-<div class="ru-head" style="margin-bottom: 2rem;">
+<div class="ru-head" style="margin-bottom: 1.5rem;">
   <div>
-    <h2 class="ru-title">Welcome back, {{ user.jobseeker_profile.full_name|default:user.email }}</h2>
+    <h1 class="ru-title" style="font-size: 24px;">Welcome back, {{ user.jobseeker_profile.full_name|default:user.email }}</h1>
     <p class="ru-sub">Here's an overview of your resume performance and job matches.</p>
   </div>
   <div class="actions-row">
-    <a class="btn btn-primary" href="{% url 'resume_upload' %}">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px; height:18px;">
+    <a class="btn btn-primary" href="{% url 'resume_upload' %}" style="padding: 8px 16px; font-size: 14px; border-radius: 8px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px; margin-right: 6px;">
         <path d="M12 3v10M7 8l5-5 5 5M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5" />
       </svg>
       Upload New Resume
@@ -19,81 +19,77 @@
   </div>
 </div>
 
-
-
 <!-- TOP METRICS -->
-<section class="section">
-  <div class="grid grid-4">
-    <article class="card kpi">
+<section class="section" style="margin: 0;">
+  <div class="grid grid-4" style="gap: 16px;">
+    <article class="card kpi" style="padding: 16px; border-radius: 12px;">
       <div class="kpi-body">
-        <div class="kpi-label">Average ATS Score</div>
-        <div class="kpi-value">--%</div>
-        <div class="kpi-sub">Across all resumes</div>
+        <div class="kpi-label" style="font-size: 12px; color: #64748b; font-weight: 600;">Average ATS Score</div>
+        <div class="kpi-value" style="font-size: 24px; font-weight: 800; margin: 4px 0;">--%</div>
+        <div class="kpi-sub" style="font-size: 11px; color: #94a3b8;">Across all resumes</div>
       </div>
     </article>
 
-    <article class="card kpi">
+    <article class="card kpi" style="padding: 16px; border-radius: 12px;">
       <div class="kpi-body">
-        <div class="kpi-label">Active Resumes</div>
-        <div class="kpi-value">{{ resumes.count }}</div>
-        <div class="kpi-sub">In your profile</div>
+        <div class="kpi-label" style="font-size: 12px; color: #64748b; font-weight: 600;">Active Resumes</div>
+        <div class="kpi-value" style="font-size: 24px; font-weight: 800; margin: 4px 0;">{{ resumes.count }}</div>
+        <div class="kpi-sub" style="font-size: 11px; color: #94a3b8;">In your profile</div>
       </div>
     </article>
 
-    <article class="card kpi">
+    <article class="card kpi" style="padding: 16px; border-radius: 12px;">
       <div class="kpi-body">
-        <div class="kpi-label">Total Scans</div>
-        <div class="kpi-value">0</div>
-        <div class="kpi-sub">This month</div>
+        <div class="kpi-label" style="font-size: 12px; color: #64748b; font-weight: 600;">Total Scans</div>
+        <div class="kpi-value" style="font-size: 24px; font-weight: 800; margin: 4px 0;">0</div>
+        <div class="kpi-sub" style="font-size: 11px; color: #94a3b8;">This month</div>
       </div>
     </article>
 
-    <article class="card kpi">
+    <article class="card kpi" style="padding: 16px; border-radius: 12px;">
       <div class="kpi-body">
-        <div class="kpi-label">Profile Strength</div>
-        <div class="kpi-value">Ready</div>
-        <div class="kpi-sub">All details complete</div>
+        <div class="kpi-label" style="font-size: 12px; color: #64748b; font-weight: 600;">Profile Strength</div>
+        <div class="kpi-value" style="font-size: 24px; font-weight: 800; margin: 4px 0; color: #0f172a;">Ready</div>
+        <div class="kpi-sub" style="font-size: 11px; color: #94a3b8;">All details complete</div>
       </div>
     </article>
   </div>
 </section>
 
 <!-- MAIN CONTENT GRID -->
-<div class="grid grid-2" style="margin-top: 2rem;">
+<div class="grid grid-2" style="margin-top: 1.5rem; grid-template-columns: 1.6fr 0.9fr; gap: 20px;">
   <!-- Resume History Table -->
-  <section class="card pad-lg">
-    <div class="card-head">
-      <h3 class="card-title">Resume History</h3>
-      <a class="small-link" href="{% url 'resume_upload' %}">Manage all →</a>
+  <section class="card pad-lg" style="padding: 20px; border-radius: 12px;">
+    <div class="card-head" style="margin-bottom: 1.25rem;">
+      <h3 class="card-title" style="font-size: 16px; font-weight: 700;">Resume History</h3>
+      <a class="small-link" href="{% url 'resume_upload' %}" style="font-size: 13px; color: #10b981; font-weight: 600;">Manage all →</a>
     </div>
 
     <div class="table-wrap">
-      <table class="table">
+      <table class="table" style="width: 100%; font-size: 13px;">
         <thead>
-          <tr>
-            <th>FILENAME</th>
-            <th>UPLOADED</th>
-            <th>SCORE</th>
-            <th class="th-right">ACTIONS</th>
+          <tr style="border-bottom: 1px solid #f1f5f9;">
+            <th style="padding: 10px 0; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em;">FILENAME</th>
+            <th style="padding: 10px 0; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em;">UPLOADED</th>
+            <th style="padding: 10px 0; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em;">SCORE</th>
+            <th class="th-right" style="padding: 10px 0; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em;">ACTIONS</th>
           </tr>
         </thead>
         <tbody>
           {% for resume in resumes|slice:":5" %}
-          <tr>
-            <td style="font-weight: 500;">{{ resume.filename }}</td>
-            <td class="muted">{{ resume.uploaded_at|date:"M d, Y" }}</td>
-            <td><span class="status soft">--%</span></td>
-            <td class="td-right">
-              <a href="{{ resume.file.url }}" class="ticon" title="View" target="_blank">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                  style="width:16px; height:16px;">
+          <tr style="border-bottom: 1px solid #f8fafc;">
+            <td style="padding: 12px 0; font-weight: 500; color: #1e293b;">{{ resume.filename }}</td>
+            <td class="muted" style="padding: 12px 0; color: #64748b;">{{ resume.uploaded_at|date:"M d, Y" }}</td>
+            <td style="padding: 12px 0;"><span class="status soft" style="background: #ecfdf5; color: #10b981; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700;">--%</span></td>
+            <td class="td-right" style="padding: 12px 0;">
+              <a href="{{ resume.file.url }}" class="ticon" title="View" target="_blank" style="color: #94a3b8; margin-left: 8px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px;">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                   <circle cx="12" cy="12" r="3" />
                 </svg>
               </a>
-              <a href="{% url 'analyze_resume' resume.id %}" class="ticon" title="Analyze">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                  style="width:16px; height:16px;">
+              <a href="{% url 'analyze_resume' resume.id %}" class="ticon" title="Analyze" style="color: #94a3b8; margin-left: 8px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px;">
                   <path d="M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z" />
                 </svg>
               </a>
@@ -101,8 +97,7 @@
           </tr>
           {% empty %}
           <tr>
-            <td colspan="4" class="muted text-center" style="padding: 2rem;">No resumes found. <a
-                href="{% url 'resume_upload' %}">Upload one now</a>.</td>
+            <td colspan="4" class="muted text-center" style="padding: 2rem; color: #94a3b8;">No resumes found. <a href="{% url 'resume_upload' %}" style="color: #10b981; font-weight: 600;">Upload one now</a>.</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -111,37 +106,35 @@
   </section>
 
   <!-- Side Panels -->
-  <div class="stack">
+  <div class="stack" style="gap: 20px;">
     <!-- Analysis Placeholder -->
-    <article class="card pad-lg">
-      <h3 class="card-title">Quick Analysis</h3>
-      <p class="muted" style="margin-top: 0.5rem; font-size: 0.9rem;">Select a resume and a job description to get
-        instant feedback.</p>
+    <article class="card pad-lg" style="padding: 20px; border-radius: 12px;">
+      <h3 class="card-title" style="font-size: 16px; font-weight: 700;">Quick Analysis</h3>
+      <p class="muted" style="margin-top: 0.5rem; font-size: 13px; color: #64748b;">Select a resume and a job description to get instant feedback.</p>
 
-      <div class="divider"></div>
+      <div class="divider" style="height: 1px; background: #f1f5f9; margin: 16px 0;"></div>
 
-      <button class="btn btn-primary wide" disabled>Start New Scan</button>
-      <p class="muted" style="text-align:center; font-size: 0.8rem; margin-top: 1rem;">Feature coming soon in Sprint 4
-      </p>
+      <button class="btn btn-primary wide" disabled style="width: 100%; padding: 10px; border-radius: 8px; background: #10b981; color: #fff; font-weight: 600; border: none; opacity: 0.8;">Start New Scan</button>
+      <p class="muted" style="text-align:center; font-size: 11px; margin-top: 1rem; color: #94a3b8;">Feature coming soon in Sprint 4</p>
     </article>
 
     <!-- Quick Links -->
-    <article class="card pad-lg">
-      <h3 class="card-title">Tools & Resources</h3>
-      <div class="list" style="margin-top: 1rem;">
-        <a href="{% url 'resume_builder' %}" class="list-item">
+    <article class="card pad-lg" style="padding: 20px; border-radius: 12px;">
+      <h3 class="card-title" style="font-size: 16px; font-weight: 700;">Tools & Resources</h3>
+      <div class="list" style="margin-top: 1rem; display: flex; flex-direction: column; gap: 12px;">
+        <a href="{% url 'resume_builder' %}" class="list-item" style="display: flex; align-items: center; justify-content: space-between; text-decoration: none; padding: 12px; border-radius: 8px; background: #f8fafc; border: 1px solid #f1f5f9;">
           <div>
-            <div class="list-title">Resume Builder</div>
-            <div class="list-sub">Create a professional resume from scratch.</div>
+            <div class="list-title" style="font-weight: 600; color: #1e293b; font-size: 14px;">Resume Builder</div>
+            <div class="list-sub" style="font-size: 12px; color: #64748b; margin-top: 2px;">Create a professional resume from scratch.</div>
           </div>
-          <span class="muted">→</span>
+          <span class="muted" style="color: #94a3b8;">→</span>
         </a>
-        <a href="{% url 'templates_gallery' %}" class="list-item">
+        <a href="{% url 'templates_gallery' %}" class="list-item" style="display: flex; align-items: center; justify-content: space-between; text-decoration: none; padding: 12px; border-radius: 8px; background: #f8fafc; border: 1px solid #f1f5f9;">
           <div>
-            <div class="list-title">Template Gallery</div>
-            <div class="list-sub">Choose from verified ATS-friendly layouts.</div>
+            <div class="list-title" style="font-weight: 600; color: #1e293b; font-size: 14px;">Template Gallery</div>
+            <div class="list-sub" style="font-size: 12px; color: #64748b; margin-top: 2px;">Choose from verified ATS-friendly layouts.</div>
           </div>
-          <span class="muted">→</span>
+          <span class="muted" style="color: #94a3b8;">→</span>
         </a>
       </div>
     </article>

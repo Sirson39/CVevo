@@ -8,11 +8,11 @@
         background: rgba(255, 255, 255, 0.92);
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
-        padding: 1.5rem 1rem;
-        margin: 0 0 2rem 0;
+        padding: 1rem;
+        margin: 0 0 1.5rem 0;
         border: 1px solid rgba(226, 232, 240, 0.9);
-        border-radius: 22px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
 
     .jobseeker-stepper {
@@ -27,11 +27,11 @@
 
     .stepper-line {
         position: absolute;
-        top: 24px;
+        top: 18px;
         left: 10%;
         right: 10%;
-        height: 3px;
-        background-color: #e2e8f0;
+        height: 2px;
+        background-color: #f1f5f9;
         z-index: 0;
     }
 
@@ -58,17 +58,17 @@
     }
 
     .stepper-icon-wrapper {
-        width: 48px;
-        height: 48px;
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         background-color: white;
-        border: 2px solid #cbd5e1;
+        border: 2px solid #e2e8f0;
         color: #94a3b8;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
 
     .stepper-label {
@@ -81,12 +81,12 @@
 
     /* Active State */
     .stepper-item.active .stepper-icon-wrapper {
-        background-color: #0d9488;
-        /* CVevo theme greenish/teal */
-        border-color: #0d9488;
+        background-color: #10b981;
+        /* CVevo theme green */
+        border-color: #10b981;
         color: white;
-        box-shadow: 0 4px 12px rgba(13, 148, 136, 0.4);
-        transform: scale(1.15);
+        box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+        transform: scale(1.1);
     }
 
     .stepper-item.active .stepper-label {
@@ -95,8 +95,8 @@
     }
 
     .stepper-icon-wrapper svg {
-        width: 20px;
-        height: 20px;
+        width: 16px;
+        height: 16px;
     }
 
     @media (max-width: 768px) {

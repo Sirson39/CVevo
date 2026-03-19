@@ -20,8 +20,8 @@
   --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 
-  --radius: 12px;
-  --radius-lg: 16px;
+  --radius: 10px;
+  --radius-lg: 14px;
 }
 
 * {
@@ -39,7 +39,7 @@ body {
   font-family:'Inter', sans-serif;
   color: var(--text);
   background: var(--bg);
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
 h1, h2, h3, h4, .brand-text, .ru-title {
@@ -63,7 +63,7 @@ input {
 .app {
   height: 100vh;
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 260px 1fr;
   overflow: hidden;
 }
 
@@ -78,7 +78,7 @@ input {
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  padding: 18px 16px;
+  padding: 14px 12px;
   overflow: hidden;
 }
 
@@ -102,7 +102,7 @@ input {
   display: grid;
   place-items: center;
   background: rgba(47, 143, 122, .12);
-  color: var(--green);
+  color: #2f8f7a;
   box-shadow: 0 10px 22px rgba(15, 23, 42, .08);
   transition: transform .15s ease, box-shadow .15s ease;
 }
@@ -113,16 +113,16 @@ input {
 }
 
 .brand-text {
-  font-size: 22px;
+  font-size: 20px;
   line-height: 1;
 }
 
 .brand-text .c {
-  color: var(--green);
+  color: #2f8f7a;
 }
 
 .brand-text .e {
-  color: var(--orange);
+  color: #ea8e5c;
 }
 
 .side-section {
@@ -135,7 +135,7 @@ input {
   letter-spacing: .14em;
   color: #7b8799;
   font-weight: 800;
-  margin: 16px 0 10px;
+  margin: 14px 0 8px;
   text-transform: uppercase;
 }
 
@@ -149,8 +149,8 @@ input {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 12px;
-  border-radius: 16px;
+  padding: 10px 10px;
+  border-radius: 12px;
   color: #22314a;
   border: 1px solid transparent;
   position: relative;
@@ -158,9 +158,9 @@ input {
 }
 
 .nav-ico {
-  width: 34px;
-  height: 34px;
-  border-radius: 12px;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
   display: grid;
   place-items: center;
   background: rgba(15, 23, 42, .04);
@@ -169,8 +169,8 @@ input {
 }
 
 .nav-ico svg {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   display: block;
 }
 
@@ -279,7 +279,7 @@ input {
   background: rgba(245, 247, 251, .92);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
-  padding: 18px 22px;
+  padding: 12px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -288,13 +288,14 @@ input {
 
 .page-title h1 {
   margin: 0;
-  font-size: 28px;
+  font-size: 22px;
   letter-spacing: -.02em;
 }
 
 .page-title p {
-  margin: 4px 0 0;
+  margin: 2px 0 0;
   color: var(--muted);
+  font-size: 13px;
 }
 
 .topbar-right {
@@ -426,8 +427,8 @@ input {
 
 /* ============ Content ============ */
 .content {
-  padding: 22px;
-  max-width: 1220px;
+  padding: 20px;
+  max-width: 1400px;
   overflow-y: auto;
   /* ✅ only content scrolls */
   height: calc(100vh - 78px);
@@ -586,13 +587,14 @@ input {
 .kpi-label {
   color: var(--muted);
   font-weight: 700;
+  font-size: 13px;
 }
 
 .kpi-value {
-  font-size: 40px;
-  font-weight: 900;
+  font-size: 28px;
+  font-weight: 800;
   letter-spacing: -.02em;
-  margin-top: 6px;
+  margin-top: 4px;
 }
 
 .kpi-sub {
@@ -1088,7 +1090,7 @@ input {
 
 .ru-title {
   margin: 0;
-  font-size: 28px;
+  font-size: 24px;
   letter-spacing: -.02em;
   font-weight: 900;
 }
@@ -2038,7 +2040,7 @@ input {
 
 .tg-grid {
   display: grid;
-  gap: 16px;
+  gap: 24px;
   grid-template-columns: repeat(4, 1fr);
   margin-top: 14px;
 }
@@ -2059,9 +2061,66 @@ input {
 
 .tg-img {
   height: 230px;
-  background-size: cover;
-  background-position: center;
+  width: 100%;
+  display: block;
+  object-fit: cover;
+  transition: transform .3s ease;
+}
+
+.tg-img-box {
   position: relative;
+  height: 230px;
+  overflow: hidden;
+  background: #f1f5f9;
+}
+
+.tg-card:hover .tg-img {
+  transform: scale(1.05);
+}
+
+.tg-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(2px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  opacity: 0;
+  transition: opacity .2s ease;
+  padding: 20px;
+}
+
+.tg-card:hover .tg-overlay {
+  opacity: 1;
+}
+
+.tg-btn {
+  width: 100%;
+  max-width: 160px;
+  padding: 10px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 13px;
+  text-align: center;
+  transition: all .2s ease;
+}
+
+.tg-btn-view {
+  background: white;
+  color: #0f172a;
+}
+
+.tg-btn-use {
+  background: var(--green);
+  color: white;
+}
+
+.tg-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
 }
 
 .tg-pro {
