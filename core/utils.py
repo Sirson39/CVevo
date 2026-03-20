@@ -2,7 +2,19 @@ import re
 from pdfminer.high_level import extract_text as extract_pdf_text
 import docx
 
+# Import new AI/NLP module
+try:
+    from ai_nlp.pipeline import process_resume_against_jd
+    from ai_nlp.extractor import get_text_from_file, extract_text_from_pdf as new_extract_pdf, extract_text_from_docx as new_extract_docx
+    from ai_nlp.parser import parse_resume
+    from ai_nlp.analyzer import calculate_ats_score as new_ats_score
+    AI_NLP_AVAILABLE = True
+except ImportError:
+    AI_NLP_AVAILABLE = False
+
 def extract_text_from_pdf(file_path):
+    if AI_NLP_AVAILABLE:
+        return new_extract_pdf(file_path)
     try:
         return extract_pdf_text(file_path)
     except Exception as e:
@@ -10,6 +22,8 @@ def extract_text_from_pdf(file_path):
         return ""
 
 def extract_text_from_docx(file_path):
+    if AI_NLP_AVAILABLE:
+        return new_extract_docx(file_path)
     try:
         doc = docx.Document(file_path)
         return "\n".join([para.text for para in doc.paragraphs])
@@ -19,8 +33,18 @@ def extract_text_from_docx(file_path):
 
 def parse_resume_text(text):
     """
-    Basic rule-based parsing using regex to identify common resume sections.
+    Enhanced parsing using the new AI/NLP module.
     """
+    if AI_NLP_AVAILABLE:
+        parsed = parse_resume(text)
+        # Map to the format expected by views if different
+        return {
+            "skills": ", ".join(parsed.get("skills", [])),
+            "experience": parsed.get("sections", {}).get("experience", ""),
+            "education": parsed.get("sections", {}).get("education", ""),
+        }
+    
+    # Basic rule-based parsing as fallback
     sections = {
         "skills": "",
         "experience": "",
@@ -49,9 +73,16 @@ def parse_resume_text(text):
 
 def calculate_ats_score(resume_text, job_requirements):
     """
-    Compares resume text against job requirements.
-    requirements usually comma-separated keywords.
+    Enhanced scoring using the new AI/NLP module.
     """
+    if AI_NLP_AVAILABLE:
+        parsed_data = parse_resume(resume_text)
+        score, matched, missing, recommendations = new_ats_score(parsed_data, job_requirements)
+        
+        feedback = " ".join(recommendations)
+        return score, matched, missing, feedback
+
+    # Basic logic as fallback
     if not job_requirements:
         return 0, [], [], "No requirements provided for comparison."
 
