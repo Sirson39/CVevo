@@ -1,149 +1,86 @@
-{% extends "app_shell.html" %}
-{% block title %}CVevo • Create Job{% endblock %}
+{% extends "base_app.html" %}
+{% load static %}
+{% block title %}Post New Job • CVevo{% endblock %}
 
-{% block app_content %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'cvevo/css/dashboard.css' %}">
+<style>
+  .form-group { margin-bottom: 1.5rem; }
+  .form-label { display: block; font-weight: 700; font-size: 0.9rem; margin-bottom: 0.5rem; color: #475569; }
+  .form-input, .form-textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
+  }
+  .form-input:focus, .form-textarea:focus {
+    outline: none;
+    border-color: #10b981;
+  }
+  .form-textarea { min-height: 120px; resize: vertical; }
+  .helper-text { font-size: 0.8rem; color: #64748b; margin-top: 0.4rem; }
+</style>
+{% endblock %}
 
-<section class="cj-head">
+{% block content %}
+<div class="dash-head" style="margin-bottom: 2rem;">
   <div>
-    <h2 class="h2x">Create Job Description</h2>
-    <p class="muted">Create a job post and start ranking candidates instantly.</p>
+    <h1 class="dash-welcome">Post New Job</h1>
+    <p class="dash-sub">Create a new job listing and define matching criteria.</p>
   </div>
-
-  <div class="cj-actions">
-    <button class="btnx btnx-ghost" type="button">Save Draft</button>
-    <button class="btnx btnx-primary" type="button">Publish Job</button>
+  <div class="dash-actions">
+    <a href="{% url 'hr_dashboard' %}" class="btn btn-ghost">Cancel</a>
   </div>
-</section>
+</div>
 
-<section class="grid-2 mt-18">
-  <!-- Left: Form -->
-  <div class="panel">
-    <div class="panel-head">
-      <h3 class="panel-title">Job Details</h3>
-      <span class="muted">Required fields</span>
-    </div>
-
-    <div class="form2 mt-10">
-      <div class="row2">
-        <label class="f2">
-          <span>Job Title</span>
-          <input class="in2" type="text" placeholder="e.g., Frontend Developer" />
-        </label>
-        <label class="f2">
-          <span>Location</span>
-          <input class="in2" type="text" placeholder="Remote / Kathmandu" />
-        </label>
-      </div>
-
-      <div class="row2">
-        <label class="f2">
-          <span>Employment Type</span>
-          <select class="in2">
-            <option selected>Full-time</option>
-            <option>Part-time</option>
-            <option>Internship</option>
-            <option>Contract</option>
-          </select>
-        </label>
-        <label class="f2">
-          <span>Experience Level</span>
-          <select class="in2">
-            <option selected>Mid (1–3 years)</option>
-            <option>Junior (0–1 years)</option>
-            <option>Senior (4+ years)</option>
-          </select>
-        </label>
-      </div>
-
-      <div class="row2">
-        <label class="f2">
-          <span>Salary Range (optional)</span>
-          <input class="in2" type="text" placeholder="e.g., ₹6–10 LPA / Negotiable" />
-        </label>
-
-        <label class="f2">
-          <span>Application Deadline</span>
-          <input class="in2" type="date" />
-        </label>
-      </div>
-    </div>
-
-    <div class="cj-split mt-18">
-      <div>
-        <div class="cj-label">Job Description</div>
-        <textarea class="cj-editor" rows="10" placeholder="Write the job description here..."></textarea>
-
-        <div class="cj-editor-actions">
-          <button class="btnx btnx-primary" type="button">✨ Generate JD (AI)</button>
-          <button class="btnx btnx-ghost" type="button">Insert Template</button>
-          <button class="btnx btnx-ghost" type="button">Clear</button>
+<div class="grid grid-2" style="grid-template-columns: 1.5fr 1fr; gap: 3rem;">
+  <section>
+    <article class="card pad-lg">
+      <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+          <label class="form-label" for="title">Job Title</label>
+          <input type="text" id="title" name="title" class="form-input" placeholder="e.g. Senior Frontend Developer" required>
         </div>
 
-        <div class="muted cj-hint">
-          Tip: Include responsibilities, requirements, and keywords for better ranking accuracy.
+        <div class="form-group">
+          <label class="form-label" for="description">Job Description</label>
+          <textarea id="description" name="description" class="form-textarea" placeholder="Describe the role, responsibilities, and company culture..." required></textarea>
         </div>
-      </div>
-    </div>
 
-    <!-- Skills chips -->
-    <div class="cj-skills mt-18">
-      <div class="panel-head" style="padding:0; border:0;">
-        <h3 class="panel-title">Required Skills</h3>
-        <span class="muted">Add keywords</span>
-      </div>
-
-      <div class="skill-add mt-10">
-        <input class="in2" type="text" placeholder="Type a skill and press Add" />
-        <button class="btnx btnx-primary" type="button">Add</button>
-      </div>
-
-      <div class="skill-chips mt-10">
-        <span class="schip">React <button type="button">×</button></span>
-        <span class="schip">TypeScript <button type="button">×</button></span>
-        <span class="schip">REST API <button type="button">×</button></span>
-        <span class="schip">Tailwind <button type="button">×</button></span>
-        <span class="schip">Testing <button type="button">×</button></span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Right: Preview -->
-  <aside class="panel cj-preview">
-    <div class="panel-head">
-      <h3 class="panel-title">Live Preview</h3>
-      <span class="tag tag-green">ATS-ready</span>
-    </div>
-
-    <div class="cj-prev-body">
-      <div class="cj-prev-title">Frontend Developer</div>
-      <div class="muted cj-prev-sub">Remote • Full-time • Mid (1–3 years)</div>
-
-      <div class="cj-prev-sec">
-        <h4>Overview</h4>
-        <p class="muted">
-          We are looking for a Frontend Developer to build modern, fast, and accessible UI experiences.
-        </p>
-      </div>
-
-      <div class="cj-prev-sec">
-        <h4>Responsibilities</h4>
-        <ul class="cj-ul">
-          <li>Build responsive UI with React.</li>
-          <li>Integrate APIs and handle state cleanly.</li>
-          <li>Work with designers to deliver polished UX.</li>
-        </ul>
-      </div>
-
-      <div class="cj-prev-sec">
-        <h4>Required Skills</h4>
-        <div class="cj-tags">
-          <span>React</span><span>TypeScript</span><span>REST</span><span>Tailwind</span>
+        <div class="form-group">
+          <label class="form-label" for="requirements">Key Requirements / Keywords</label>
+          <textarea id="requirements" name="requirements" class="form-textarea" placeholder="e.g. React, TypeScript, Node.js, 3+ years experience, Agile..." required></textarea>
+          <p class="helper-text">Our AI uses these keywords to score applicant resumes. Separate them with commas or list them clearly.</p>
         </div>
-      </div>
 
-      <button class="btnx btnx-primary btnx-block mt-18" type="button">Publish Job</button>
+        <div style="margin-top: 2rem;">
+          <button type="submit" class="btn btn-primary wide" style="background: #10b981; border: none; padding: 1rem;">
+            Publish Job Listing
+          </button>
+        </div>
+      </form>
+    </article>
+  </section>
+
+  <aside class="stack">
+    <div class="card pad-lg" style="background: #f0fdf4; border-color: #bcf0da;">
+      <h3 style="margin: 0 0 1rem 0; color: #166534; font-size: 1.1rem;">ATS Pro-Tips</h3>
+      <ul style="padding-left: 1.25rem; font-size: 0.9rem; color: #166534; line-height: 1.6;">
+        <li>Be specific with technical tools (e.g., "React 18" instead of just "Frontend").</li>
+        <li>Include "soft skills" like "Leadership" or "Communication" if they are critical.</li>
+        <li>The AI prioritizes keywords found in the <strong>Key Requirements</strong> section.</li>
+      </ul>
+    </div>
+
+    <div class="card pad-lg" style="margin-top: 2rem;">
+      <h4 style="margin: 0 0 1rem 0; font-size: 1rem;">Example Key Requirements</h4>
+      <code style="display: block; background: #f8fafc; padding: 1rem; border-radius: 8px; font-size: 0.85rem; color: #475569; border: 1px solid #e2e8f0;">
+        Python, Django, REST API, AWS S3, PostgreSQL, Unit Testing, Docker, Git, Problem Solving, Team Collaboration
+      </code>
     </div>
   </aside>
-</section>
-
+</div>
 {% endblock %}

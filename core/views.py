@@ -1,11 +1,9 @@
-# core/views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model, authenticate, login as auth_login, logout
 from django.utils.text import slugify
-from django.contrib.auth import authenticate, login as auth_login
 from .forms import (
-    JobseekerRegisterForm, HRRegisterForm, ResumeUploadForm,
+    JobseekerRegisterForm, HRRegisterForm, LoginForm, ResumeUploadForm,
     EducationForm, ExperienceForm, ProjectForm, SkillForm
 )
 from .models import JobseekerProfile, HRProfile, Resume, Education, Experience, Project, Skill, ParsedResumeData, JobPost, ATSResult
@@ -13,12 +11,26 @@ from .utils import extract_text_from_pdf, extract_text_from_docx, parse_resume_t
 from django.contrib.auth.decorators import login_required
 from .decorators import hr_required, jobseeker_required
 
+User = get_user_model()
+
 
 def home(request):
     return render(request, "index.html")
 
 def organizations(request):
     return render(request, "organization.html")
+
+@hr_required
+def hr_candidate_detail(request):
+    hr = request.user.hr_profile
+    result_id = request.GET.get("result_id")
+    
+    # We fetch the ATSResult and ensure it belongs to a job post created by this HR
+    result = get_object_or_404(ATSResult.objects.select_related('resume', 'job_post'), pk=result_id, job_post__hr=hr)
+    
+    return render(request, "pages/hr_candidate_detail.html", {
+        "result": result,
+    })
 
 def resume_tips(request):
     return render(request, "resume-tips.html")
@@ -32,6 +44,88 @@ def page(request, template_name):
 
 def register_choose(request):
     return render(request, "auth-register-choose.html")
+
+@hr_required
+def hr_resume_upload(request):
+    hr = request.user.hr_profile
+    job_posts = JobPost.objects.filter(hr=hr).order_by('-created_at')
+
+    if request.method == "POST":
+        job_id = request.POST.get("job_id")
+        files = request.FILES.getlist("resumes")
+        
+        if not job_id:
+            messages.error(request, "Please select a job post.")
+            return redirect('hr_resume_upload')
+            
+        job_post = get_object_or_404(JobPost, pk=job_id, hr=hr)
+        
+        if not files:
+            messages.error(request, "Please select at least one resume file.")
+            return redirect('hr_resume_upload')
+
+        success_count = 0
+        from core.utils import calculate_ats_score, extract_text_from_pdf, extract_text_from_docx
+
+        for f in files:
+            # 1. Create Resume Object (Source: HR Bulk)
+            resume = Resume.objects.create(
+                jobseeker=None, # HR Bulk upload candidates are not yet users
+                file=f,
+                filename=f.name,
+                source='HR Bulk'
+            )
+            
+            # 2. Extract Text
+            text = ""
+            if f.name.endswith(".pdf"):
+                text = extract_text_from_pdf(resume.file.path)
+            elif f.name.endswith(".docx"):
+                text = extract_text_from_docx(resume.file.path)
+            
+            if text:
+                # 3. Analyze against the selected Job Post
+                score, matched, missing, feedback = calculate_ats_score(text, job_post.requirements)
+                
+                # 4. Save Results
+                ATSResult.objects.create(
+                    resume=resume,
+                    job_post=job_post,
+                    score=score,
+                    feedback=feedback,
+                    matched_keywords=",".join(matched),
+                    missing_keywords=",".join(missing)
+                )
+                success_count += 1
+            else:
+                # If extraction fails, we still have the resume object but no analysis
+                pass
+
+        messages.success(request, f"Successfully processed {success_count} resumes for '{job_post.title}'.")
+        from django.urls import reverse
+        return redirect(f"{reverse('hr_candidate_ranking')}?job_id={job_post.id}")
+
+    return render(request, "pages/hr_resume_upload.html", {"job_posts": job_posts})
+
+@hr_required
+def hr_candidate_ranking(request):
+    hr = request.user.hr_profile
+    job_id = request.GET.get("job_id")
+    job_posts = JobPost.objects.filter(hr=hr).order_by('-created_at')
+    
+    selected_job = None
+    results = []
+    
+    if job_id:
+        selected_job = get_object_or_404(JobPost, pk=job_id, hr=hr)
+        results = ATSResult.objects.filter(job_post=selected_job).select_related('resume', 'resume__jobseeker').order_by('-score')
+
+    return render(request, "pages/hr_candidate_ranking.html", {
+        "job_posts": job_posts,
+        "selected_job": selected_job,
+        "results": results,
+    })
+
 
 def help_support(request):
     return render(request, "pages/help_support.html")
@@ -48,97 +142,142 @@ def _unique_username_from_email(email: str) -> str:
 
 
 def register_jobseeker(request):
-    if request.method == "POST":
-        form = JobseekerRegisterForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data["email"]
-            user = User.objects.create_user(
-                username=_unique_username_from_email(email),
-                email=email,
-                password=form.cleaned_data["password"],
-            )
-            JobseekerProfile.objects.create(
-                user=user,
-                full_name=form.cleaned_data["full_name"]
-            )
+    is_auth = request.user.is_authenticated
+    initial_data = {}
+    if is_auth:
+        initial_data = {
+            "full_name": request.user.full_name,
+            "email": request.user.email
+        }
 
-            messages.success(request, "Jobseeker account created. Please sign in.")
-            return redirect("login")
+    if request.method == "POST":
+        form = JobseekerRegisterForm(request.POST, user_is_authenticated=is_auth, initial=initial_data)
+        if form.is_valid():
+            full_name = form.cleaned_data["full_name"]
+            
+            if is_auth:
+                user = request.user
+                user.full_name = full_name
+                user.role = "jobseeker"
+                user.save()
+                if not hasattr(user, "jobseeker_profile"):
+                    JobseekerProfile.objects.create(user=user, full_name=full_name)
+                    messages.success(request, "Jobseeker profile created successfully!")
+                    return redirect("jobseeker_dashboard")
+            else:
+                email = form.cleaned_data["email"]
+                user = User.objects.create_user(
+                    email=email,
+                    password=form.cleaned_data["password"],
+                    full_name=full_name,
+                    role="jobseeker"
+                )
+                JobseekerProfile.objects.create(user=user, full_name=full_name)
+                messages.success(request, "Jobseeker account created. Please sign in.")
+                return redirect("login")
     else:
-        form = JobseekerRegisterForm()
+        form = JobseekerRegisterForm(user_is_authenticated=is_auth, initial=initial_data)
 
     return render(request, "auth-register-jobseeker.html", {"form": form})
 
 
 def register_hr(request):
-    if request.method == "POST":
-        form = HRRegisterForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data["email"]
-            user = User.objects.create_user(
-                username=_unique_username_from_email(email),
-                email=email,
-                password=form.cleaned_data["password"],
-            )
-            HRProfile.objects.create(
-                user=user,
-                full_name=form.cleaned_data["full_name"],
-                company=form.cleaned_data["company"],
-                role=form.cleaned_data["role"],
-            )
+    is_auth = request.user.is_authenticated
+    initial_data = {}
+    if is_auth:
+        initial_data = {
+            "full_name": request.user.full_name,
+            "email": request.user.email
+        }
 
-            messages.success(request, "HR account created. Please sign in.")
-            return redirect("login")
+    if request.method == "POST":
+        form = HRRegisterForm(request.POST, user_is_authenticated=is_auth, initial=initial_data)
+        if form.is_valid():
+            full_name = form.cleaned_data["full_name"]
+            company = form.cleaned_data["company"]
+            role_title = form.cleaned_data["role"]
+
+            if is_auth:
+                # Based on rules, HR should NOT be using Google login (is_auth=True via Google)
+                # But if they somehow get here, we can allow them to finish setup if they are role='hr'
+                user = request.user
+                user.full_name = full_name
+                user.role = "hr"
+                user.save()
+                if not hasattr(user, "hr_profile"):
+                    HRProfile.objects.create(
+                        user=user,
+                        full_name=full_name,
+                        company=company,
+                        role=role_title
+                    )
+                    messages.success(request, "HR profile created successfully!")
+                    return redirect("hr_dashboard")
+            else:
+                email = form.cleaned_data["email"]
+                user = User.objects.create_user(
+                    email=email,
+                    password=form.cleaned_data["password"],
+                    full_name=full_name,
+                    role="hr"
+                )
+                HRProfile.objects.create(
+                    user=user,
+                    full_name=full_name,
+                    company=company,
+                    role=role_title
+                )
+                messages.success(request, "HR account created. Please sign in.")
+                return redirect("login")
     else:
-        form = HRRegisterForm()
+        form = HRRegisterForm(user_is_authenticated=is_auth, initial=initial_data)
 
     return render(request, "auth-register-hr.html", {"form": form})
 
 
 def login_page(request):
     if request.method == "POST":
-        email = request.POST.get("email", "").strip().lower()
-        password = request.POST.get("password", "")
-        remember = request.POST.get("remember")  # "on" if checked
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data["email"]
+            password = form.cleaned_data["password"]
+            remember = form.cleaned_data["remember"]
+            
+            user = authenticate(request, email=email, password=password)
+            if user:
+                auth_login(request, user)
+                if not remember:
+                    request.session.set_expiry(0)
+                
+                if user.role == "hr":
+                    return redirect("hr_dashboard")
+                else:
+                    return redirect("jobseeker_dashboard")
+            else:
+                messages.error(request, "Invalid email or password.")
+    else:
+        form = LoginForm()
 
-        # find user by email (because we created username automatically)
-        try:
-            user_obj = User.objects.get(email__iexact=email)
-        except User.DoesNotExist:
-            user_obj = None
+    return render(request, "auth-login.html", {"form": form})
 
-        user = None
-        if user_obj:
-            user = authenticate(request, username=user_obj.username, password=password)
 
-        if user is None:
-            return render(request, "auth-login.html", {"login_error": "Invalid email or password."})
+def logout_view(request):
+    logout(request)
+    messages.success(request, "Logged out successfully.")
+    return redirect("login")
 
-        # login success
-        auth_login(request, user)
-
-        # session expiry (Remember me)
-        if not remember:
-            request.session.set_expiry(0)  # expires when browser closes
-
-        # redirect based on profile
-        if hasattr(user, "hr_profile"):
-            return redirect("/hr/dashboard/")
-        if hasattr(user, "jobseeker_profile"):
-            return redirect("/jobseeker/dashboard/")
-
-        return redirect("home")
-
-    return render(request, "auth-login.html")
 
 def google_start(request, acct):
-    if acct not in ("hr", "jobseeker"):
+    if acct == "hr":
+        messages.error(request, "Google sign-in is not available for HR accounts.")
+        return redirect("register_hr")
+        
+    if acct not in ("jobseeker",):
         acct = "jobseeker"
+        
     request.session["oauth_account_type"] = acct
+    request.session.save()
     return redirect("/accounts/google/login/")
-
-
-    return redirect("/register/")
 
 
 @login_required
@@ -148,6 +287,9 @@ def post_login_redirect(request):
         return redirect("/hr/dashboard/")
     if hasattr(u, "jobseeker_profile"):
         return redirect("/jobseeker/dashboard/")
+    
+    # Fallback if profile doesn't exist yet
+    messages.info(request, "Please select your account type to complete your setup.")
     return redirect("/register/")
 
 
@@ -302,8 +444,8 @@ def analyze_resume(request, resume_id):
                 job_post=job_post,
                 score=score,
                 feedback=feedback,
-                matched_keywords=", ".join(matched),
-                missing_keywords=", ".join(missing)
+                matched_keywords=",".join(matched),
+                missing_keywords=",".join(missing)
             )
             messages.success(request, f"Analysis complete for {job_post.title}. Score: {score}%")
             return redirect('analysis_results')
@@ -401,12 +543,73 @@ def select_template(request, template_name):
 # Protected HR Views
 @hr_required
 def hr_dashboard(request):
-    return render(request, "pages/hr_dashboard.html")
+    hr = request.user.hr_profile
+    
+    # 1. Dashboard Stats
+    open_jobs_count = JobPost.objects.filter(hr=hr, status='Open').count()
+    
+    # Total unique candidates who applied for this HR's jobs
+    total_candidates = ATSResult.objects.filter(job_post__hr=hr).values('resume').distinct().count()
+    
+    # Calculate average ATS score across all results for this HR
+    from django.db.models import Avg, Count, Max
+    avg_score_data = ATSResult.objects.filter(job_post__hr=hr).aggregate(Avg('score'))
+    avg_score = round(avg_score_data['score__avg'] or 0, 1)
+    
+    # Shortlisted (Score >= 80)
+    shortlisted_count = ATSResult.objects.filter(job_post__hr=hr, score__gte=80).values('resume').distinct().count()
+
+    # 2. Active Job Posts Table
+    active_jobs = JobPost.objects.filter(hr=hr).annotate(
+        candidate_count=Count('ats_results', distinct=True),
+        top_score=Max('ats_results__score')
+    ).order_by('-created_at')[:5]
+
+    return render(request, "pages/hr_dashboard.html", {
+        "open_jobs_count": open_jobs_count,
+        "total_candidates": total_candidates,
+        "avg_score": avg_score,
+        "shortlisted_count": shortlisted_count,
+        "active_jobs": active_jobs,
+    })
 
 @hr_required
 def hr_create_job(request):
+    if request.method == "POST":
+        title = request.POST.get("title")
+        description = request.POST.get("description")
+        requirements = request.POST.get("requirements")
+        
+        if title and description:
+            JobPost.objects.create(
+                hr=request.user.hr_profile,
+                title=title,
+                description=description,
+                requirements=requirements
+            )
+            messages.success(request, f"Job post '{title}' created successfully!")
+            return redirect('hr_dashboard')
+        else:
+            messages.error(request, "Title and Description are required.")
+
     return render(request, "pages/hr_create_job.html")
 
 @hr_required
 def hr_manage_jobs(request):
-    return render(request, "pages/hr_manage_jobs.html")
+    hr = request.user.hr_profile
+    from django.db.models import Count, Max
+    jobs = JobPost.objects.filter(hr=hr).annotate(
+        candidate_count=Count('ats_results', distinct=True),
+        top_score=Max('ats_results__score')
+    ).order_by('-created_at')
+    
+    return render(request, "pages/hr_manage_jobs.html", {"jobs": jobs})
+
+@hr_required
+def hr_delete_job(request, job_id):
+    job = get_object_or_404(JobPost, pk=job_id, hr=request.user.hr_profile)
+    if request.method == "POST":
+        title = job.title
+        job.delete()
+        messages.success(request, f"Job '{title}' deleted successfully.")
+    return redirect('hr_manage_jobs')

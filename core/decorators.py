@@ -7,7 +7,7 @@ def hr_required(view_func):
     def _wrapped_view(request, *args, **kwargs):
         if not request.user.is_authenticated:
             return redirect('login')
-        if not hasattr(request.user, 'hr_profile'):
+        if request.user.role != 'hr':
             messages.error(request, "Access denied. HR account required.")
             return redirect('home')
         return view_func(request, *args, **kwargs)
@@ -18,7 +18,7 @@ def jobseeker_required(view_func):
     def _wrapped_view(request, *args, **kwargs):
         if not request.user.is_authenticated:
             return redirect('login')
-        if not hasattr(request.user, 'jobseeker_profile'):
+        if request.user.role != 'jobseeker':
             messages.error(request, "Access denied. Jobseeker account required.")
             return redirect('home')
         return view_func(request, *args, **kwargs)

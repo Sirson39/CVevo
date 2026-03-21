@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -54,12 +55,18 @@ AUTHENTICATION_BACKENDS = (
     "allauth.account.auth_backends.AuthenticationBackend",
 )
 
+AUTH_USER_MODEL = 'core.User'
+
 LOGIN_REDIRECT_URL = "/post-login/"
 LOGOUT_REDIRECT_URL = "/"
 
-ACCOUNT_LOGIN_METHODS = {"email"}
-ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
-ACCOUNT_EMAIL_VERIFICATION = "none"
+# allauth settings
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_EMAIL_VERIFICATION = "none" # Adjust if you want mandatory verification
 
 SOCIALACCOUNT_PROVIDERS = {
   "google": {
@@ -67,6 +74,16 @@ SOCIALACCOUNT_PROVIDERS = {
     "AUTH_PARAMS": {"access_type": "online"},
   }
 }
+
+google_client_id = os.environ.get("GOOGLE_CLIENT_ID", "").strip()
+google_client_secret = os.environ.get("GOOGLE_CLIENT_SECRET", "").strip()
+
+if google_client_id and google_client_secret:
+    SOCIALACCOUNT_PROVIDERS["google"]["APP"] = {
+        "client_id": google_client_id,
+        "secret": google_client_secret,
+        "key": os.environ.get("GOOGLE_CLIENT_KEY", "").strip(),
+    }
 
 SOCIALACCOUNT_LOGIN_ON_GET = True
 

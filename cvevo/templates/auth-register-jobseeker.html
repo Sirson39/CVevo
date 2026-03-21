@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+={% extends "base.html" %}
 {% load static %}
 {% block title %}Register (Jobseeker) • CVevo{% endblock %}
 {% block extra_head %}
@@ -35,7 +35,16 @@
           <!-- backend helper -->
           <input type="hidden" name="account_type" value="jobseeker">
 
-           <a class="btn google w100" href="{% url 'google_start' 'hr' %}">
+          <a
+            class="btn google w100{% if not google_oauth_configured %} is-disabled{% endif %}"
+            {% if google_oauth_configured %}
+              href="{% url 'google_start' 'jobseeker' %}"
+            {% else %}
+              href="#"
+              aria-disabled="true"
+              tabindex="-1"
+            {% endif %}
+          >
             <span class="g-ico" aria-hidden="true">
               <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" width="22" height="22">
                 <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303C33.675 32.657 29.224 36 24 36c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
@@ -47,24 +56,28 @@
             <span class="g-text">Continue with Google</span>
           </a>
 
+          {% if not google_oauth_configured %}
+            <p class="auth-note">Google sign-in will appear here after `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are configured.</p>
+          {% endif %}
+
 
           <div class="divider"><span>or</span></div>
 
           <label class="field">
             <span>Full name</span>
-            <input type="text" name="full_name" placeholder="e.g., Sirson Sharma" required>
+            <input type="text" name="full_name" placeholder="e.g., Sirson Sharma" value="{{ form.full_name.value|default:'' }}" required>
           </label>
 
           <label class="field">
-            <span>Email</span>
-            <input type="email" name="email" placeholder="you@email.com" required>
+            <span>Email {% if user.is_authenticated %}(Optional){% endif %}</span>
+            <input type="email" name="email" placeholder="you@email.com" value="{{ form.email.value|default:'' }}" {% if not user.is_authenticated %}required{% endif %}>
           </label>
 
           <div class="grid2">
             <label class="field">
-              <span>Password</span>
+              <span>Password {% if user.is_authenticated %}(Optional){% endif %}</span>
               <div class="pass-row">
-                <input id="jsPass" type="password" name="password" placeholder="Minimum 8 characters" required>
+                <input id="jsPass" type="password" name="password" placeholder="Minimum 8 characters" {% if not user.is_authenticated %}required{% endif %}>
                 <button class="pass-toggle" type="button" aria-label="Toggle password" onclick="togglePassword('jsPass', this)">
                   <svg class="eye" viewBox="0 0 24 24" fill="none">
                     <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" stroke="currentColor" stroke-width="2"/>
@@ -81,8 +94,8 @@
             </label>
 
             <label class="field">
-              <span>Confirm password</span>
-              <input type="password" name="confirm_password" placeholder="Re-enter password" required>
+              <span>Confirm password {% if user.is_authenticated %}(Optional){% endif %}</span>
+              <input type="password" name="confirm_password" placeholder="Re-enter password" {% if not user.is_authenticated %}required{% endif %}>
             </label>
           </div>
 

@@ -9,6 +9,7 @@ urlpatterns = [
     path("register/jobseeker/", views.register_jobseeker, name="register_jobseeker"),
     path("register/hr/", views.register_hr, name="register_hr"),
     path("login/", views.login_page, name="login"),
+    path("logout/", views.logout_view, name="logout"),
 
     path("auth/google/<str:acct>/", views.google_start, name="google_start"),
     path("post-login/", views.post_login_redirect, name="post_login_redirect"),
@@ -47,6 +48,7 @@ urlpatterns = [
     path("hr/dashboard/",         views.hr_dashboard,         name="hr_dashboard"),
     path("hr/jd/create/",         views.hr_create_job,        name="hr_create_job"),
     path("hr/job-posts/",         views.hr_manage_jobs,       name="hr_manage_jobs"),
+    path("hr/job/delete/<int:job_id>/", views.hr_delete_job,   name="hr_delete_job"),
     path("hr/resume-upload/",     lambda r: views.page(r, "hr_resume_upload.html"),     name="hr_resume_upload"),
     path("hr/ranking/",           lambda r: views.page(r, "hr_candidate_ranking.html"), name="hr_candidate_ranking"),
     path("hr/candidate/",         lambda r: views.page(r, "hr_candidate_detail.html"),  name="hr_candidate_detail"),

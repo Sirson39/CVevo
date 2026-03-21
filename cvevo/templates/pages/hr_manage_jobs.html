@@ -1,149 +1,95 @@
-{% extends "app_shell.html" %}
-{% block title %}CVevo • Manage Job Posts{% endblock %}
+{% extends "base_app.html" %}
+{% load static %}
+{% block title %}Manage Jobs • CVevo{% endblock %}
 
-{% block app_content %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'cvevo/css/dashboard.css' %}">
+<style>
+  .status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .status-open { background: #f0fdf4; color: #166534; }
+  .status-closed { background: #f1f5f9; color: #475569; }
+  .table-container { margin-top: 2rem; }
+  .job-row:hover { background: #f8fafc; }
+</style>
+{% endblock %}
 
-<section class="mj-head">
+{% block content %}
+<div class="dash-head">
   <div>
-    <h2 class="h2x">Manage Job Posts</h2>
-    <p class="muted">Edit, close, and track performance of your postings.</p>
+    <h1 class="dash-welcome">Manage Job Listings</h1>
+    <p class="dash-sub">View, edit, or remove your current job openings.</p>
   </div>
-
-  <div class="mj-actions">
-    <button class="btnx btnx-ghost" type="button">Export</button>
-    <button class="btnx btnx-primary" type="button">+ New Job</button>
+  <div class="dash-actions">
+    <a href="{% url 'hr_create_job' %}" class="btn btn-primary" style="background: #10b981; border: none;">
+      Post New Job
+    </a>
   </div>
-</section>
+</div>
 
-<!-- Filters -->
-<section class="mj-filters mt-18">
-  <div class="mj-search">
-    <span class="mj-ico">🔎</span>
-    <input type="text" placeholder="Search job title, location..." />
-  </div>
-
-  <div class="mj-controls">
-    <select class="mj-select">
-      <option selected>All Status</option>
-      <option>Active</option>
-      <option>Draft</option>
-      <option>Closed</option>
-    </select>
-
-    <select class="mj-select">
-      <option selected>Sort: Newest</option>
-      <option>Sort: Oldest</option>
-      <option>Sort: Applicants</option>
-      <option>Sort: Avg Score</option>
-    </select>
-
-    <button class="btnx btnx-ghost" type="button">Filter</button>
-  </div>
-</section>
-
-<!-- Summary mini stats -->
-<section class="mj-mini mt-12">
-  <div class="mj-mini-card">
-    <div class="muted">Active</div>
-    <div class="mj-mini-num">5</div>
-  </div>
-  <div class="mj-mini-card">
-    <div class="muted">Draft</div>
-    <div class="mj-mini-num">2</div>
-  </div>
-  <div class="mj-mini-card">
-    <div class="muted">Closed</div>
-    <div class="mj-mini-num">9</div>
-  </div>
-  <div class="mj-mini-card">
-    <div class="muted">Total Applicants</div>
-    <div class="mj-mini-num">128</div>
-  </div>
-</section>
-
-<!-- Jobs list -->
-<section class="mj-list mt-18">
-  <!-- Job row -->
-  <article class="mj-card">
-    <div class="mj-left">
-      <div class="mj-title">Frontend Developer</div>
-      <div class="mj-sub muted">Remote • Full-time • Mid • Posted 2 days ago</div>
-
-      <div class="mj-badges">
-        <span class="tag tag-green">Active</span>
-        <span class="tag">46 applicants</span>
-        <span class="tag">Avg score: 78</span>
-        <span class="tag">Updated: Today</span>
-      </div>
-    </div>
-
-    <div class="mj-right">
-      <button class="btnx btnx-ghost sm" type="button">View</button>
-      <button class="btnx btnx-ghost sm" type="button">Edit</button>
-      <button class="btnx btnx-ghost sm" type="button">Close</button>
-      <button class="btnx btnx-danger sm" type="button">Delete</button>
-    </div>
-  </article>
-
-  <article class="mj-card">
-    <div class="mj-left">
-      <div class="mj-title">Backend Engineer</div>
-      <div class="mj-sub muted">Remote • Full-time • Mid • Created Today</div>
-
-      <div class="mj-badges">
-        <span class="tag">Draft</span>
-        <span class="tag">0 applicants</span>
-        <span class="tag">Avg score: —</span>
-        <span class="tag">Updated: Today</span>
-      </div>
-    </div>
-
-    <div class="mj-right">
-      <button class="btnx btnx-ghost sm" type="button">Edit</button>
-      <button class="btnx btnx-primary sm" type="button">Publish</button>
-      <button class="btnx btnx-danger sm" type="button">Delete</button>
-    </div>
-  </article>
-
-  <article class="mj-card">
-    <div class="mj-left">
-      <div class="mj-title">Data Analyst</div>
-      <div class="mj-sub muted">Hybrid • Full-time • Junior • Posted 6 days ago</div>
-
-      <div class="mj-badges">
-        <span class="tag tag-green">Active</span>
-        <span class="tag">32 applicants</span>
-        <span class="tag">Avg score: 75</span>
-        <span class="tag">Updated: 2 days ago</span>
-      </div>
-    </div>
-
-    <div class="mj-right">
-      <button class="btnx btnx-ghost sm" type="button">View</button>
-      <button class="btnx btnx-ghost sm" type="button">Edit</button>
-      <button class="btnx btnx-ghost sm" type="button">Close</button>
-    </div>
-  </article>
-
-  <article class="mj-card">
-    <div class="mj-left">
-      <div class="mj-title">UI/UX Intern</div>
-      <div class="mj-sub muted">On-site • Internship • Posted 3 weeks ago</div>
-
-      <div class="mj-badges">
-        <span class="tag">Closed</span>
-        <span class="tag">18 applicants</span>
-        <span class="tag">Avg score: 71</span>
-        <span class="tag">Updated: 1 week ago</span>
-      </div>
-    </div>
-
-    <div class="mj-right">
-      <button class="btnx btnx-ghost sm" type="button">View</button>
-      <button class="btnx btnx-ghost sm" type="button">Re-open</button>
-      <button class="btnx btnx-danger sm" type="button">Delete</button>
-    </div>
-  </article>
-</section>
-
+<div class="table-container card">
+  <table style="width: 100%; border-collapse: collapse; text-align: left;">
+    <thead>
+      <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+        <th style="padding: 1.25rem; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 700;">Job Information</th>
+        <th style="padding: 1.25rem; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 700;">Status</th>
+        <th style="padding: 1.25rem; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 700;">Applications</th>
+        <th style="padding: 1.25rem; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 700;">Best Score</th>
+        <th style="padding: 1.25rem; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 700; text-align: right;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for job in jobs %}
+      <tr class="job-row" style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;">
+        <td style="padding: 1.25rem;">
+          <div style="font-weight: 700; font-size: 1rem; color: #1e293b;">{{ job.title }}</div>
+          <div style="font-size: 0.8rem; color: #64748b; margin-top: 0.25rem;">Created on {{ job.created_at|date:"M d, Y" }}</div>
+        </td>
+        <td style="padding: 1.25rem;">
+          <span class="status-badge {% if job.status == 'Open' %}status-open{% else %}status-closed{% endif %}">
+            {{ job.status }}
+          </span>
+        </td>
+        <td style="padding: 1.25rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+             <span style="font-weight: 600;">{{ job.candidate_count }}</span>
+             <span class="muted" style="font-size: 0.8rem;">candidates</span>
+          </div>
+        </td>
+        <td style="padding: 1.25rem;">
+          <div style="font-weight: 800; color: #10b981; font-size: 1.1rem;">
+            {{ job.top_score|default:0|floatformat:0 }}%
+          </div>
+        </td>
+        <td style="padding: 1.25rem; text-align: right;">
+          <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+            <a href="{% url 'hr_candidate_ranking' %}?job_id={{ job.id }}" class="btn btn-ghost" style="padding: 6px 12px; font-size: 0.8rem;">
+              View Ranked List
+            </a>
+            <form action="{% url 'hr_delete_job' job.id %}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this job post? All associated candidate analysis will also be removed.')">
+              {% csrf_token %}
+              <button type="submit" class="btn" style="padding: 6px 12px; font-size: 0.8rem; background: #fee2e2; color: #dc2626; border: none; border-radius: 6px; font-weight: 600;">
+                Delete
+              </button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="5" style="padding: 4rem; text-align: center;">
+          <div style="font-size: 3rem; margin-bottom: 1rem;">💼</div>
+          <h3 style="margin: 0; color: #1e293b;">No jobs posted yet</h3>
+          <p class="muted" style="margin: 0.5rem 0 1.5rem 0;">Get started by creating your first job listing.</p>
+          <a href="{% url 'hr_create_job' %}" class="btn btn-primary" style="background: #10b981; border: none;">Post a Job</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 {% endblock %}

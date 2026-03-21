@@ -1,173 +1,194 @@
 {% extends "base_app.html" %}
+{% load static %}
 {% block title %}HR Dashboard • CVevo{% endblock %}
 
+{% block extra_head %}
+<!-- Use same dashboard styles for consistency -->
+<link rel="stylesheet" href="{% static 'cvevo/css/dashboard.css' %}">
+<style>
+  .hr-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+  .status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .status-open { background: #f0fdf4; color: #166534; }
+  .status-closed { background: #f1f5f9; color: #475569; }
+</style>
+{% endblock %}
+
 {% block content %}
-
-<!-- HR HEADER -->
-<section class="ru-head" style="margin-bottom: 2rem;">
+<div class="dash-head">
   <div>
-    <h2 class="ru-title">HR Overview</h2>
-    <p class="ru-sub">Track your candidate pipeline and job performance.</p>
+    <h1 class="dash-welcome">HR Overview</h1>
+    <p class="dash-sub">Track your candidate pipeline and job performance.</p>
   </div>
-
-  <div class="actions-row">
-    <a class="btn btn-primary" href="{% url 'hr_create_job' %}">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px; height:18px;">
-        <path d="M12 5v14M5 12h14" />
+  <div class="dash-actions">
+    <a href="{% url 'hr_create_job' %}" class="btn btn-primary" style="background: #10b981; border: none;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;">
+        <path d="M12 5v14M5 12h14"></path>
       </svg>
       Post New Job
     </a>
   </div>
-</section>
-
-<!-- QUICK ACTIONS (Simplified) -->
-<div class="actions-row" style="margin-bottom: 2rem;">
-  <a class="btn btn-ghost" href="{% url 'hr_resume_upload' %}">Bulk Upload Resumes</a>
-  <a class="btn btn-ghost" href="{% url 'hr_manage_jobs' %}">Manage All Jobs</a>
 </div>
 
-<!-- TOP METRICS -->
-<section class="section">
-  <div class="grid grid-4">
-    <article class="card kpi">
-      <div class="kpi-body">
-        <div class="kpi-label">Open Jobs</div>
-        <div class="kpi-value">6</div>
-        <div class="kpi-sub">+2 this week</div>
-      </div>
-    </article>
-
-    <article class="card kpi">
-      <div class="kpi-body">
-        <div class="kpi-label">New Candidates</div>
-        <div class="kpi-value">48</div>
-        <div class="kpi-sub">Last 7 days</div>
-      </div>
-    </article>
-
-    <article class="card kpi">
-      <div class="kpi-body">
-        <div class="kpi-label">Shortlisted</div>
-        <div class="kpi-value">12</div>
-        <div class="kpi-sub">Ready to interview</div>
-      </div>
-    </article>
-
-    <article class="card kpi">
-      <div class="kpi-body">
-        <div class="kpi-label">Avg ATS Score</div>
-        <div class="kpi-value">73%</div>
-        <div class="kpi-sub">Across recent uploads</div>
-      </div>
-    </article>
+<!-- Stats Cards -->
+<div class="hr-stats-grid">
+  <div class="card pad-lg">
+    <div class="muted" style="font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.025em;">Open Jobs</div>
+    <div class="kpi-value" style="font-size: 2rem; margin: 0.5rem 0;">{{ open_jobs_count }}</div>
+    <div style="font-size: 0.8rem; color: #10b981; font-weight: 600;">Active listings</div>
   </div>
-</section>
+  
+  <div class="card pad-lg">
+    <div class="muted" style="font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.025em;">Total Candidates</div>
+    <div class="kpi-value" style="font-size: 2rem; margin: 0.5rem 0;">{{ total_candidates }}</div>
+    <div style="font-size: 0.8rem; color: #64748b;">Across all jobs</div>
+  </div>
 
-<!-- MAIN CONTENT GRID -->
-<div class="grid grid-2" style="margin-top: 2rem;">
-  <!-- Job Posts Table -->
-  <section class="card pad-lg">
-    <div class="card-head">
-      <h3 class="card-title">Active Job Posts</h3>
-      <a class="small-link" href="{% url 'hr_manage_jobs' %}">View all →</a>
+  <div class="card pad-lg">
+    <div class="muted" style="font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.025em;">Shortlisted</div>
+    <div class="kpi-value" style="font-size: 2rem; margin: 0.5rem 0;">{{ shortlisted_count }}</div>
+    <div style="font-size: 0.8rem; color: #10b981;">Ready to interview</div>
+  </div>
+
+  <div class="card pad-lg">
+    <div class="muted" style="font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.025em;">Avg ATS Score</div>
+    <div class="kpi-value" style="font-size: 2rem; margin: 0.5rem 0; color: #10b981;">{{ avg_score }}%</div>
+    <div style="font-size: 0.8rem; color: #64748b;">Standard alignment</div>
+  </div>
+</div>
+
+<div class="grid grid-2" style="grid-template-columns: 2fr 1fr; gap: 2rem;">
+  <!-- Active Jobs Table -->
+  <section class="stack">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h3 style="margin: 0; font-size: 1.1rem;">Active Job Posts</h3>
+      <a href="{% url 'hr_manage_jobs' %}" style="font-size: 0.85rem; color: #10b981; font-weight: 600; text-decoration: none;">View all &rarr;</a>
     </div>
-
-    <div class="table-wrap">
-      <table class="table">
+    
+    <div class="card" style="overflow: hidden;">
+      <table style="width: 100%; border-collapse: collapse; text-align: left;">
         <thead>
-          <tr>
-            <th>ROLE</th>
-            <th>STATUS</th>
-            <th>CANDIDATES</th>
-            <th>TOP SCORE</th>
-            <th class="th-right">ACTIONS</th>
+          <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+            <th style="padding: 1rem; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 700;">Role</th>
+            <th style="padding: 1rem; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 700;">Status</th>
+            <th style="padding: 1rem; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 700;">Candidates</th>
+            <th style="padding: 1rem; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 700;">Avg Score</th>
+            <th style="padding: 1rem; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 700;">Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td style="font-weight: 500;">Frontend Developer</td>
-            <td><span class="status ok">Open</span></td>
-            <td class="muted">62</td>
-            <td><span class="status soft">91%</span></td>
-            <td class="td-right">
-              <button class="ticon" title="Edit">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                  style="width:16px; height:16px;">
-                  <path
-                    d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+          {% for job in active_jobs %}
+          <tr style="border-bottom: 1px solid #f1f5f9;">
+            <td style="padding: 1rem;">
+              <div style="font-weight: 600; font-size: 0.95rem;">{{ job.title }}</div>
+            </td>
+            <td style="padding: 1rem;">
+              <span class="status-badge {% if job.status == 'Open' %}status-open{% else %}status-closed{% endif %}">{{ job.status }}</span>
+            </td>
+            <td style="padding: 1rem; font-size: 0.9rem; color: #64748b;">
+              {{ job.candidate_count }}
+            </td>
+            <td style="padding: 1rem;">
+              <div style="font-weight: 700; color: #10b981;">{{ job.top_score|default:0|floatformat:0 }}%</div>
+            </td>
+            <td style="padding: 1rem;">
+              <a href="{% url 'hr_candidate_ranking' %}?job_id={{ job.id }}" title="View Candidates">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2">
+                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
                 </svg>
-              </button>
+              </a>
             </td>
           </tr>
+          {% empty %}
           <tr>
-            <td style="font-weight: 500;">UI/UX Intern</td>
-            <td><span class="status ok">Open</span></td>
-            <td class="muted">28</td>
-            <td><span class="status soft">84%</span></td>
-            <td class="td-right">
-              <button class="ticon" title="Edit">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                  style="width:16px; height:16px;">
-                  <path
-                    d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                </svg>
-              </button>
+            <td colspan="5" style="padding: 2rem; text-align: center; color: #64748b;">
+              No active job posts. <a href="{% url 'hr_create_job' %}" style="color: #10b981;">Create one now</a>
             </td>
           </tr>
+          {% endfor %}
         </tbody>
       </table>
     </div>
   </section>
 
-  <!-- Side Panel -->
-  <div class="stack">
-    <article class="card pad-lg">
-      <h3 class="card-title">Candidate Funnel</h3>
-      <div class="list" style="margin-top: 1rem;">
-        <div class="list-item">
-          <div>
-            <div class="list-title">Applied</div>
-            <div class="list-sub">128 candidates</div>
+  <!-- Quick Actions / Utils -->
+  <aside class="stack">
+    <div style="margin-bottom: 1rem;">
+      <h3 style="margin: 0; font-size: 1.1rem;">Quick Actions</h3>
+    </div>
+    <div class="stack" style="gap: 1rem;">
+      <a href="{% url 'hr_resume_upload' %}" class="card pad-lg" style="text-decoration: none; color: inherit; transition: transform 0.2s;">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <div style="background: #ecfdf5; color: #10b981; padding: 0.75rem; border-radius: 12px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+            </svg>
           </div>
-          <span class="status soft">100%</span>
-        </div>
-        <div class="list-item">
           <div>
-            <div class="list-title">Screening</div>
-            <div class="list-sub">46 candidates</div>
+            <div style="font-weight: 700; font-size: 1rem;">Bulk Upload</div>
+            <p style="margin: 0.25rem 0 0; font-size: 0.8rem; color: #64748b;">Process multiple resumes at once.</p>
           </div>
-          <span class="status soft">36%</span>
         </div>
-        <div class="list-item">
-          <div>
-            <div class="list-title">Interview</div>
-            <div class="list-sub">18 candidates</div>
-          </div>
-          <span class="status soft">14%</span>
-        </div>
-      </div>
-    </article>
+      </a>
 
-    <article class="card pad-lg">
-      <h3 class="card-title">Recent Activity</h3>
-      <div class="list" style="margin-top: 1rem;">
-        <div class="list-item">
-          <div>
-            <div class="list-title">Garima Karki</div>
-            <div class="list-sub">Uploaded a resume • 10m ago</div>
+      <a href="{% url 'hr_manage_jobs' %}" class="card pad-lg" style="text-decoration: none; color: inherit; transition: transform 0.2s;">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <div style="background: #eff6ff; color: #3b82f6; padding: 0.75rem; border-radius: 12px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+            </svg>
           </div>
-          <span class="status soft">Parsed</span>
+          <div>
+            <div style="font-weight: 700; font-size: 1rem;">Manage Jobs</div>
+            <p style="margin: 0.25rem 0 0; font-size: 0.8rem; color: #64748b;">Edit or close existing listings.</p>
+          </div>
         </div>
-        <div class="list-item">
-          <div>
-            <div class="list-title">Product Designer</div>
-            <div class="list-sub">New job post created • 2h ago</div>
+      </a>
+    </div>
+
+    <!-- Candidate Funnel Mockup -->
+    <div class="card pad-lg" style="margin-top: 1.5rem;">
+      <h4 style="margin: 0 0 1.25rem 0; font-size: 1rem;">Selection Funnel</h4>
+      <div class="stack" style="gap: 1rem;">
+        <div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.4rem;">
+            <span style="font-weight: 600;">Applications</span>
+            <span class="muted">100%</span>
           </div>
-          <span class="status ok">Live</span>
+          <div style="height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden;">
+            <div style="width: 100%; height: 100%; background: #10b981;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.4rem;">
+            <span style="font-weight: 600;">Screening Passed</span>
+            <span class="muted">36%</span>
+          </div>
+          <div style="height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden;">
+            <div style="width: 36%; height: 100%; background: #f59e0b;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.4rem;">
+            <span style="font-weight: 600;">Interviewing</span>
+            <span class="muted">14%</span>
+          </div>
+          <div style="height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden;">
+            <div style="width: 14%; height: 100%; background: #3b82f6;"></div>
+          </div>
         </div>
       </div>
-    </article>
-  </div>
+    </div>
+  </aside>
 </div>
-
 {% endblock %}

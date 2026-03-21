@@ -177,6 +177,14 @@ html.js .reveal:nth-child(3){ transition-delay: .18s; }
 }
 .btn-green:hover{ background: #2a826f; }
 
+.btn-red {
+  background: #ef4444;
+  color: white;
+}
+.btn-red:hover {
+  background: #dc2626;
+}
+
 .btn-orange{
   background: var(--orange);
   color: #fff;

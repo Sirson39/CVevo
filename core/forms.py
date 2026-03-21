@@ -1,21 +1,38 @@
 # core/forms.py
 from django import forms
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.contrib.auth.password_validation import validate_password
 from .models import Education, Experience, Project, Skill
+
+User = get_user_model()
 
 
 class BaseRegisterForm(forms.Form):
     full_name = forms.CharField(max_length=120)
     email = forms.EmailField()
-    password = forms.CharField(widget=forms.PasswordInput)
-    confirm_password = forms.CharField(widget=forms.PasswordInput)
+    password = forms.CharField(widget=forms.PasswordInput, required=False) # validate in clean
+    confirm_password = forms.CharField(widget=forms.PasswordInput, required=False)
+
+    def __init__(self, *args, **kwargs):
+        self.user_is_authenticated = kwargs.pop("user_is_authenticated", False)
+        super().__init__(*args, **kwargs)
+        if self.user_is_authenticated:
+            self.fields["email"].required = False
+            self.fields["password"].required = False
+            self.fields["confirm_password"].required = False
+        else:
+            self.fields["email"].required = True
+            self.fields["password"].required = True
+            self.fields["confirm_password"].required = True
 
     def clean_email(self):
-        email = self.cleaned_data["email"].strip().lower()
-        if User.objects.filter(email__iexact=email).exists():
-            raise ValidationError("An account with this email already exists.")
+        email = self.cleaned_data.get("email", "").strip().lower()
+        if not self.user_is_authenticated:
+            if not email:
+                raise ValidationError("Email is required.")
+            if User.objects.filter(email__iexact=email).exists():
+                raise ValidationError("An account with this email already exists.")
         return email
 
     def clean(self):
@@ -23,11 +40,14 @@ class BaseRegisterForm(forms.Form):
         pw = cleaned.get("password")
         cpw = cleaned.get("confirm_password")
 
-        if pw and cpw and pw != cpw:
-            self.add_error("confirm_password", "Passwords do not match.")
-
-        if pw:
-            validate_password(pw)
+        if not self.user_is_authenticated:
+            if not pw:
+                self.add_error("password", "Password is required.")
+            elif pw and cpw and pw != cpw:
+                self.add_error("confirm_password", "Passwords do not match.")
+            
+            if pw:
+                validate_password(pw)
 
         return cleaned
 
@@ -37,8 +57,14 @@ class JobseekerRegisterForm(BaseRegisterForm):
 
 
 class HRRegisterForm(BaseRegisterForm):
-    company = forms.CharField(max_length=120)
-    role = forms.CharField(max_length=120)
+    company = forms.CharField(max_length=120, label="Company Name")
+    role = forms.CharField(max_length=120, label="Job Title / Position")
+
+
+class LoginForm(forms.Form):
+    email = forms.EmailField()
+    password = forms.CharField(widget=forms.PasswordInput)
+    remember = forms.BooleanField(required=False)
 
 
 class ResumeUploadForm(forms.Form):

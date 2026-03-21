@@ -1,6 +1,41 @@
-# core/models.py
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
-from django.contrib.auth.models import User
+
+
+class UserManager(BaseUserManager):
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError("The Email field must be set")
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+        return self.create_user(email, password, **extra_fields)
+
+
+class User(AbstractUser):
+    username = None
+    email = models.EmailField(unique=True)
+    full_name = models.CharField(max_length=120)
+    role = models.CharField(
+        max_length=20, 
+        choices=[('jobseeker', 'Jobseeker'), ('hr', 'HR')], 
+        default='jobseeker'
+    )
+    is_verified = models.BooleanField(default=False)
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["full_name"]
+
+    objects = UserManager()
+
+    def __str__(self):
+        return f"{self.full_name} ({self.email})"
 
 
 class JobseekerProfile(models.Model):
@@ -77,6 +112,7 @@ class JobPost(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
     requirements = models.TextField(help_text="Expected keywords for ATS matching")
+    status = models.CharField(max_length=20, choices=[('Open', 'Open'), ('Closed', 'Closed')], default='Open')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -84,9 +120,10 @@ class JobPost(models.Model):
 
 
 class Resume(models.Model):
-    jobseeker = models.ForeignKey(JobseekerProfile, on_delete=models.CASCADE, related_name="resumes")
+    jobseeker = models.ForeignKey(JobseekerProfile, on_delete=models.CASCADE, related_name="resumes", null=True, blank=True)
     file = models.FileField(upload_to="resumes/%Y/%m/%d/")
     filename = models.CharField(max_length=255)
+    source = models.CharField(max_length=50, choices=[('Jobseeker', 'Jobseeker'), ('HR Bulk', 'HR Bulk')], default='Jobseeker')
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

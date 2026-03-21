@@ -98,7 +98,7 @@
 
         <div class="ru-actions" style="gap: 8px;">
           <a href="{{ resume.file.url }}" class="ru-btn ghost" target="_blank" style="padding: 6px 12px; font-size: 13px; border-radius: 8px;">View</a>
-          <button class="ru-btn primary" type="button" style="padding: 6px 12px; font-size: 13px; border-radius: 8px; background: #10b981; color: #fff;">Analyze</button>
+          <a href="{% url 'analyze_resume' resume.pk %}" class="ru-btn primary" style="padding: 6px 12px; font-size: 13px; border-radius: 8px; background: #10b981; color: #fff; text-decoration: none;">Analyze</a>
           <form action="{% url 'resume_delete' resume.pk %}" method="post" style="display:inline;">
             {% csrf_token %}
             <button class="ru-btn danger" type="submit" onclick="return confirm('Are you sure?')" style="padding: 6px 12px; font-size: 13px; border-radius: 8px;">Delete</button>
