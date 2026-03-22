@@ -24,7 +24,11 @@
         </div>
       </div>
       <div>
-        <a href="{% url 'analyze_resume_placeholder' %}?job_id={{ job.id }}" class="btn btn-ghost" style="font-size: 13px;">Select & Analyze</a>
+        {% if user.role == 'hr' %}
+        <a href="{% url 'hr_candidate_ranking' %}?job_id={{ job.id }}" class="btn btn-ghost" style="font-size: 13px;">View Rankings</a>
+        {% else %}
+        <a href="{% url 'resume_upload' %}?job_id={{ job.id }}" class="btn btn-ghost" style="font-size: 13px;">Select & Analyze</a>
+        {% endif %}
       </div>
     </div>
   </section>

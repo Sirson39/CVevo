@@ -7,7 +7,6 @@
   </div>
 
   <div class="topbar-right">
-  <div class="topbar-right">
     {% if user.role == 'hr' %}
     <form class="search" action="{% url 'dashboard_search' %}" method="GET">
       <span class="search-ico">
@@ -17,14 +16,128 @@
     </form>
     {% endif %}
 
-    <button class="iconbtn" onclick="alert('No new notifications at this time.')">
-      <span class="dot"></span>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px; height:18px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-    </button>
+    <div class="notifications-container" style="position: relative; display: inline-block;">
+      <button class="iconbtn" id="bell-btn" onclick="toggleNotifications(event)">
+        {% if messages %}<span class="dot"></span>{% endif %}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px; height:18px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </button>
+
+      <div id="notifications-dropdown" class="nd-dropdown">
+        <div class="nd-header">
+          <span>Notifications</span>
+          <a href="#" class="nd-mark">Mark all as read</a>
+        </div>
+        <div class="nd-body">
+          {% for message in messages %}
+          <div class="nd-item {% if message.tags %}{{ message.tags }}{% endif %}">
+            <div class="nd-content">
+              <p>{{ message }}</p>
+              <span class="nd-time">Just now</span>
+            </div>
+          </div>
+          {% empty %}
+          <div class="nd-empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:32px; height:32px; color: #cbd5e1; margin-bottom: 0.5rem;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <p>No new notifications</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
 
     <button class="user">
       <span class="avatar">{{ user.email|slice:":1"|upper }}</span>
-        <span class="user-name">{{ user.jobseeker_profile.full_name|default:user.email|slice:":15" }}</span>
+      <span class="user-name">{{ user.jobseeker_profile.full_name|default:user.email|slice:":15" }}</span>
     </button>
   </div>
 </header>
+
+<style>
+.nd-dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  width: 300px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.nd-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  color: #1e293b;
+  font-size: 14px;
+}
+
+.nd-mark {
+  font-size: 11px;
+  color: #10b981;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.nd-body {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.nd-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f8fafc;
+  transition: background 0.2s;
+}
+
+.nd-item:hover { background: #f8fafc; }
+.nd-item.success { border-left: 3px solid #10b981; }
+.nd-item.error { border-left: 3px solid #ef4444; }
+.nd-item.info { border-left: 3px solid #3b82f6; }
+
+.nd-content p {
+  margin: 0;
+  font-size: 13px;
+  color: #334155;
+  line-height: 1.4;
+}
+
+.nd-time {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 4px;
+  display: block;
+}
+
+.nd-empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: #64748b;
+  font-size: 13px;
+}
+</style>
+
+<script>
+function toggleNotifications(event) {
+  event.stopPropagation();
+  const dropdown = document.getElementById('notifications-dropdown');
+  const isVisible = dropdown.style.display === 'block';
+  dropdown.style.display = isVisible ? 'none' : 'block';
+}
+
+document.addEventListener('click', function(event) {
+  const dropdown = document.getElementById('notifications-dropdown');
+  const bellBtn = document.getElementById('bell-btn');
+  if (dropdown && dropdown.style.display === 'block') {
+    if (!dropdown.contains(event.target) && !bellBtn.contains(event.target)) {
+      dropdown.style.display = 'none';
+    }
+  }
+});
+</script>
