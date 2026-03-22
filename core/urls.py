@@ -25,8 +25,10 @@ urlpatterns = [
     #  Jobseeker pages (now protected in views.py)
     path("jobseeker/dashboard/", views.jobseeker_dashboard, name="jobseeker_dashboard"),
     path("resume-upload/",        views.resume_upload,        name="resume_upload"),
+    path("resume-parse-result/<int:resume_id>/", views.resume_parse_result, name="resume_parse_result"),
     path("resume-delete/<int:pk>/", views.resume_delete,       name="resume_delete"),
     path("analysis/results/",     views.analysis_results,            name="analysis_results"),
+    path("analysis/delete/<int:pk>/", views.delete_analysis_result, name="delete_analysis_result"),
     path("analysis/analyze/<int:resume_id>/", views.analyze_resume, name="analyze_resume"),
     path("resume/builder/",       views.resume_builder,              name="resume_builder"),
     path("resume/builder/education/add/", views.add_education, name="add_education"),
@@ -39,9 +41,11 @@ urlpatterns = [
     path("resume/builder/skill/delete/<int:pk>/", views.delete_skill, name="delete_skill"),
     path("templates/",            lambda r: views.page(r, "templates_gallery.html"),    name="templates_gallery"),
     path("templates/select/<str:template_name>/", views.select_template, name="select_template"),
-    path("export/",               lambda r: views.page(r, "export_downloads.html"),     name="export_downloads"),
-    path("profile/",              lambda r: views.page(r, "profile_settings.html"),     name="profile_settings"),
+    path("export/",               views.export_downloads,               name="export_downloads"),
+    path("export/docx/",          views.export_resume_docx,             name="export_resume_docx"),
+    path("profile/",              views.profile_settings,                               name="profile_settings"),
     path("jobseeker/help-support/", views.help_support, name="help_support"),
+    path("search/", views.dashboard_search, name="dashboard_search"),
 
 
     #  HR pages (now protected in views.py)
@@ -49,8 +53,9 @@ urlpatterns = [
     path("hr/jd/create/",         views.hr_create_job,        name="hr_create_job"),
     path("hr/job-posts/",         views.hr_manage_jobs,       name="hr_manage_jobs"),
     path("hr/job/delete/<int:job_id>/", views.hr_delete_job,   name="hr_delete_job"),
-    path("hr/resume-upload/",     lambda r: views.page(r, "hr_resume_upload.html"),     name="hr_resume_upload"),
-    path("hr/ranking/",           lambda r: views.page(r, "hr_candidate_ranking.html"), name="hr_candidate_ranking"),
-    path("hr/candidate/",         lambda r: views.page(r, "hr_candidate_detail.html"),  name="hr_candidate_detail"),
-    path("hr/reports/",           lambda r: views.page(r, "hr_reports_export.html"),    name="hr_reports_export"),
+    path("hr/resume-upload/",     views.hr_resume_upload,     name="hr_resume_upload"),
+    path("hr/ranking/",           views.hr_candidate_ranking, name="hr_candidate_ranking"),
+    path("hr/candidate/",         views.hr_candidate_detail,  name="hr_candidate_detail"),
+    path("hr/reports/",           views.hr_reports_export,    name="hr_reports_export"),
+    path("hr/reports/export-csv/", views.hr_export_csv,       name="hr_export_csv"),
 ]

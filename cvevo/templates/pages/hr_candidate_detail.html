@@ -62,17 +62,17 @@
       <div class="divider"></div>
 
       <div style="margin-top: 1.5rem;">
-        <h3 style="font-size: 1rem; margin-bottom: 0.75rem;">AI Feedback & Recommendations</h3>
-        <p style="line-height: 1.6; color: #475569; font-size: 0.95rem;">{{ result.feedback }}</p>
+        <h3 style="font-size: 1rem; margin-bottom: 0.75rem;">Analysis Feedback</h3>
+        <div style="line-height: 1.8; color: #1e293b; font-size: 0.95rem; background: #f8fafc; padding: 1.5rem; border-radius: 8px; border: 1px solid #e2e8f0; white-space: pre-wrap;">{{ result.concise_feedback }}</div>
       </div>
 
       <div class="grid grid-2" style="margin-top: 2rem; gap: 2rem;">
         <div>
           <h4 style="font-size: 0.85rem; text-transform: uppercase; color: #166534; letter-spacing: 0.05em; margin-bottom: 1rem;">Matched Keywords</h4>
           <div style="display: flex; flex-wrap: wrap;">
-            {% if result.matched_keywords %}
-              {% for kw in result.matched_keywords.split %}
-                <span class="keyword-pill matched-pill">{{ kw|cut:"," }}</span>
+            {% if result.matched_list %}
+              {% for kw in result.matched_list %}
+                <span class="keyword-pill matched-pill">{{ kw }}</span>
               {% endfor %}
             {% else %}
               <p class="muted" style="font-size: 0.9rem;">No keywords matched.</p>
@@ -82,9 +82,9 @@
         <div>
           <h4 style="font-size: 0.85rem; text-transform: uppercase; color: #991b1b; letter-spacing: 0.05em; margin-bottom: 1rem;">Missing Keywords</h4>
           <div style="display: flex; flex-wrap: wrap;">
-            {% if result.missing_keywords %}
-              {% for kw in result.missing_keywords.split %}
-                <span class="keyword-pill missing-pill">{{ kw|cut:"," }}</span>
+            {% if result.missing_list %}
+              {% for kw in result.missing_list %}
+                <span class="keyword-pill missing-pill">{{ kw }}</span>
               {% endfor %}
             {% else %}
               <p class="muted" style="font-size: 0.9rem;">Excellent! No major keywords missing.</p>

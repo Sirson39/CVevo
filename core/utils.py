@@ -1,6 +1,17 @@
 import re
 from pdfminer.high_level import extract_text as extract_pdf_text
 import docx
+import os
+from django.core.files.storage import FileSystemStorage
+
+class OverwriteStorage(FileSystemStorage):
+    """
+    Custom storage to overwrite files with the same name.
+    """
+    def get_available_name(self, name, max_length=None):
+        if self.exists(name):
+            self.delete(name)
+        return name
 
 # Import new AI/NLP module
 try:
@@ -38,7 +49,11 @@ def parse_resume_text(text):
     if AI_NLP_AVAILABLE:
         parsed = parse_resume(text)
         # Map to the format expected by views if different
+        contact = parsed.get("contact", {})
         return {
+            "name": contact.get("name", ""),
+            "email": contact.get("email", ""),
+            "phone": contact.get("phone", ""),
             "skills": ", ".join(parsed.get("skills", [])),
             "experience": parsed.get("sections", {}).get("experience", ""),
             "education": parsed.get("sections", {}).get("education", ""),
@@ -77,9 +92,7 @@ def calculate_ats_score(resume_text, job_requirements):
     """
     if AI_NLP_AVAILABLE:
         parsed_data = parse_resume(resume_text)
-        score, matched, missing, recommendations = new_ats_score(parsed_data, job_requirements)
-        
-        feedback = " ".join(recommendations)
+        score, matched, missing, feedback = new_ats_score(parsed_data, job_requirements)
         return score, matched, missing, feedback
 
     # Basic logic as fallback

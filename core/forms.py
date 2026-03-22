@@ -123,3 +123,42 @@ class SkillForm(forms.ModelForm):
     class Meta:
         model = Skill
         fields = ["name", "level"]
+
+
+class ProfileUpdateForm(forms.ModelForm):
+    email = forms.EmailField()
+
+    class Meta:
+        model = User
+        fields = ["full_name", "email"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            self.fields["email"].initial = self.instance.email
+
+    def clean_email(self):
+        email = self.cleaned_data.get("email", "").strip().lower()
+        if User.objects.filter(email__iexact=email).exclude(pk=self.instance.pk).exists():
+            raise ValidationError("A user with this email already exists.")
+        return email
+
+
+class SupportTicketForm(forms.Form):
+    TOPICS = [
+        ("Account / Login", "Account / Login"),
+        ("Resume Upload", "Resume Upload"),
+        ("ATS Analysis", "ATS Analysis"),
+        ("Resume Builder", "Resume Builder"),
+        ("Export / Downloads", "Export / Downloads"),
+        ("Other", "Other"),
+    ]
+    PRIORITIES = [
+        ("Normal", "Normal"),
+        ("High", "High"),
+        ("Urgent", "Urgent"),
+    ]
+    topic = forms.ChoiceField(choices=TOPICS)
+    priority = forms.ChoiceField(choices=PRIORITIES)
+    subject = forms.CharField(max_length=200)
+    message = forms.CharField(widget=forms.Textarea)

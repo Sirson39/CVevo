@@ -61,6 +61,15 @@
     </a>
     {% endfor %}
   </div>
+
+  {% if selected_job %}
+  <form method="get" action="{% url 'hr_candidate_ranking' %}" style="display: inline-flex; align-items: center; gap: 0.5rem; margin-left: 2rem;">
+    <input type="hidden" name="job_id" value="{{ selected_job.id }}">
+    <span style="font-size: 0.85rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Min Score:</span>
+    <input type="number" name="min_score" value="{{ request.GET.min_score|default:'' }}" placeholder="0" style="width: 60px; padding: 0.2rem 0.5rem; border: 1px solid #e2e8f0; border-radius: 4px;">
+    <button type="submit" class="btn btn-ghost sm" style="padding: 0.25rem 0.75rem;">Filter</button>
+  </form>
+  {% endif %}
 </div>
 
 {% if selected_job %}
@@ -136,4 +145,3 @@
 </div>
 {% endif %}
 {% endblock %}
-

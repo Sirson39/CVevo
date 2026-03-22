@@ -42,40 +42,40 @@
       <h3 class="hs-card-title">Create a Support Ticket</h3>
       <p class="muted">Describe your issue and we’ll get back to you.</p>
 
-      <form class="hs-form" action="#" method="post">
+      <form class="hs-form" action="{% url 'help_support' %}" method="post">
         {% csrf_token %}
         <div class="hs-row">
           <div class="hs-field">
             <label class="hs-label">Topic</label>
-            <select class="hs-input" name="topic">
-              <option>Account / Login</option>
-              <option>Resume Upload</option>
-              <option>ATS Analysis</option>
-              <option>Resume Builder</option>
-              <option>Export / Downloads</option>
-              <option>Other</option>
+            <select class="hs-input" name="topic" required>
+              <option value="Account / Login">Account / Login</option>
+              <option value="Resume Upload">Resume Upload</option>
+              <option value="ATS Analysis">ATS Analysis</option>
+              <option value="Resume Builder">Resume Builder</option>
+              <option value="Export / Downloads">Export / Downloads</option>
+              <option value="Other">Other</option>
             </select>
           </div>
 
           <div class="hs-field">
             <label class="hs-label">Priority</label>
-            <select class="hs-input" name="priority">
-              <option>Normal</option>
-              <option>High</option>
-              <option>Urgent</option>
+            <select class="hs-input" name="priority" required>
+              <option value="Normal">Normal</option>
+              <option value="High">High</option>
+              <option value="Urgent">Urgent</option>
             </select>
           </div>
         </div>
 
         <div class="hs-field">
           <label class="hs-label">Subject</label>
-          <input class="hs-input" name="subject" placeholder="e.g., Export PDF not working" />
+          <input class="hs-input" name="subject" placeholder="e.g., Export PDF not working" required />
         </div>
 
         <div class="hs-field">
           <label class="hs-label">Message</label>
           <textarea class="hs-input hs-textarea" name="message" rows="6"
-            placeholder="Write details… (what you clicked, what happened, screenshot info)"></textarea>
+            placeholder="Write details…" required></textarea>
         </div>
 
         <div class="hs-foot">

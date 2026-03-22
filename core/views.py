@@ -4,12 +4,15 @@ from django.contrib.auth import get_user_model, authenticate, login as auth_logi
 from django.utils.text import slugify
 from .forms import (
     JobseekerRegisterForm, HRRegisterForm, LoginForm, ResumeUploadForm,
-    EducationForm, ExperienceForm, ProjectForm, SkillForm
+    EducationForm, ExperienceForm, ProjectForm, SkillForm,
+    ProfileUpdateForm, SupportTicketForm
 )
 from .models import JobseekerProfile, HRProfile, Resume, Education, Experience, Project, Skill, ParsedResumeData, JobPost, ATSResult
 from .utils import extract_text_from_pdf, extract_text_from_docx, parse_resume_text, calculate_ats_score
 from django.contrib.auth.decorators import login_required
 from .decorators import hr_required, jobseeker_required
+from django.db.models import Avg, Q
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -120,6 +123,11 @@ def hr_candidate_ranking(request):
         selected_job = get_object_or_404(JobPost, pk=job_id, hr=hr)
         results = ATSResult.objects.filter(job_post=selected_job).select_related('resume', 'resume__jobseeker').order_by('-score')
 
+        # Simple Filtering
+        min_score = request.GET.get("min_score")
+        if min_score:
+            results = results.filter(score__gte=float(min_score))
+
     return render(request, "pages/hr_candidate_ranking.html", {
         "job_posts": job_posts,
         "selected_job": selected_job,
@@ -127,7 +135,39 @@ def hr_candidate_ranking(request):
     })
 
 
+@login_required
+def profile_settings(request):
+    if request.method == "POST":
+        if 'update_profile' in request.POST:
+            form = ProfileUpdateForm(request.POST, instance=request.user)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Profile updated successfully.")
+                return redirect('profile_settings')
+        elif 'change_password' in request.POST:
+            from django.contrib.auth.forms import PasswordChangeForm
+            from django.contrib.auth import update_session_auth_hash
+            form = PasswordChangeForm(request.user, request.POST)
+            if form.is_valid():
+                user = form.save()
+                update_session_auth_hash(request, user)  # Important!
+                messages.success(request, "Password changed successfully.")
+                return redirect('profile_settings')
+            else:
+                for error in form.errors.values():
+                    messages.error(request, error)
+
+    return render(request, "pages/profile_settings.html")
+
+
 def help_support(request):
+    if request.method == "POST":
+        form = SupportTicketForm(request.POST)
+        if form.is_valid():
+            # In a real app, we'd save to DB or send email. 
+            # For now, just show a success message as per requirement.
+            messages.success(request, "Ticket submitted successfully! Our team will get back to you soon.")
+            return redirect('help_support')
     return render(request, "pages/help_support.html")
 
 
@@ -463,12 +503,83 @@ def analysis_results(request):
     results = ATSResult.objects.filter(resume__jobseeker=request.user.jobseeker_profile).order_by('-analyzed_at')
     return render(request, "pages/analysis_results.html", {"results": results})
 
+@jobseeker_required
+def delete_analysis_result(request, pk):
+    result = get_object_or_404(ATSResult, pk=pk, resume__jobseeker=request.user.jobseeker_profile)
+    result.delete()
+    messages.success(request, "Analysis result deleted.")
+    return redirect('analysis_results')
+
 
 # Protected Jobseeker Views
 @jobseeker_required
 def jobseeker_dashboard(request):
-    resumes = request.user.jobseeker_profile.resumes.all().order_by('-uploaded_at')
-    return render(request, "pages/jobseeker_dashboard.html", {"resumes": resumes})
+    profile = request.user.jobseeker_profile
+    resumes = profile.resumes.all().order_by('-uploaded_at')
+    
+    # 1. Average ATS Score
+    avg_score_data = ATSResult.objects.filter(resume__jobseeker=profile).aggregate(Avg('score'))
+    avg_score = round(avg_score_data['score__avg'] or 0, 1)
+    
+    # 2. Total Scans This Month
+    now = timezone.now()
+    total_scans_month = ATSResult.objects.filter(
+        resume__jobseeker=profile, 
+        analyzed_at__year=now.year, 
+        analyzed_at__month=now.month
+    ).count()
+    
+    # 3. Profile Strength (25% each for Edu, Exp, Skill, Proj)
+    strength_val = 0
+    if profile.educations.exists(): strength_val += 25
+    if profile.experiences.exists(): strength_val += 25
+    if profile.skills.exists(): strength_val += 25
+    if profile.projects.exists(): strength_val += 25
+    
+    strength_label = "Low"
+    if strength_val >= 100: strength_label = "Excellent"
+    elif strength_val >= 75: strength_label = "Ready"
+    elif strength_val >= 50: strength_label = "Moderate"
+    
+    # 4. Resume Scores (get latest score for each resume)
+    for r in resumes:
+        latest_res = ATSResult.objects.filter(resume=r).order_by('-analyzed_at').first()
+        r.latest_score = latest_res.score if latest_res else None
+
+    return render(request, "pages/jobseeker_dashboard.html", {
+        "resumes": resumes,
+        "avg_score": avg_score,
+        "total_scans_month": total_scans_month,
+        "strength_label": strength_label,
+        "strength_score": strength_val,
+    })
+
+
+@login_required
+def dashboard_search(request):
+    query = request.GET.get('q', '').strip()
+    results = []
+    if query:
+        results = JobPost.objects.filter(
+            Q(title__icontains=query) | 
+            Q(description__icontains=query) | 
+            Q(requirements__icontains=query)
+        ).order_by('-created_at')
+    
+    return render(request, "pages/search_results.html", {
+        "query": query,
+        "results": results
+    })
+
+@jobseeker_required
+def resume_parse_result(request, resume_id):
+    resume = get_object_or_404(Resume, pk=resume_id, jobseeker=request.user.jobseeker_profile)
+    parsed_data = get_object_or_404(ParsedResumeData, resume=resume)
+    
+    return render(request, "pages/resume_parse_result.html", {
+        "resume": resume,
+        "parsed_data": parsed_data
+    })
 
 @jobseeker_required
 def resume_upload(request):
@@ -496,14 +607,18 @@ def resume_upload(request):
                 ParsedResumeData.objects.create(
                     resume=resume,
                     extracted_text=text,
-                    skills=parsed_sections.get("skills", ""),
-                    experience=parsed_sections.get("experience", ""),
-                    education=parsed_sections.get("education", ""),
+                    name=parsed_sections.get("name", ""),
+                    role=parsed_sections.get("role", ""),
+                    email=parsed_sections.get("email", ""),
+                    phone=parsed_sections.get("phone", ""),
+                    skills=", ".join(parsed_sections.get("skills", [])),
+                    experience=parsed_sections.get("sections", {}).get("experience", ""),
+                    education=parsed_sections.get("sections", {}).get("education", ""),
                 )
             # -----------------------
 
             messages.success(request, f"Resume '{resume_file.name}' uploaded and parsed successfully.")
-            return redirect('jobseeker_dashboard')
+            return redirect('resume_parse_result', resume_id=resume.id)
     else:
         form = ResumeUploadForm()
     
@@ -613,3 +728,108 @@ def hr_delete_job(request, job_id):
         job.delete()
         messages.success(request, f"Job '{title}' deleted successfully.")
     return redirect('hr_manage_jobs')
+
+
+@jobseeker_required
+def export_resume_docx(request):
+    profile = request.user.jobseeker_profile
+    from docx import Document
+    from django.http import HttpResponse
+    import io
+
+    doc = Document()
+    doc.add_heading(profile.full_name, 0)
+    
+    p = doc.add_paragraph()
+    p.add_run(f"{profile.user.email} | {profile.phone}").italic = True
+    if profile.location:
+        p.add_run(f" | {profile.location}")
+
+    if profile.summary:
+        doc.add_heading('Professional Summary', level=1)
+        doc.add_paragraph(profile.summary)
+
+    doc.add_heading('Skills', level=1)
+    skills = profile.skills.all()
+    if skills:
+        skill_text = ", ".join([f"{s.name} ({s.level})" for s in skills])
+        doc.add_paragraph(skill_text)
+
+    doc.add_heading('Work Experience', level=1)
+    for exp in profile.experiences.all():
+        doc.add_heading(f"{exp.position} at {exp.company}", level=2)
+        doc.add_paragraph(f"{exp.start_date} - {exp.end_date or 'Present'}")
+        doc.add_paragraph(exp.description)
+
+    doc.add_heading('Education', level=1)
+    for edu in profile.educations.all():
+        doc.add_heading(f"{edu.degree} - {edu.institution}", level=2)
+        doc.add_paragraph(f"{edu.start_date} - {edu.end_date or 'Present'}")
+
+    # Save to buffer
+    f = io.BytesIO()
+    doc.save(f)
+    f.seek(0)
+
+    response = HttpResponse(f.read(), content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+    response['Content-Disposition'] = 'attachment; filename=CVevo_Resume.docx'
+    return response
+
+@jobseeker_required
+def export_downloads(request):
+    profile = request.user.jobseeker_profile
+    return render(request, "pages/export_downloads.html", {"profile": profile})
+
+@hr_required
+def hr_reports_export(request):
+    hr = request.user.hr_profile
+    job_posts = JobPost.objects.filter(hr=hr).order_by('-created_at')
+    
+    # Optional filtering for the report preview
+    job_id = request.GET.get("job_id")
+    selected_job = None
+    results = []
+    
+    if job_id:
+        selected_job = get_object_or_404(JobPost, pk=job_id, hr=hr)
+        results = ATSResult.objects.filter(job_post=selected_job).select_related('resume', 'resume__jobseeker').order_by('-score')
+
+    return render(request, "pages/hr_reports_export.html", {
+        "job_posts": job_posts,
+        "selected_job": selected_job,
+        "results": results,
+    })
+
+@hr_required
+def hr_export_csv(request):
+    import csv
+    from django.http import HttpResponse
+    
+    hr = request.user.hr_profile
+    job_id = request.GET.get("job_id")
+    
+    if not job_id:
+        messages.error(request, "Please select a job post to export.")
+        return redirect('hr_reports_export')
+        
+    job_post = get_object_or_404(JobPost, pk=job_id, hr=hr)
+    results = ATSResult.objects.filter(job_post=job_post).select_related('resume', 'resume__jobseeker').order_by('-score')
+    
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="{job_post.title}_Rankings.csv"'
+    
+    writer = csv.writer(response)
+    writer.writerow(['Rank', 'Candidate Name', 'ATS Score', 'Matched Skills', 'Missing Skills', 'Analyzed At'])
+    
+    for i, res in enumerate(results, 1):
+        name = res.resume.jobseeker.full_name if res.resume.jobseeker else f"Candidate {res.resume.id}"
+        writer.writerow([
+            i,
+            name,
+            res.score,
+            res.matched_keywords,
+            res.missing_keywords,
+            res.analyzed_at.strftime("%Y-%m-%d %H:%M")
+        ])
+        
+    return response

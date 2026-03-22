@@ -16,50 +16,60 @@
 </header>
 
 <section class="card ps-card">
-  <div class="ps-user">
-    <div class="ps-avatar">JD</div>
-    <div>
-      <div class="ps-name">John Doe</div>
-      <div class="ps-email muted">john.doe@email.com</div>
-    </div>
-  </div>
-
-  <div class="ps-form">
-    <div class="ps-field">
-      <label class="ps-label">Full Name</label>
-      <input class="ps-input" type="text" value="John Doe">
+  <form method="POST">
+    {% csrf_token %}
+    <div class="ps-user">
+      <div class="ps-avatar">{{ request.user.full_name|slice:":1"|upper }}</div>
+      <div>
+        <div class="ps-name">{{ request.user.full_name }}</div>
+        <div class="ps-email muted">{{ request.user.email }}</div>
+      </div>
     </div>
 
-    <div class="ps-field">
-      <label class="ps-label">Email</label>
-      <input class="ps-input" type="email" value="john.doe@email.com">
+    <div class="ps-form">
+      <div class="ps-field">
+        <label class="ps-label">Full Name</label>
+        <input class="ps-input" type="text" name="full_name" value="{{ request.user.full_name }}" required>
+      </div>
+
+      <div class="ps-field">
+        <label class="ps-label">Email</label>
+        <input class="ps-input" type="email" name="email" value="{{ request.user.email }}" required>
+      </div>
+      
+      <div style="margin-top: 1rem;">
+        <button class="btn btn-primary" type="submit" name="update_profile">💾 Save Profile</button>
+      </div>
     </div>
-  </div>
+  </form>
 </section>
 
 <section class="card ps-card">
-  <div class="ps-card-title">
+  <div class="ps-card-title" style="margin-bottom: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
     <span class="ps-lock" aria-hidden="true">🔒</span>
     <span>Change Password</span>
   </div>
 
-  <div class="ps-form">
-    <div class="ps-field">
-      <input class="ps-input" type="password" placeholder="Current password">
-    </div>
+  <form method="POST">
+    {% csrf_token %}
+    <div class="ps-form">
+      <div class="ps-field">
+        <input class="ps-input" type="password" name="old_password" placeholder="Current password" required>
+      </div>
 
-    <div class="ps-field">
-      <input class="ps-input" type="password" placeholder="New password">
-    </div>
+      <div class="ps-field">
+        <input class="ps-input" type="password" name="new_password1" placeholder="New password" required>
+      </div>
 
-    <div class="ps-field">
-      <input class="ps-input" type="password" placeholder="Confirm new password">
+      <div class="ps-field">
+        <input class="ps-input" type="password" name="new_password2" placeholder="Confirm new password" required>
+      </div>
+      
+      <div style="margin-top: 1rem;">
+        <button class="btn btn-ghost" type="submit" name="change_password">Update Password</button>
+      </div>
     </div>
-  </div>
+  </form>
 </section>
-
-<div class="ps-actions">
-  <button class="btn btn-primary ps-save" type="button">💾 Save Changes</button>
-</div>
 
 {% endblock %}

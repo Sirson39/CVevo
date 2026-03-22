@@ -4,70 +4,136 @@ import re
 
 def extract_keywords_from_jd(jd_text):
     """
-    Identify key professional terms from JD.
-    For simplicity, we split by common separators or use NLTK/spaCy.
+    Identify key professional terms from JD using NLP.
+    Filters for Nouns and Proper Nouns to find skills and technologies.
     """
-    # Assuming JD requirements are often comma-separated or list-like
-    # We can also use simple frequency or TF-IDF on a set of common nouns/proper nouns
-    keywords = re.findall(r'\b[A-Za-z+#.]{2,}\b', jd_text)
-    # Filter common stopwords or short words
-    stop_words = {'and', 'the', 'for', 'with', 'our', 'will', 'you', 'are', 'should', 'have'}
-    important_keywords = [kw.lower() for kw in keywords if kw.lower() not in stop_words and len(kw) > 2]
-    return list(set(important_keywords))
+    from .parser import nlp
+    if not nlp:
+        # Fallback to regex if spacy not loaded
+        return list(set(re.findall(r'\b[A-Za-z+#.]{2,}\b', jd_text.lower())))
+    
+    doc = nlp(jd_text)
+    keywords = set()
+    
+    # Filter for Nouns, Proper Nouns, and multi-word tech terms
+    for token in doc:
+        if token.pos_ in ["NOUN", "PROPN"] and len(token.text) > 1:
+            keywords.add(token.text.lower())
+            
+    # Remove common filler words that might be tagged as nouns
+    stop_words = {'and', 'the', 'for', 'with', 'our', 'will', 'you', 'are', 'should', 'have', 'experience', 'team', 'work', 'skills'}
+    important_keywords = [kw for kw in keywords if kw not in stop_words]
+    
+    return important_keywords
 
 def calculate_ats_score(resume_parsed_data, jd_text):
     """
-    Detailed scoring logic.
+    Strong ATS Scoring Formula:
+    1. Keyword Match Score = 35%
+    2. Skills Match Score = 25%
+    3. Experience Relevance Score = 20%
+    4. Education / Qualification Score = 10%
+    5. Resume Structure / ATS Readability Score = 10%
     """
     resume_text = resume_parsed_data.get("full_text", "").lower()
     jd_keywords = extract_keywords_from_jd(jd_text)
     
     if not jd_keywords:
-        return 0, [], [], ["Job description content is insufficient for analysis."]
+        return 0, [], [], "Job description content is insufficient for analysis."
     
-    matched_keywords = []
-    missing_keywords = []
-
+    # 1. Keyword Match (35%)
+    # --- Exact vs Partial Matching ---
+    strong_matches = []
+    partial_matches = []
+    missing_critical = []
+    
+    # Simple heuristic for critical vs preferred: 
+    # Words like "required", "must", "essential" in the sentence containing the keyword?
+    # For now, let's treat all JD extracted keywords as important.
     for kw in jd_keywords:
         if re.search(r'\b' + re.escape(kw) + r'\b', resume_text):
-            matched_keywords.append(kw)
+            strong_matches.append(kw)
         else:
-            missing_keywords.append(kw)
+            # Check for partial matches (substring)
+            if any(kw in word for word in resume_text.split()):
+                partial_matches.append(kw)
+            else:
+                missing_critical.append(kw)
+                
+    keyword_score_raw = (len(strong_matches) + (0.5 * len(partial_matches))) / len(jd_keywords)
+    keyword_pillar = keyword_score_raw * 35
+    
+    # 2. Skills Match (25%)
+    # Use the skills identified by the parser
+    extracted_skills = [s.lower() for s in resume_parsed_data.get("skills", [])]
+    # How many of the JD keywords are in the 'skills' list specifically?
+    jd_skills_in_resume = [kw for kw in jd_keywords if kw in extracted_skills]
+    skills_score_raw = (len(jd_skills_in_resume) / len(jd_keywords)) if jd_keywords else 0
+    skills_pillar = min(25, skills_score_raw * 25 * 1.5) # Bonus for appearing in skills section
+    
+    # 3. Experience Relevance (20%)
+    experience_text = resume_parsed_data.get("sections", {}).get("experience", "").lower()
+    # Check if keyword density is higher in experience section
+    exp_matches = [kw for kw in jd_keywords if re.search(r'\b' + re.escape(kw) + r'\b', experience_text)]
+    exp_relevance_raw = (len(exp_matches) / len(jd_keywords)) if jd_keywords else 0
+    experience_pillar = exp_relevance_raw * 20
+    
+    # 4. Education / Qualification (10%)
+    education_text = resume_parsed_data.get("sections", {}).get("education", "").lower()
+    education_pillar = 0
+    if education_text:
+        education_pillar = 10
+        # Boost if degree keywords found
+        if any(deg in education_text for deg in ["bachelor", "master", "phd", "degree", "university", "college"]):
+            education_pillar = 10
+        else:
+            education_pillar = 5
             
-    # --- Scoring weights ---
-    # 1. Keyword overlap (50%)
-    keyword_score = (len(matched_keywords) / len(jd_keywords)) * 50 if jd_keywords else 0
-    
-    # 2. Section presence (20%)
+    # 5. ATS Readability (10%)
     sections = resume_parsed_data.get("sections", {})
-    section_score = 0
-    if sections.get("experience"): section_score += 10
-    if sections.get("education"): section_score += 5
-    if sections.get("summary") or sections.get("projects"): section_score += 5
+    readability_notes = []
+    readability_score = 0
     
-    # 3. Semantic Similarity (30%) - Optional advanced feature
-    try:
-        vectorizer = TfidfVectorizer(stop_words='english')
-        tfidf = vectorizer.fit_transform([resume_text, jd_text])
-        similarity = cosine_similarity(tfidf[0:1], tfidf[1:2])[0][0]
-        semantic_score = similarity * 30
-    except:
-        semantic_score = 15  # Default if TF-IDF fails
-        
-    total_score = keyword_score + section_score + semantic_score
-    total_score = min(100, round(total_score, 2))
+    if sections.get("experience"): readability_score += 3
+    else: readability_notes.append("Experience section header not clearly identified.")
     
-    # --- Recommendations ---
-    recommendations = []
-    if missing_keywords:
-        recommendations.append(f"Incorporate missing keywords: {', '.join(missing_keywords[:5])}.")
-    if not sections.get("summary"):
-        recommendations.append("Add a professional summary section to quickly highlight your value.")
-    if not sections.get("experience"):
-        recommendations.append("Ensure your work experience is clearly labeled and detailed.")
-    if total_score < 70:
-        recommendations.append("Tailor your skills and experience descriptions to more closely match the job description.")
-    elif total_score > 85:
-        recommendations.append("Great match! Ensure your contact information is up to date.")
-        
-    return total_score, matched_keywords, missing_keywords, recommendations
+    if sections.get("education"): readability_score += 3
+    else: readability_notes.append("Education section header not clearly identified.")
+    
+    if sections.get("skills"): readability_score += 2
+    else: readability_notes.append("Skills section header not clearly identified.")
+    
+    if len(resume_text.split()) > 200: readability_score += 2 # Length check
+    else: readability_notes.append("Resume might be too short for detailed ATS analysis.")
+    
+    readability_pillar = min(10, readability_score)
+    if not readability_notes: readability_notes.append("Resume structure follows standard ATS conventions.")
+
+    # Final Score Calculation
+    final_score = keyword_pillar + skills_pillar + experience_pillar + education_pillar + readability_pillar
+    final_score = min(100, round(final_score, 2))
+    
+    # Match Level
+    if final_score >= 80: match_level = "Strong"
+    elif final_score >= 50: match_level = "Moderate"
+    else: match_level = "Weak"
+    
+    # Improvement Suggestions
+    suggestions = []
+    if missing_critical:
+        suggestions.append(f"Add missing critical keywords: {', '.join(missing_critical[:3])}")
+    if education_pillar < 10:
+        suggestions.append("Clarify your degree and institution in the education section.")
+    if readability_pillar < 8:
+        suggestions.append("Use clearer section headings (e.g., 'Work Experience' instead of 'What I've Done').")
+
+    # Format Concise Report
+    matched_count = len(strong_matches) + len(partial_matches)
+    total_count = len(jd_keywords)
+    feedback_report = f"Matched {matched_count} out of {total_count} specific requirements. "
+    if missing_critical:
+        feedback_report += f"Consider adding skills like: {', '.join(missing_critical[:3])}."
+    else:
+        feedback_report += "Great job! Your resume aligns well with the job requirements."
+
+    return final_score, strong_matches, missing_critical, feedback_report

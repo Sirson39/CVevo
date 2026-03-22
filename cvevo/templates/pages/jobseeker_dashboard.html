@@ -25,7 +25,7 @@
     <article class="card kpi" style="padding: 16px; border-radius: 12px;">
       <div class="kpi-body">
         <div class="kpi-label" style="font-size: 12px; color: #64748b; font-weight: 600;">Average ATS Score</div>
-        <div class="kpi-value" style="font-size: 24px; font-weight: 800; margin: 4px 0;">--%</div>
+        <div class="kpi-value" style="font-size: 24px; font-weight: 800; margin: 4px 0;">{{ avg_score }}%</div>
         <div class="kpi-sub" style="font-size: 11px; color: #94a3b8;">Across all resumes</div>
       </div>
     </article>
@@ -41,7 +41,7 @@
     <article class="card kpi" style="padding: 16px; border-radius: 12px;">
       <div class="kpi-body">
         <div class="kpi-label" style="font-size: 12px; color: #64748b; font-weight: 600;">Total Scans</div>
-        <div class="kpi-value" style="font-size: 24px; font-weight: 800; margin: 4px 0;">0</div>
+        <div class="kpi-value" style="font-size: 24px; font-weight: 800; margin: 4px 0;">{{ total_scans_month }}</div>
         <div class="kpi-sub" style="font-size: 11px; color: #94a3b8;">This month</div>
       </div>
     </article>
@@ -49,8 +49,8 @@
     <article class="card kpi" style="padding: 16px; border-radius: 12px;">
       <div class="kpi-body">
         <div class="kpi-label" style="font-size: 12px; color: #64748b; font-weight: 600;">Profile Strength</div>
-        <div class="kpi-value" style="font-size: 24px; font-weight: 800; margin: 4px 0; color: #0f172a;">Ready</div>
-        <div class="kpi-sub" style="font-size: 11px; color: #94a3b8;">All details complete</div>
+        <div class="kpi-value" style="font-size: 24px; font-weight: 800; margin: 4px 0; color: #0f172a;">{{ strength_label }}</div>
+        <div class="kpi-sub" style="font-size: 11px; color: #94a3b8;">{{ strength_score }}% complete</div>
       </div>
     </article>
   </div>
@@ -80,7 +80,13 @@
           <tr style="border-bottom: 1px solid #f8fafc;">
             <td style="padding: 12px 0; font-weight: 500; color: #1e293b;">{{ resume.filename }}</td>
             <td class="muted" style="padding: 12px 0; color: #64748b;">{{ resume.uploaded_at|date:"M d, Y" }}</td>
-            <td style="padding: 12px 0;"><span class="status soft" style="background: #ecfdf5; color: #10b981; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700;">--%</span></td>
+            <td style="padding: 12px 0;">
+              {% if resume.latest_score %}
+                <span class="status soft" style="background: #ecfdf5; color: #10b981; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700;">{{ resume.latest_score }}%</span>
+              {% else %}
+                <span class="status soft" style="background: #f8fafc; color: #94a3b8; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700;">--%</span>
+              {% endif %}
+            </td>
             <td class="td-right" style="padding: 12px 0;">
               <a href="{{ resume.file.url }}" class="ticon" title="View" target="_blank" style="color: #94a3b8; margin-left: 8px;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px;">

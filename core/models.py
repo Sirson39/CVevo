@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
+from .utils import OverwriteStorage
 
 
 class UserManager(BaseUserManager):
@@ -121,7 +122,7 @@ class JobPost(models.Model):
 
 class Resume(models.Model):
     jobseeker = models.ForeignKey(JobseekerProfile, on_delete=models.CASCADE, related_name="resumes", null=True, blank=True)
-    file = models.FileField(upload_to="resumes/%Y/%m/%d/")
+    file = models.FileField(upload_to="resumes/%Y/%m/%d/", storage=OverwriteStorage())
     filename = models.CharField(max_length=255)
     source = models.CharField(max_length=50, choices=[('Jobseeker', 'Jobseeker'), ('HR Bulk', 'HR Bulk')], default='Jobseeker')
     uploaded_at = models.DateTimeField(auto_now_add=True)
@@ -133,6 +134,10 @@ class Resume(models.Model):
 class ParsedResumeData(models.Model):
     resume = models.OneToOneField(Resume, on_delete=models.CASCADE, related_name="parsed_data")
     extracted_text = models.TextField()
+    name = models.CharField(max_length=255, blank=True)
+    role = models.CharField(max_length=255, blank=True)
+    email = models.EmailField(blank=True)
+    phone = models.CharField(max_length=50, blank=True)
     skills = models.TextField(blank=True)  # JSON-like or comma separated
     experience = models.TextField(blank=True)
     education = models.TextField(blank=True)
@@ -149,6 +154,32 @@ class ATSResult(models.Model):
     matched_keywords = models.TextField(blank=True)
     missing_keywords = models.TextField(blank=True)
     analyzed_at = models.DateTimeField(auto_now_add=True)
+    
+    @property
+    def matched_list(self):
+        if not self.matched_keywords: return []
+        return [k.strip() for k in self.matched_keywords.split(',') if k.strip()]
+    
+    @property
+    def missing_list(self):
+        if not self.missing_keywords: return []
+        return [k.strip() for k in self.missing_keywords.split(',') if k.strip()]
+
+    @property
+    def concise_feedback(self):
+        # If it's already concise (from the new analyzer), return as is
+        if not self.feedback.strip().startswith("1. **Final ATS Score**"):
+            return self.feedback
+        
+        # fallback for old "messy" reports: build a summary from other fields
+        matched_count = len(self.matched_list)
+        missing_count = len(self.missing_list)
+        total = matched_count + missing_count
+        
+        msg = f"Matched {matched_count} out of {total} requirements identified in this analysis. "
+        if self.missing_list:
+            msg += f"Recommended additions: {', '.join(self.missing_list[:3])}."
+        return msg
 
     def __str__(self):
         return f"{self.resume.jobseeker.full_name} match for {self.job_post.title}: {self.score}%"

@@ -10,8 +10,9 @@
   </div>
 
   <div class="rp-actions">
-    <button class="btnx btnx-ghost" type="button">Schedule Report</button>
-    <button class="btnx btnx-primary" type="button">Download Ranking CSV</button>
+    {% if selected_job %}
+      <a href="{% url 'hr_export_csv' %}?job_id={{ selected_job.id }}" class="btnx btnx-primary" style="text-decoration:none;">Download Ranking CSV</a>
+    {% endif %}
   </div>
 </section>
 
@@ -22,28 +23,16 @@
     <input type="text" placeholder="Search job / candidate / keyword..." />
   </div>
 
-  <div class="rp-controls">
-    <select class="rp-select">
-      <option selected>Job: Frontend Developer</option>
-      <option>Job: Backend Engineer</option>
-      <option>Job: Data Analyst</option>
-      <option>All Jobs</option>
+  <form method="get" action="{% url 'hr_reports_export' %}" class="rp-controls">
+    <select name="job_id" class="rp-select" onchange="this.form.submit()">
+      <option value="">-- Select Job Post --</option>
+      {% for job in job_posts %}
+        <option value="{{ job.id }}" {% if selected_job.id == job.id %}selected{% endif %}>{{ job.title }}</option>
+      {% endfor %}
     </select>
 
-    <select class="rp-select">
-      <option selected>Range: Last 7 days</option>
-      <option>Last 30 days</option>
-      <option>This month</option>
-      <option>Custom</option>
-    </select>
-
-    <label class="rp-check">
-      <input type="checkbox" />
-      <span>Shortlisted only</span>
-    </label>
-
-    <button class="btnx btnx-ghost" type="button">Apply</button>
-  </div>
+    <button class="btnx btnx-ghost" type="submit">Apply</button>
+  </form>
 </section>
 
 <!-- Report cards -->
@@ -70,32 +59,25 @@
     </div>
 
     <div class="rp-list">
-      <div class="rp-row">
-        <div>
-          <strong>Nina Joshi</strong>
-          <div class="muted">Frontend Developer</div>
+      {% if results %}
+        {% for res in results|slice:":5" %}
+        <div class="rp-row">
+          <div>
+            <strong>{% if res.resume.jobseeker %}{{ res.resume.jobseeker.full_name }}{% else %}Candidate {{ res.resume.id }}{% endif %}</strong>
+            <div class="muted">{{ res.job_post.title }}</div>
+          </div>
+          <span class="tag {% if res.score >= 80 %}tag-green{% endif %}">{{ res.score|floatformat:0 }}</span>
         </div>
-        <span class="tag tag-green">91</span>
-      </div>
-      <div class="rp-row">
-        <div>
-          <strong>Aisha Khan</strong>
-          <div class="muted">Data Analyst</div>
-        </div>
-        <span class="tag">84</span>
-      </div>
-      <div class="rp-row">
-        <div>
-          <strong>Sabin Shrestha</strong>
-          <div class="muted">Frontend Developer</div>
-        </div>
-        <span class="tag">82</span>
-      </div>
+        {% endfor %}
+      {% else %}
+        <p class="muted" style="padding:1rem;">No candidates analyzed yet.</p>
+      {% endif %}
     </div>
 
     <div class="rp-card-actions mt-14">
-      <button class="btnx btnx-ghost sm" type="button">Download PDF</button>
-      <button class="btnx btnx-primary sm" type="button">Download CSV</button>
+      {% if selected_job %}
+        <a href="{% url 'hr_export_csv' %}?job_id={{ selected_job.id }}" class="btnx btnx-primary sm" style="text-decoration:none;">Download CSV</a>
+      {% endif %}
     </div>
   </article>
 
@@ -172,11 +154,11 @@
 <!-- Detailed export table -->
 <section class="panel mt-18">
   <div class="panel-head">
-    <h3 class="panel-title">Export Preview</h3>
+    <h3 class="panel-title">Export Preview {% if selected_job %}({{ selected_job.title }}){% endif %}</h3>
     <div class="table-actions">
-      <button class="btnx btnx-ghost" type="button">Columns</button>
-      <button class="btnx btnx-ghost" type="button">Filters</button>
-      <button class="btnx btnx-primary" type="button">Download CSV</button>
+      {% if selected_job %}
+        <a href="{% url 'hr_export_csv' %}?job_id={{ selected_job.id }}" class="btnx btnx-primary" style="text-decoration:none;">Download CSV</a>
+      {% endif %}
     </div>
   </div>
 
@@ -186,43 +168,28 @@
         <tr>
           <th>Rank</th>
           <th>Candidate</th>
-          <th>Job</th>
           <th>ATS</th>
-          <th>Match</th>
-          <th>Stage</th>
+          <th>Match Skills</th>
           <th style="text-align:right;">Action</th>
         </tr>
       </thead>
       <tbody>
+        {% for res in results %}
         <tr>
-          <td><span class="rank">1</span></td>
-          <td><div class="t-main">Nina Joshi</div><div class="muted t-sub">Full-stack</div></td>
-          <td class="muted">Frontend Developer</td>
-          <td><span class="score">91</span></td>
-          <td><span class="tag tag-green">92%</span></td>
-          <td><span class="tag">Shortlisted</span></td>
-          <td style="text-align:right;"><button class="btnx btnx-ghost sm" type="button">Remove</button></td>
+          <td><span class="rank">{{ forloop.counter }}</span></td>
+          <td>
+            <div class="t-main">{% if res.resume.jobseeker %}{{ res.resume.jobseeker.full_name }}{% else %}Candidate {{ res.resume.id }}{% endif %}</div>
+            <div class="muted t-sub">{{ res.resume.filename }}</div>
+          </td>
+          <td><span class="score">{{ res.score|floatformat:0 }}</span></td>
+          <td><span class="tag tag-green">{{ res.matched_keywords|slice:":30" }}...</span></td>
+          <td style="text-align:right;"><a href="{% url 'hr_candidate_detail' %}?result_id={{ res.id }}" class="btnx btnx-ghost sm">View Detail</a></td>
         </tr>
-
+        {% empty %}
         <tr>
-          <td><span class="rank">2</span></td>
-          <td><div class="t-main">Sabin Shrestha</div><div class="muted t-sub">Frontend</div></td>
-          <td class="muted">Frontend Developer</td>
-          <td><span class="score">82</span></td>
-          <td><span class="tag">88%</span></td>
-          <td><span class="tag">Applied</span></td>
-          <td style="text-align:right;"><button class="btnx btnx-ghost sm" type="button">Remove</button></td>
+          <td colspan="5" style="text-align:center; padding: 2rem;" class="muted">Select a job post to see candidates.</td>
         </tr>
-
-        <tr>
-          <td><span class="rank">3</span></td>
-          <td><div class="t-main">Aisha Khan</div><div class="muted t-sub">Analyst</div></td>
-          <td class="muted">Data Analyst</td>
-          <td><span class="score">84</span></td>
-          <td><span class="tag">81%</span></td>
-          <td><span class="tag">Screening</span></td>
-          <td style="text-align:right;"><button class="btnx btnx-ghost sm" type="button">Remove</button></td>
-        </tr>
+        {% endfor %}
       </tbody>
     </table>
   </div>

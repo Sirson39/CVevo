@@ -12,11 +12,24 @@ except OSError:
 
 def extract_contact_info(text):
     """
-    Extracts email and phone number using regex.
+    Extracts name, email and phone number using regex.
     """
     email = re.findall(r'[\w\.-]+@[\w\.-]+', text)
     phone = re.findall(r'\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}', text)
+    
+    # Simple name extraction: look at the first few lines
+    lines = [L.strip() for L in text.split('\n') if L.strip()]
+    name = ""
+    if lines:
+        # Usually the first non-empty line is the name
+        # We skip lines that look like emails or phones
+        for line in lines[:5]:
+            if not re.search(r'@', line) and not re.search(r'\d{3}', line):
+                name = line
+                break
+
     return {
+        "name": name,
         "email": email[0] if email else "",
         "phone": phone[0] if phone else ""
     }
@@ -30,10 +43,17 @@ def extract_skills(text, skills_list=None):
     if not skills_list:
         # Default common skills for a tech project
         skills_list = [
-            "Python", "Java", "C++", "JavaScript", "React", "Angular", "Vue", "Node.js",
-            "Django", "Flask", "PostgreSQL", "MySQL", "MongoDB", "AWS", "Docker", "Kubernetes",
-            "Machine Learning", "Data Analysis", "HTML", "CSS", "TypeScript", "Git", "Agile",
-            "Project Management", "NLP", "AI", "TensorFlow", "PyTorch", "Pandas", "NumPy"
+            "Python", "Java", "C++", "C#", "PHP", "Ruby", "Swift", "Go", "Rust",
+            "JavaScript", "React", "Angular", "Vue", "Node.js", "Express", "Next.js",
+            "Django", "Flask", "Spring Boot", "Laravel", "Ruby on Rails",
+            "PostgreSQL", "MySQL", "MongoDB", "Redis", "SQLite", "Oracle",
+            "AWS", "Docker", "Kubernetes", "Azure", "GCP", "Terraform", "Jenkins",
+            "Machine Learning", "Data Analysis", "Deep Learning", "Computer Vision",
+            "HTML", "CSS", "Sass", "TypeScript", "Tailwind", "Bootstrap",
+            "Git", "Agile", "Scrum", "Project Management", "Product Management",
+            "NLP", "AI", "TensorFlow", "PyTorch", "Pandas", "NumPy", "Scikit-learn",
+            "Tableau", "PowerBI", "SQL", "NoSQL", "REST API", "GraphQL", "Microservices",
+            "Cybersecurity", "Blockchain", "Solidity", "Unit Testing", "DevOps"
         ]
     
     matcher = PhraseMatcher(nlp.vocab, attr="LOWER")
@@ -49,6 +69,28 @@ def extract_skills(text, skills_list=None):
         extracted_skills.add(span.text)
     
     return list(extracted_skills)
+
+def extract_role(text):
+    """
+    Identifies the likely current or target role of the candidate.
+    """
+    if not nlp: return "Unknown"
+    
+    doc = nlp(text)
+    # Look for common role indicators or first non-entity lines
+    # Often found near the top or after names
+    lines = [L.strip() for L in text.split('\n') if L.strip()]
+    
+    # Common job titles candidates put near the top
+    common_roles = ["Developer", "Engineer", "Manager", "Analyst", "Consultant", "Architect", "Designer", "Lead"]
+    
+    for line in lines[:10]:
+        if any(role.lower() in line.lower() for role in common_roles):
+            # Clean up the line for role extraction
+            if len(line.split()) < 6: # Likely a title, not a sentence
+                return line
+                
+    return "Not specified"
 
 def extract_sections(text):
     """
@@ -95,10 +137,12 @@ def parse_resume(text):
     contact = extract_contact_info(text)
     skills = extract_skills(text)
     sections = extract_sections(text)
+    role = extract_role(text)
     
     return {
         "contact": contact,
         "skills": skills,
         "sections": sections,
+        "role": role,
         "full_text": text
     }
