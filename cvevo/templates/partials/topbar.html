@@ -45,10 +45,17 @@
       </div>
     </div>
 
+    {% if user.is_authenticated %}
     <button class="user">
       <span class="avatar">{{ user.full_name|default:user.email|slice:":1"|upper }}</span>
       <span class="user-name">{{ user.full_name|default:user.email|slice:":15" }}</span>
     </button>
+    {% else %}
+    <div class="topbar-actions" style="display: flex; gap: 0.5rem; align-items: center; margin-left: 1rem;">
+      <a href="{% url 'login' %}" style="font-size: 13px; color: #64748b; text-decoration: none; font-weight: 500;">Login</a>
+      <a href="{% url 'register_choose' %}" style="font-size: 12px; padding: 6px 12px; background: #10b981; color: white; border-radius: 6px; text-decoration: none; font-weight: 600;">Sign Up</a>
+    </div>
+    {% endif %}
   </div>
 </header>
 

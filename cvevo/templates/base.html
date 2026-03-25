@@ -1,6 +1,7 @@
 {% load static %}
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -8,7 +9,9 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet">
 
   <link rel="stylesheet" href="{% static 'cvevo/styles.css' %}">
   <script src="{% static 'cvevo/app.js' %}" defer></script>
@@ -16,15 +19,61 @@
 </head>
 
 <body>
+  <!-- Floating Toast Notifications -->
+  <div id="toast-container" style="position: fixed; top: 24px; right: 24px; z-index: 1000; display: flex; flex-direction: column; gap: 12px; pointer-events: none;">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="toast-item" style="pointer-events: auto; min-width: 320px; max-width: 450px; background: white; border-radius: 12px; padding: 16px; display: flex; align-items: flex-start; gap: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); border-left: 6px solid {% if message.tags == 'success' %}#10b981{% elif message.tags == 'error' %}#ef4444{% else %}#3b82f6{% endif %}; animation: slideIn 0.4s ease forwards;">
+          <div style="flex-shrink: 0; margin-top: 2px;">
+            {% if message.tags == 'success' %}
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="#10b981"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+            {% elif message.tags == 'error' %}
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="#ef4444"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+            {% else %}
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="#3b82f6"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+            {% endif %}
+          </div>
+          <div style="flex-grow: 1;">
+            <p style="margin: 0; font-size: 14px; color: #1f2937; font-weight: 600;">{{ message.tags|capfirst }}</p>
+            <p style="margin: 4px 0 0; font-size: 14px; color: #4b5563; line-height: 1.5;">{{ message }}</p>
+          </div>
+          <button onclick="this.parentElement.remove()" style="background: none; border: none; padding: 4px; cursor: pointer; color: #9ca3af;" aria-label="Dismiss">✕</button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+
+  <style>
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+  </style>
+
+  <script>
+    // Auto-dismiss toasts after 6 seconds
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        const toasts = document.querySelectorAll('.toast-item');
+        toasts.forEach(t => {
+          t.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+          t.style.opacity = '0';
+          t.style.transform = 'translateX(20px)';
+          setTimeout(() => t.remove(), 500);
+        });
+      }, 6000);
+    });
+  </script>
   <!-- Header / Navbar -->
   <header class="site-header">
     <div class="container nav">
-      <a class="brand" href="/">
+      <a class="brand" href="{% url 'home' %}">
         <span class="brand-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M7 3h7l4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2"/>
-            <path d="M9 13h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <path d="M9 17h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M7 3h7l4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor"
+              stroke-width="2" />
+            <path d="M9 13h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <path d="M9 17h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
           </svg>
         </span>
         <span class="brand-text"><span class="c">CV</span><span class="e">evo</span></span>
@@ -37,16 +86,16 @@
         <a href="/#how">How It Works</a>
 
         <!-- ✅ Goes to another page -->
-        <a href="/organizations/">For Organizations</a>
+        <a href="{% url 'organizations' %}">For Organizations</a>
         <a href="/#resources">Resources</a>
-      
+
 
         <a href="/#contact">Contact</a>
       </nav>
 
       <div class="nav-actions">
-        <a class="link" href="/login/">Sign In</a>
-        <a class="btn btn-green" href="/register/">Get Started</a>
+        <a class="link" href="{% url 'login' %}">Sign In</a>
+        <a class="btn btn-green" href="{% url 'register_choose' %}">Get Started</a>
 
         <button class="burger" id="burgerBtn" aria-label="Open menu" aria-controls="navLinks" aria-expanded="false">
           <span></span><span></span><span></span>
@@ -64,9 +113,10 @@
         <div class="brand mini">
           <span class="brand-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7 3h7l4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2"/>
-              <path d="M9 13h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M9 17h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M7 3h7l4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor"
+                stroke-width="2" />
+              <path d="M9 13h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              <path d="M9 17h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
             </svg>
           </span>
           <span class="brand-text"><span class="c">CV</span><span class="e">evo</span></span>
@@ -77,10 +127,10 @@
         </p>
 
         <div class="social">
-          <a href="#" aria-label="Twitter">𝕏</a>
-          <a href="#" aria-label="LinkedIn">in</a>
-          <a href="#" aria-label="GitHub">⌂</a>
-          <a href="#" aria-label="Email">✉</a>
+          <a href="https://x.com/login" target="_blank" aria-label="Twitter">𝕏</a>
+          <a href="https://www.linkedin.com/login" target="_blank" aria-label="LinkedIn">in</a>
+          <a href="https://github.com/login" target="_blank" aria-label="GitHub">⌂</a>
+          <a href="mailto:support@cvevo.com" aria-label="Email">✉</a>
         </div>
       </div>
 
@@ -89,29 +139,29 @@
           <h5>Product</h5>
           <a href="/#features">Features</a>
           <a href="/#templates">Templates</a>
-          <a href="/resume/builder/">Resume Builder</a>
+          <a href="{% url 'resume_builder' %}">Resume Builder</a>
         </div>
 
         <div class="col">
           <h5>Company</h5>
-          <a href="#">About Us</a>
-          <a href="#">Careers</a>
-          <a href="#">Blog</a>
+          <a href="/#about">About Us</a>
+          <a href="/#contact">Careers</a>
+          <a href="/#contact">Blog</a>
           <a href="/#contact">Contact</a>
         </div>
 
         <div class="col">
           <h5>Resources</h5>
-          <a href="/#resume-tips">Resume Tips</a>
-          <a href="/#ats-guide">ATS Guide</a>
-          
+          <a href="{% url 'resume_tips' %}">Resume Tips</a>
+          <a href="{% url 'ats_guide' %}">ATS Guide</a>
+
         </div>
 
         <div class="col">
           <h5>Legal</h5>
-          <a href="#">Privacy Policy</a>
-          <a href="#">Terms of Service</a>
-          <a href="#">Cookie Policy</a>
+          <a href="/#contact">Privacy Policy</a>
+          <a href="/#contact">Terms of Service</a>
+          <a href="/#contact">Cookie Policy</a>
         </div>
       </div>
     </div>
@@ -122,4 +172,5 @@
     </div>
   </footer>
 </body>
+
 </html>

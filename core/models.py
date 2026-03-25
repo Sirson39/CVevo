@@ -185,3 +185,38 @@ class ATSResult(models.Model):
 
     def __str__(self):
         return f"{self.resume.jobseeker.full_name} match for {self.job_post.title}: {self.score}%"
+
+class Notification(models.Model):
+    TYPE_CHOICES = [('success','Success'),('info','Info'),('warning','Warning'),('error','Error')]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    message = models.CharField(max_length=300)
+    icon = models.CharField(max_length=10, default='??')
+    type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='info')
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'[{self.type}] {self.user.email}: {self.message[:60]}'
+
+    @classmethod
+    def push(cls, user, message, icon='??', notif_type='info'):
+        cls.objects.create(user=user, message=message, icon=icon, type=notif_type)
+        keep_ids = list(cls.objects.filter(user=user).values_list('id', flat=True)[:4])
+        cls.objects.filter(user=user).exclude(id__in=keep_ids).delete()
+
+class ContactMessage(models.Model):
+    name = models.CharField(max_length=120)
+    email = models.EmailField()
+    subject = models.CharField(max_length=200)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_resolved = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Message from {self.name} - {self.subject}"

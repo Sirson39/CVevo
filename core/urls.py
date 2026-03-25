@@ -18,6 +18,7 @@ urlpatterns = [
     path("resume-tips/", views.resume_tips, name="resume_tips"),
     path("ats-guide/", views.ats_guide, name="ats_guide"),
     path("organizations/", views.organizations, name="organizations"),
+    path("contact/", views.contact_view, name="contact_us"),
 
     path("app/home/", lambda r: views.page(r, "app_home.html"), name="app_home"),
 

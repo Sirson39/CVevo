@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, JobseekerProfile, HRProfile, Resume, JobPost, ATSResult
+from .models import User, JobseekerProfile, HRProfile, Resume, JobPost, ATSResult, ContactMessage
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
@@ -27,3 +27,10 @@ admin.site.register(HRProfile)
 admin.site.register(Resume)
 admin.site.register(JobPost)
 admin.site.register(ATSResult)
+
+@admin.register(ContactMessage)
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display = ("name", "email", "subject", "created_at", "is_resolved")
+    list_filter = ("is_resolved", "created_at")
+    search_fields = ("name", "email", "subject", "message")
+    ordering = ("-created_at",)

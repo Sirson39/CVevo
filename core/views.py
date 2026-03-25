@@ -7,7 +7,7 @@ from .forms import (
     EducationForm, ExperienceForm, ProjectForm, SkillForm,
     ProfileUpdateForm, SupportTicketForm
 )
-from .models import JobseekerProfile, HRProfile, Resume, Education, Experience, Project, Skill, ParsedResumeData, JobPost, ATSResult, Notification
+from .models import JobseekerProfile, HRProfile, Resume, Education, Experience, Project, Skill, ParsedResumeData, JobPost, ATSResult, Notification, ContactMessage
 from .utils import extract_text_from_pdf, extract_text_from_docx, parse_resume_text, calculate_ats_score
 from django.contrib.auth.decorators import login_required
 from .decorators import hr_required, jobseeker_required
@@ -19,6 +19,26 @@ User = get_user_model()
 
 def home(request):
     return render(request, "index.html")
+
+def contact_view(request):
+    if request.method == "POST":
+        name = request.POST.get("name")
+        email = request.POST.get("email")
+        subject = request.POST.get("subject")
+        message = request.POST.get("message")
+        
+        if name and email and message:
+            ContactMessage.objects.create(
+                name=name,
+                email=email,
+                subject=subject or "General Inquiry",
+                message=message
+            )
+            messages.success(request, "Success! Your message has been sent to the CVevo team. We'll get back to you soon.")
+        else:
+            messages.error(request, "Please fill in all required fields.")
+            
+    return redirect("home")
 
 def organizations(request):
     return render(request, "organization.html")
@@ -676,7 +696,7 @@ def resume_upload(request):
             # -----------------------
 
             messages.success(request, f"Resume '{resume_file.name}' uploaded and parsed successfully.")
-            Notification.push(request.user, f"Resume '{resume_file.name}' uploaded and processed.", icon="📄", notif_type="success")
+            Notification.push(request.user, "Uploaded successfully", icon="📄", notif_type="success")
             return redirect('resume_parse_result', resume_id=resume.id)
     else:
         form = ResumeUploadForm()
@@ -834,7 +854,7 @@ def export_resume_docx(request):
     response = HttpResponse(f.read(), content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
     response['Content-Disposition'] = 'attachment; filename=CVevo_Resume.docx'
     
-    Notification.push(request.user, "Your resume has been downloaded as DOCX.", icon="📥", notif_type="success")
+    Notification.push(request.user, "DOCX exported successfully.", icon="📥", notif_type="success")
     return response
 
 
@@ -848,7 +868,7 @@ from django.http import JsonResponse
 @jobseeker_required
 def notify_pdf_export(request):
     """AJAX endpoint to record that a user downloaded their PDF."""
-    Notification.push(request.user, "Your resume has been downloaded as PDF.", icon="📄", notif_type="success")
+    Notification.push(request.user, "PDF exported successfully", icon="📄", notif_type="success")
     return JsonResponse({"status": "ok"})
 
 @hr_required
