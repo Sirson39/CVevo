@@ -46,8 +46,8 @@
     </div>
 
     <button class="user">
-      <span class="avatar">{{ user.email|slice:":1"|upper }}</span>
-      <span class="user-name">{{ user.jobseeker_profile.full_name|default:user.email|slice:":15" }}</span>
+      <span class="avatar">{{ user.full_name|default:user.email|slice:":1"|upper }}</span>
+      <span class="user-name">{{ user.full_name|default:user.email|slice:":15" }}</span>
     </button>
   </div>
 </header>

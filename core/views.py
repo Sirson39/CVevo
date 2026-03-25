@@ -339,6 +339,7 @@ def resume_builder(request):
     if request.method == "POST":
         # Handle profile info (Contact / Summary)
         profile.full_name = request.POST.get("full_name", profile.full_name)
+        profile.email = request.POST.get("email", profile.email)
         profile.phone = request.POST.get("phone", profile.phone)
         profile.location = request.POST.get("location", profile.location)
         profile.linkedin = request.POST.get("linkedin", profile.linkedin)
@@ -497,6 +498,55 @@ def analyze_resume(request, resume_id):
         "job_posts": job_posts
     })
 
+
+@jobseeker_required
+def quick_analysis(request):
+    resumes = Resume.objects.filter(jobseeker=request.user.jobseeker_profile).order_by('-uploaded_at')
+    
+    if request.method == "POST":
+        resume_id = request.POST.get("resume_id")
+        job_title = request.POST.get("job_title", "Quick Scan Position")
+        job_description = request.POST.get("job_description")
+        
+        if not resume_id or not job_description:
+            messages.error(request, "Please select a resume and provide a job description.")
+            return redirect("quick_analysis")
+            
+        resume = get_object_or_404(Resume, pk=resume_id, jobseeker=request.user.jobseeker_profile)
+        
+        # 1. Get Resume Text
+        resume_text = ""
+        if resume.file.name.endswith(".pdf"):
+            resume_text = extract_text_from_pdf(resume.file.path)
+        elif resume.file.name.endswith(".docx"):
+            resume_text = extract_text_from_docx(resume.file.path)
+            
+        if not resume_text:
+            messages.error(request, "Could not extract text from the selected resume.")
+            return redirect("quick_analysis")
+            
+        # 2. Run ATS Analysis — returns (score, matched, missing, feedback)
+        score, matched, missing, feedback = calculate_ats_score(resume_text, job_description)
+        
+        # 3. Save Result
+        ats_result = ATSResult.objects.create(
+            resume=resume,
+            job_post=None,  # Null for quick analysis
+            custom_job_title=job_title,
+            score=score,
+            feedback=feedback,
+            matched_keywords=", ".join(matched),
+            missing_keywords=", ".join(missing)
+        )
+        
+        # 4. Save score to resume for history
+        resume.latest_score = score
+        resume.save()
+        
+        messages.success(request, f"Analysis complete! Match score: {round(score)}%")
+        return redirect("analysis_results")
+
+    return render(request, "pages/quick_analysis.html", {"resumes": resumes})
 
 @jobseeker_required
 def analysis_results(request):

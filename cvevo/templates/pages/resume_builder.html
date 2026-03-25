@@ -115,7 +115,7 @@
           </label>
           <label class="rb-field">
             <span>Email</span>
-            <input type="email" value="{{ user.email }}" disabled>
+            <input type="email" name="email" value="{{ user.jobseeker_profile.email|default:user.email }}">
           </label>
           <label class="rb-field">
             <span>Phone</span>

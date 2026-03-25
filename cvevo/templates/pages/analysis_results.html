@@ -34,7 +34,12 @@
       <article class="card pad-lg">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:1rem;">
           <div>
-            <h3 style="margin:0; font-size:1.35rem; color:#1e293b; font-weight:700;">{{ result.job_post.title }}</h3>
+            <h3 style="margin:0; font-size:1.35rem; color:#1e293b; font-weight:700;">{{ result.job_post.title|default:result.custom_job_title }}</h3>
+            {% if result.job_post %}
+              <span style="display:inline-block; margin-top:6px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; padding:2px 8px; border-radius:999px; background:#dbeafe; color:#1d4ed8;">ATS Scan</span>
+            {% else %}
+              <span style="display:inline-block; margin-top:6px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; padding:2px 8px; border-radius:999px; background:#fef9c3; color:#92400e;">⚡ Quick Scan</span>
+            {% endif %}
             <p class="muted" style="margin:.4rem 0 0; font-size: 0.9rem;">
               {{ result.resume.jobseeker.full_name|default:"Candidate" }} • Analyzed on {{ result.analyzed_at|date:"M d, Y" }}
             </p>

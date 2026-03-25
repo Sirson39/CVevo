@@ -1,7 +1,7 @@
 from django.dispatch import receiver
 from django.contrib.auth.signals import user_logged_in
 from allauth.account.signals import user_signed_up
-from .models import JobseekerProfile, HRProfile
+from .models import JobseekerProfile, HRProfile, User
 
 @receiver(user_signed_up)
 def create_profile_on_google_signup(request, user, **kwargs):
@@ -29,7 +29,7 @@ def create_profile_on_google_signup(request, user, **kwargs):
 
     JobseekerProfile.objects.get_or_create(
         user=user,
-        defaults={"full_name": full_name},
+        defaults={"full_name": full_name, "email": user.email},
     )
 
 
@@ -37,7 +37,6 @@ from allauth.socialaccount.signals import pre_social_login
 from django.shortcuts import redirect
 from django.contrib import messages
 from allauth.core.exceptions import ImmediateHttpResponse
-from core.models import User # Assuming core.models.User is where the User model is defined
 
 @receiver(pre_social_login)
 def block_hr_social_login(request, sociallogin, **kwargs):
@@ -71,6 +70,6 @@ def ensure_profile_on_login(sender, request, user, **kwargs):
     full_name = user.full_name or user.email.split("@")[0]
     JobseekerProfile.objects.get_or_create(
         user=user,
-        defaults={"full_name": full_name},
+        defaults={"full_name": full_name, "email": user.email},
     )
 

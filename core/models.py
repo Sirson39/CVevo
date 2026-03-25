@@ -42,6 +42,7 @@ class User(AbstractUser):
 class JobseekerProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="jobseeker_profile")
     full_name = models.CharField(max_length=120)
+    email = models.EmailField(max_length=255, blank=True)
     phone = models.CharField(max_length=20, blank=True)
     location = models.CharField(max_length=120, blank=True)
     linkedin = models.URLField(blank=True)
@@ -148,7 +149,8 @@ class ParsedResumeData(models.Model):
 
 class ATSResult(models.Model):
     resume = models.ForeignKey(Resume, on_delete=models.CASCADE, related_name="ats_results")
-    job_post = models.ForeignKey(JobPost, on_delete=models.CASCADE, related_name="ats_results")
+    job_post = models.ForeignKey(JobPost, on_delete=models.CASCADE, related_name="ats_results", null=True, blank=True)
+    custom_job_title = models.CharField(max_length=255, blank=True, help_text="Used for quick scans without a formal job post")
     score = models.FloatField()
     feedback = models.TextField()
     matched_keywords = models.TextField(blank=True)
