@@ -122,6 +122,10 @@
       btn.innerHTML = originalText;
       btn.disabled = false;
       element.style.transform = originalStyle;
+      fetch("{% url 'notify_pdf_export' %}", { method: 'GET' });
+      if (typeof window.playNotificationSound === 'function') {
+        window.playNotificationSound();
+      }
     });
   }
 </script>

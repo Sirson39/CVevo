@@ -7,7 +7,7 @@ from .forms import (
     EducationForm, ExperienceForm, ProjectForm, SkillForm,
     ProfileUpdateForm, SupportTicketForm
 )
-from .models import JobseekerProfile, HRProfile, Resume, Education, Experience, Project, Skill, ParsedResumeData, JobPost, ATSResult
+from .models import JobseekerProfile, HRProfile, Resume, Education, Experience, Project, Skill, ParsedResumeData, JobPost, ATSResult, Notification
 from .utils import extract_text_from_pdf, extract_text_from_docx, parse_resume_text, calculate_ats_score
 from django.contrib.auth.decorators import login_required
 from .decorators import hr_required, jobseeker_required
@@ -170,6 +170,12 @@ def help_support(request):
             return redirect('help_support')
     return render(request, "pages/help_support.html")
 
+@login_required
+def mark_notifications_read(request):
+    """Mark all notifications as read for the current user."""
+    if request.method == "POST":
+        request.user.notifications.filter(is_read=False).update(is_read=True)
+    return redirect(request.META.get('HTTP_REFERER', '/'))
 
 def _unique_username_from_email(email: str) -> str:
     base = slugify(email.split("@")[0]) or "user"
@@ -489,6 +495,7 @@ def analyze_resume(request, resume_id):
                 missing_keywords=",".join(missing)
             )
             messages.success(request, f"Analysis complete for {job_post.title}. Score: {score}%")
+            Notification.push(request.user, f"ATS analysis complete for '{job_post.title}': {score}% match.", icon="🎯", notif_type="success")
             return redirect('analysis_results')
         else:
             messages.error(request, "Could not extract text for analysis.")
@@ -544,6 +551,7 @@ def quick_analysis(request):
         resume.save()
         
         messages.success(request, f"Analysis complete! Match score: {round(score)}%")
+        Notification.push(request.user, f"Quick scan complete for '{job_title}': {round(score)}%.", icon="⚡", notif_type="info")
         return redirect("analysis_results")
 
     return render(request, "pages/quick_analysis.html", {"resumes": resumes})
@@ -668,6 +676,7 @@ def resume_upload(request):
             # -----------------------
 
             messages.success(request, f"Resume '{resume_file.name}' uploaded and parsed successfully.")
+            Notification.push(request.user, f"Resume '{resume_file.name}' uploaded and processed.", icon="📄", notif_type="success")
             return redirect('resume_parse_result', resume_id=resume.id)
     else:
         form = ResumeUploadForm()
@@ -753,6 +762,7 @@ def hr_create_job(request):
                 requirements=requirements
             )
             messages.success(request, f"Job post '{title}' created successfully!")
+            Notification.push(request.user, f"Job post '{title}' created.", icon="💼", notif_type="success")
             return redirect('hr_dashboard')
         else:
             messages.error(request, "Title and Description are required.")
@@ -823,15 +833,27 @@ def export_resume_docx(request):
 
     response = HttpResponse(f.read(), content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
     response['Content-Disposition'] = 'attachment; filename=CVevo_Resume.docx'
+    
+    Notification.push(request.user, "Your resume has been downloaded as DOCX.", icon="📥", notif_type="success")
     return response
+
 
 @jobseeker_required
 def export_downloads(request):
     profile = request.user.jobseeker_profile
     return render(request, "pages/export_downloads.html", {"profile": profile})
 
+from django.http import JsonResponse
+
+@jobseeker_required
+def notify_pdf_export(request):
+    """AJAX endpoint to record that a user downloaded their PDF."""
+    Notification.push(request.user, "Your resume has been downloaded as PDF.", icon="📄", notif_type="success")
+    return JsonResponse({"status": "ok"})
+
 @hr_required
 def hr_reports_export(request):
+
     hr = request.user.hr_profile
     job_posts = JobPost.objects.filter(hr=hr).order_by('-created_at')
     

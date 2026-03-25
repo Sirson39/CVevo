@@ -59,4 +59,8 @@ urlpatterns = [
     path("hr/candidate/",         views.hr_candidate_detail,  name="hr_candidate_detail"),
     path("hr/reports/",           views.hr_reports_export,    name="hr_reports_export"),
     path("hr/reports/export-csv/", views.hr_export_csv,       name="hr_export_csv"),
+
+    # Notifications
+    path("notifications/read/",   views.mark_notifications_read, name="mark_notifications_read"),
+    path("export/pdf/notify/",    views.notify_pdf_export, name="notify_pdf_export"),
 ]
