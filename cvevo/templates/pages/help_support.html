@@ -27,20 +27,12 @@
         <a class="btn btn-primary" href="mailto:support@cvevo.com">
           <span class="hs-ico">✉️</span> Email Support
         </a>
-        <button class="btn" type="button">
-          <span class="hs-ico">💬</span> Live Chat (Soon)
-        </button>
-      </div>
-
-      <div class="hs-meta">
-        <div class="hs-pill"><span class="hs-dot ok"></span> Avg response: 2–6 hours</div>
-        <div class="hs-pill"><span class="hs-dot"></span> Support: Sun–Fri</div>
       </div>
     </div>
 
     <div class="card hs-card">
-      <h3 class="hs-card-title">Create a Support Ticket</h3>
-      <p class="muted">Describe your issue and we’ll get back to you.</p>
+      <h3 class="hs-card-title">Send a Support Message</h3>
+      <p class="muted">Describe your issue or request and we’ll get back to you.</p>
 
       <form class="hs-form" action="{% url 'help_support' %}" method="post">
         {% csrf_token %}
@@ -79,8 +71,8 @@
         </div>
 
         <div class="hs-foot">
-          <button class="btn btn-primary" type="submit">Submit Ticket</button>
-          <span class="muted hs-hint">Tip: include your resume filename + date/time.</span>
+          <button class="btn btn-primary" type="submit">Send Message</button>
+          <span class="muted hs-hint">Include details like resume filename or specific page URL.</span>
         </div>
       </form>
     </div>
@@ -88,16 +80,6 @@
 
   <!-- RIGHT -->
   <aside class="hs-col">
-    <div class="card hs-card">
-      <h3 class="hs-card-title">System Status</h3>
-      <div class="hs-status">
-        <div class="hs-status-left">
-          <div class="hs-badge ok">Operational</div>
-          <div class="muted">All services are running normally.</div>
-        </div>
-        <button class="btn" type="button">Check Updates</button>
-      </div>
-    </div>
 
     <div class="card hs-card">
       <h3 class="hs-card-title">FAQs</h3>

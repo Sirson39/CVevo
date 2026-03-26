@@ -184,9 +184,15 @@ def help_support(request):
     if request.method == "POST":
         form = SupportTicketForm(request.POST)
         if form.is_valid():
-            # In a real app, we'd save to DB or send email. 
-            # For now, just show a success message as per requirement.
-            messages.success(request, "Ticket submitted successfully! Our team will get back to you soon.")
+            from .models import SupportRequest
+            SupportRequest.objects.create(
+                user=request.user,
+                topic=form.cleaned_data['topic'],
+                priority=form.cleaned_data['priority'],
+                subject=form.cleaned_data['subject'],
+                message=form.cleaned_data['message']
+            )
+            messages.success(request, "Message sent successfully! Our team will get back to you soon.")
             return redirect('help_support')
     return render(request, "pages/help_support.html")
 

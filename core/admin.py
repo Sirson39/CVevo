@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, JobseekerProfile, HRProfile, Resume, JobPost, ATSResult, ContactMessage
+from .models import User, JobseekerProfile, HRProfile, Resume, JobPost, ATSResult, ContactMessage, SupportRequest
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
@@ -34,3 +34,11 @@ class ContactMessageAdmin(admin.ModelAdmin):
     list_filter = ("is_resolved", "created_at")
     search_fields = ("name", "email", "subject", "message")
     ordering = ("-created_at",)
+
+@admin.register(SupportRequest)
+class SupportRequestAdmin(admin.ModelAdmin):
+    list_display = ("user", "topic", "priority", "subject", "created_at", "is_resolved")
+    list_filter = ("is_resolved", "priority", "topic", "created_at")
+    search_fields = ("user__email", "subject", "message")
+    ordering = ("-created_at",)
+

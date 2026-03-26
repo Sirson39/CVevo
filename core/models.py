@@ -220,3 +220,18 @@ class ContactMessage(models.Model):
 
     def __str__(self):
         return f"Message from {self.name} - {self.subject}"
+
+class SupportRequest(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="support_messages")
+    topic = models.CharField(max_length=100)
+    priority = models.CharField(max_length=20, choices=[("Normal", "Normal"), ("High", "High"), ("Urgent", "Urgent")], default="Normal")
+    subject = models.CharField(max_length=255)
+    message = models.TextField()
+    is_resolved = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.email} - {self.subject} ({self.priority})"

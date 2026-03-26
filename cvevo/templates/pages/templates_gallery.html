@@ -33,20 +33,22 @@
         </svg>
       </button>
 
-      <button class="tg-chip is-active" type="button">All</button>
-      <button class="tg-chip" type="button">ATS-Friendly</button>
-      <button class="tg-chip" type="button">One-Page</button>
-      <button class="tg-chip" type="button">Two-Column</button>
+      <button class="tg-chip is-active" type="button" data-filter="all">All</button>
+      <button class="tg-chip" type="button" data-filter="ats-friendly">ATS-Friendly</button>
+      <button class="tg-chip" type="button" data-filter="one-page">One-Page</button>
+      <button class="tg-chip" type="button" data-filter="two-column">Two-Column</button>
+      <button class="tg-chip" type="button" data-filter="simple">Simple</button>
+      <button class="tg-chip" type="button" data-filter="photo">Photo</button>
     </div>
   </div>
 
   <div class="tg-grid">
     <!-- Card 1 -->
-    <div class="tg-card">
+    <div class="tg-card" data-category="ats-friendly one-page modern">
       <div class="tg-img-box">
         <img src="{% static 'cvevo/img/Template 1.png' %}" alt="Professional Rail Template" class="tg-img">
         <div class="tg-overlay">
-          <a href="{% static 'cvevo/img/Template 1.png' %}" target="_blank" class="tg-btn tg-btn-view">View</a>
+          <button type="button" data-preview-url="{% static 'cvevo/img/Template 1.png' %}" data-preview-name="Professional Rail" class="tg-btn tg-btn-view btn-preview-trigger">View</button>
           <a href="{% url 'select_template' 't1_kelly' %}" class="tg-btn tg-btn-use">Use Template</a>
         </div>
       </div>
@@ -57,11 +59,11 @@
     </div>
 
     <!-- Card 2 -->
-    <div class="tg-card">
+    <div class="tg-card" data-category="simple ats-friendly classic">
       <div class="tg-img-box">
         <img src="{% static 'cvevo/img/Template 2.png' %}" alt="Executive Dotted Template" class="tg-img">
         <div class="tg-overlay">
-          <a href="{% static 'cvevo/img/Template 2.png' %}" target="_blank" class="tg-btn tg-btn-view">View</a>
+          <button type="button" data-preview-url="{% static 'cvevo/img/Template 2.png' %}" data-preview-name="Executive Dotted" class="tg-btn tg-btn-view btn-preview-trigger">View</button>
           <a href="{% url 'select_template' 't2_howard' %}" class="tg-btn tg-btn-use">Use Template</a>
         </div>
       </div>
@@ -72,11 +74,11 @@
     </div>
 
     <!-- Card 3 -->
-    <div class="tg-card">
+    <div class="tg-card" data-category="photo one-page aesthetic">
       <div class="tg-img-box">
         <img src="{% static 'cvevo/img/Template 3.png' %}" alt="Beige Harmony Template" class="tg-img">
         <div class="tg-overlay">
-          <a href="{% static 'cvevo/img/Template 3.png' %}" target="_blank" class="tg-btn tg-btn-view">View</a>
+          <button type="button" data-preview-url="{% static 'cvevo/img/Template 3.png' %}" data-preview-name="Beige Harmony" class="tg-btn tg-btn-view btn-preview-trigger">View</button>
           <a href="{% url 'select_template' 't3_samantha_beige' %}" class="tg-btn tg-btn-use">Use Template</a>
         </div>
       </div>
@@ -87,11 +89,11 @@
     </div>
 
     <!-- Card 4 -->
-    <div class="tg-card">
+    <div class="tg-card" data-category="simple ats-friendly elegant one-page">
       <div class="tg-img-box">
         <img src="{% static 'cvevo/img/Template 4.png' %}" alt="Pure Minimalist Template" class="tg-img">
         <div class="tg-overlay">
-          <a href="{% static 'cvevo/img/Template 4.png' %}" target="_blank" class="tg-btn tg-btn-view">View</a>
+          <button type="button" data-preview-url="{% static 'cvevo/img/Template 4.png' %}" data-preview-name="Pure Minimalist" class="tg-btn tg-btn-view btn-preview-trigger">View</button>
           <a href="{% url 'select_template' 't4_samantha_white' %}" class="tg-btn tg-btn-use">Use Template</a>
         </div>
       </div>
@@ -102,11 +104,11 @@
     </div>
 
     <!-- Card 5 -->
-    <div class="tg-card">
+    <div class="tg-card" data-category="photo creative">
       <div class="tg-img-box">
         <img src="{% static 'cvevo/img/Template 5.png' %}" alt="Vintage Frame Template" class="tg-img">
         <div class="tg-overlay">
-          <a href="{% static 'cvevo/img/Template 5.png' %}" target="_blank" class="tg-btn tg-btn-view">View</a>
+          <button type="button" data-preview-url="{% static 'cvevo/img/Template 5.png' %}" data-preview-name="Vintage Frame" class="tg-btn tg-btn-view btn-preview-trigger">View</button>
           <a href="{% url 'select_template' 't5_jessie' %}" class="tg-btn tg-btn-use">Use Template</a>
         </div>
       </div>
@@ -117,11 +119,11 @@
     </div>
 
     <!-- Card 6 -->
-    <div class="tg-card">
+    <div class="tg-card" data-category="ats-friendly one-page business">
       <div class="tg-img-box">
         <img src="{% static 'cvevo/img/Template 6.png' %}" alt="Corporate Clean Template" class="tg-img">
         <div class="tg-overlay">
-          <a href="{% static 'cvevo/img/Template 6.png' %}" target="_blank" class="tg-btn tg-btn-view">View</a>
+          <button type="button" data-preview-url="{% static 'cvevo/img/Template 6.png' %}" data-preview-name="Corporate Clean" class="tg-btn tg-btn-view btn-preview-trigger">View</button>
           <a href="{% url 'select_template' 't6_taylor' %}" class="tg-btn tg-btn-use">Use Template</a>
         </div>
       </div>
@@ -132,11 +134,11 @@
     </div>
 
     <!-- Card 7 -->
-    <div class="tg-card">
+    <div class="tg-card" data-category="simple serif">
       <div class="tg-img-box">
         <img src="{% static 'cvevo/img/Template 7.png' %}" alt="Azure Classic Template" class="tg-img">
         <div class="tg-overlay">
-          <a href="{% static 'cvevo/img/Template 7.png' %}" target="_blank" class="tg-btn tg-btn-view">View</a>
+          <button type="button" data-preview-url="{% static 'cvevo/img/Template 7.png' %}" data-preview-name="Azure Classic" class="tg-btn tg-btn-view btn-preview-trigger">View</button>
           <a href="{% url 'select_template' 't7_blue_jessie' %}" class="tg-btn tg-btn-use">Use Template</a>
         </div>
       </div>
@@ -147,11 +149,11 @@
     </div>
 
     <!-- Card 8 -->
-    <div class="tg-card">
+    <div class="tg-card" data-category="photo two-column modern">
       <div class="tg-img-box">
         <img src="{% static 'cvevo/img/Template 8.png' %}" alt="Bold Contrast Template" class="tg-img">
         <div class="tg-overlay">
-          <a href="{% static 'cvevo/img/Template 8.png' %}" target="_blank" class="tg-btn tg-btn-view">View</a>
+          <button type="button" data-preview-url="{% static 'cvevo/img/Template 8.png' %}" data-preview-name="Bold Contrast" class="tg-btn tg-btn-view btn-preview-trigger">View</button>
           <a href="{% url 'select_template' 't8_sebastian' %}" class="tg-btn tg-btn-use">Use Template</a>
         </div>
       </div>
@@ -162,11 +164,11 @@
     </div>
 
     <!-- Card 9 -->
-    <div class="tg-card">
+    <div class="tg-card" data-category="photo one-page premium">
       <div class="tg-img-box">
         <img src="{% static 'cvevo/img/Template 9.png' %}" alt="Cardo Elite Template" class="tg-img">
         <div class="tg-overlay">
-          <a href="{% static 'cvevo/img/Template 9.png' %}" target="_blank" class="tg-btn tg-btn-view">View</a>
+          <button type="button" data-preview-url="{% static 'cvevo/img/Template 9.png' %}" data-preview-name="Cardo Elite" class="tg-btn tg-btn-view btn-preview-trigger">View</button>
           <a href="{% url 'select_template' 't9_travis' %}" class="tg-btn tg-btn-use">Use Template</a>
         </div>
       </div>
@@ -177,11 +179,11 @@
     </div>
 
     <!-- Card 10 -->
-    <div class="tg-card">
+    <div class="tg-card" data-category="photo two-column grotesk">
       <div class="tg-img-box">
         <img src="{% static 'cvevo/img/Template 10.png' %}" alt="Mint Creative Template" class="tg-img">
         <div class="tg-overlay">
-          <a href="{% static 'cvevo/img/Template 10.png' %}" target="_blank" class="tg-btn tg-btn-view">View</a>
+          <button type="button" data-preview-url="{% static 'cvevo/img/Template 10.png' %}" data-preview-name="Mint Creative" class="tg-btn tg-btn-view btn-preview-trigger">View</button>
           <a href="{% url 'select_template' 't10_daniel' %}" class="tg-btn tg-btn-use">Use Template</a>
         </div>
       </div>
@@ -192,11 +194,11 @@
     </div>
 
     <!-- Card 11 -->
-    <div class="tg-card">
+    <div class="tg-card" data-category="simple one-page centered">
       <div class="tg-img-box">
         <img src="{% static 'cvevo/img/Template 11.png' %}" alt="Stockholm Minimal Template" class="tg-img">
         <div class="tg-overlay">
-          <a href="{% static 'cvevo/img/Template 11.png' %}" target="_blank" class="tg-btn tg-btn-view">View</a>
+          <button type="button" data-preview-url="{% static 'cvevo/img/Template 11.png' %}" data-preview-name="Stockholm Minimal" class="tg-btn tg-btn-view btn-preview-trigger">View</button>
           <a href="{% url 'select_template' 't11_mira' %}" class="tg-btn tg-btn-use">Use Template</a>
         </div>
       </div>
@@ -207,11 +209,11 @@
     </div>
 
     <!-- Card 12 -->
-    <div class="tg-card">
+    <div class="tg-card" data-category="photo modern">
       <div class="tg-img-box">
         <img src="{% static 'cvevo/img/Template 12.png' %}" alt="Rose Label Template" class="tg-img">
         <div class="tg-overlay">
-          <a href="{% static 'cvevo/img/Template 12.png' %}" target="_blank" class="tg-btn tg-btn-view">View</a>
+          <button type="button" data-preview-url="{% static 'cvevo/img/Template 12.png' %}" data-preview-name="Rose Label" class="tg-btn tg-btn-view btn-preview-trigger">View</button>
           <a href="{% url 'select_template' 't12_travis_v2' %}" class="tg-btn tg-btn-use">Use Template</a>
         </div>
       </div>
@@ -222,11 +224,11 @@
     </div>
 
     <!-- Card 13 -->
-    <div class="tg-card">
+    <div class="tg-card" data-category="simple ats-friendly clean">
       <div class="tg-img-box">
         <img src="{% static 'cvevo/img/Template 13.png' %}" alt="Pristine Tag Template" class="tg-img">
         <div class="tg-overlay">
-          <a href="{% static 'cvevo/img/Template 13.png' %}" target="_blank" class="tg-btn tg-btn-view">View</a>
+          <button type="button" data-preview-url="{% static 'cvevo/img/Template 13.png' %}" data-preview-name="Pristine Tag" class="tg-btn tg-btn-view btn-preview-trigger">View</button>
           <a href="{% url 'select_template' 't13_kelly_v2' %}" class="tg-btn tg-btn-use">Use Template</a>
         </div>
       </div>
@@ -237,11 +239,11 @@
     </div>
 
     <!-- Card 14 -->
-    <div class="tg-card">
+    <div class="tg-card" data-category="photo enterprise">
       <div class="tg-img-box">
         <img src="{% static 'cvevo/img/Template 14.png' %}" alt="Boxed Sales Template" class="tg-img">
         <div class="tg-overlay">
-          <a href="{% static 'cvevo/img/Template 14.png' %}" target="_blank" class="tg-btn tg-btn-view">View</a>
+          <button type="button" data-preview-url="{% static 'cvevo/img/Template 14.png' %}" data-preview-name="Boxed Sales" class="tg-btn tg-btn-view btn-preview-trigger">View</button>
           <a href="{% url 'select_template' 't14_wes' %}" class="tg-btn tg-btn-use">Use Template</a>
         </div>
       </div>
@@ -252,11 +254,11 @@
     </div>
 
     <!-- Card 15 -->
-    <div class="tg-card">
+    <div class="tg-card" data-category="two-column profile">
       <div class="tg-img-box">
         <img src="{% static 'cvevo/img/Template 15.png' %}" alt="Analyst Timeline Template" class="tg-img">
         <div class="tg-overlay">
-          <a href="{% static 'cvevo/img/Template 15.png' %}" target="_blank" class="tg-btn tg-btn-view">View</a>
+          <button type="button" data-preview-url="{% static 'cvevo/img/Template 15.png' %}" data-preview-name="Analyst Timeline" class="tg-btn tg-btn-view btn-preview-trigger">View</button>
           <a href="{% url 'select_template' 't15_matthew' %}" class="tg-btn tg-btn-use">Use Template</a>
         </div>
       </div>
@@ -267,11 +269,11 @@
     </div>
 
     <!-- Card 16 -->
-    <div class="tg-card">
+    <div class="tg-card" data-category="photo modern">
       <div class="tg-img-box">
         <img src="{% static 'cvevo/img/Template 16.png' %}" alt="Circular Elite Template" class="tg-img">
         <div class="tg-overlay">
-          <a href="{% static 'cvevo/img/Template 16.png' %}" target="_blank" class="tg-btn tg-btn-view">View</a>
+          <button type="button" data-preview-url="{% static 'cvevo/img/Template 16.png' %}" data-preview-name="Circular Elite" class="tg-btn tg-btn-view btn-preview-trigger">View</button>
           <a href="{% url 'select_template' 't16_james' %}" class="tg-btn tg-btn-use">Use Template</a>
         </div>
       </div>
@@ -282,11 +284,11 @@
     </div>
 
     <!-- Card 17 -->
-    <div class="tg-card">
+    <div class="tg-card" data-category="photo two-column premium">
       <div class="tg-img-box">
         <img src="{% static 'cvevo/img/Template 17.png' %}" alt="Navy Float Template" class="tg-img">
         <div class="tg-overlay">
-          <a href="{% static 'cvevo/img/Template 17.png' %}" target="_blank" class="tg-btn tg-btn-view">View</a>
+          <button type="button" data-preview-url="{% static 'cvevo/img/Template 17.png' %}" data-preview-name="Navy Float" class="tg-btn tg-btn-view btn-preview-trigger">View</button>
           <a href="{% url 'select_template' 't17_james_navy' %}" class="tg-btn tg-btn-use">Use Template</a>
         </div>
       </div>
@@ -297,11 +299,11 @@
     </div>
 
     <!-- Card 18 -->
-    <div class="tg-card">
+    <div class="tg-card" data-category="simple ats-friendly classic">
       <div class="tg-img-box">
         <img src="{% static 'cvevo/img/Template 18.png' %}" alt="Crimson Scholar Template" class="tg-img">
         <div class="tg-overlay">
-          <a href="{% static 'cvevo/img/Template 18.png' %}" target="_blank" class="tg-btn tg-btn-view">View</a>
+          <button type="button" data-preview-url="{% static 'cvevo/img/Template 18.png' %}" data-preview-name="Crimson Scholar" class="tg-btn tg-btn-view btn-preview-trigger">View</button>
           <a href="{% url 'select_template' 't18_james_sidebar' %}" class="tg-btn tg-btn-use">Use Template</a>
         </div>
       </div>
@@ -312,11 +314,11 @@
     </div>
 
     <!-- Card 19 -->
-    <div class="tg-card">
+    <div class="tg-card" data-category="photo industrial">
       <div class="tg-img-box">
         <img src="{% static 'cvevo/img/Template 19.png' %}" alt="Carbon Logistics Template" class="tg-img">
         <div class="tg-overlay">
-          <a href="{% static 'cvevo/img/Template 19.png' %}" target="_blank" class="tg-btn tg-btn-view">View</a>
+          <button type="button" data-preview-url="{% static 'cvevo/img/Template 19.png' %}" data-preview-name="Carbon Logistics" class="tg-btn tg-btn-view btn-preview-trigger">View</button>
           <a href="{% url 'select_template' 't19_daryl' %}" class="tg-btn tg-btn-use">Use Template</a>
         </div>
       </div>
@@ -327,11 +329,11 @@
     </div>
 
     <!-- Card 20 -->
-    <div class="tg-card">
+    <div class="tg-card" data-category="two-column leadership">
       <div class="tg-img-box">
         <img src="{% static 'cvevo/img/Template 20.png' %}" alt="Bold Executive Template" class="tg-img">
         <div class="tg-overlay">
-          <a href="{% static 'cvevo/img/Template 20.png' %}" target="_blank" class="tg-btn tg-btn-view">View</a>
+          <button type="button" data-preview-url="{% static 'cvevo/img/Template 20.png' %}" data-preview-name="Bold Executive" class="tg-btn tg-btn-view btn-preview-trigger">View</button>
           <a href="{% url 'select_template' 't20_wes_v2' %}" class="tg-btn tg-btn-use">Use Template</a>
         </div>
       </div>
@@ -342,11 +344,11 @@
     </div>
 
     <!-- Card 21 -->
-    <div class="tg-card">
+    <div class="tg-card" data-category="simple timeline">
       <div class="tg-img-box">
         <img src="{% static 'cvevo/img/Template 21.png' %}" alt="Slate Logistics Template" class="tg-img">
         <div class="tg-overlay">
-          <a href="{% static 'cvevo/img/Template 21.png' %}" target="_blank" class="tg-btn tg-btn-view">View</a>
+          <button type="button" data-preview-url="{% static 'cvevo/img/Template 21.png' %}" data-preview-name="Slate Logistics" class="tg-btn tg-btn-view btn-preview-trigger">View</button>
           <a href="{% url 'select_template' 't21_daryl_clean' %}" class="tg-btn tg-btn-use">Use Template</a>
         </div>
       </div>
@@ -357,11 +359,11 @@
     </div>
 
     <!-- Card 22 -->
-    <div class="tg-card">
+    <div class="tg-card" data-category="two-column">
       <div class="tg-img-box">
         <img src="{% static 'cvevo/img/Template 22.png' %}" alt="Azure Block Template" class="tg-img">
         <div class="tg-overlay">
-          <a href="{% static 'cvevo/img/Template 22.png' %}" target="_blank" class="tg-btn tg-btn-view">View</a>
+          <button type="button" data-preview-url="{% static 'cvevo/img/Template 22.png' %}" data-preview-name="Azure Block" class="tg-btn tg-btn-view btn-preview-trigger">View</button>
           <a href="{% url 'select_template' 't22_samantha_blue' %}" class="tg-btn tg-btn-use">Use Template</a>
         </div>
       </div>
@@ -372,11 +374,11 @@
     </div>
 
     <!-- Card 23 -->
-    <div class="tg-card">
+    <div class="tg-card" data-category="photo creative">
       <div class="tg-img-box">
         <img src="{% static 'cvevo/img/Template 23.png' %}" alt="Rose Sparkle Template" class="tg-img">
         <div class="tg-overlay">
-          <a href="{% static 'cvevo/img/Template 23.png' %}" target="_blank" class="tg-btn tg-btn-view">View</a>
+          <button type="button" data-preview-url="{% static 'cvevo/img/Template 23.png' %}" data-preview-name="Rose Sparkle" class="tg-btn tg-btn-view btn-preview-trigger">View</button>
           <a href="{% url 'select_template' 't23_olivia_pink' %}" class="tg-btn tg-btn-use">Use Template</a>
         </div>
       </div>
@@ -388,4 +390,83 @@
   </div>
 </section>
 
+<!-- TEMPLATE PREVIEW MODAL -->
+<div id="tgModal" class="tg-modal">
+  <div class="tg-modal-content">
+    <button type="button" class="tg-modal-close" onclick="closeModal()" aria-label="Close">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+        <path d="M18 6L6 18M6 6l12 12" />
+      </svg>
+    </button>
+    <img id="tgModalImg" src="" alt="Template Preview" class="tg-modal-img">
+    <div class="tg-modal-footer">
+      <h3 id="tgModalTitle" class="tg-modal-title">Template Name</h3>
+      <div style="font-size: 13px; color: #64748b;">Preview Mode</div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  /* Modal Logic */
+  const modal = document.getElementById('tgModal');
+  const modalImg = document.getElementById('tgModalImg');
+  const modalTitle = document.getElementById('tgModalTitle');
+
+  function previewTemplate(url, name) {
+    modalImg.src = url;
+    modalTitle.textContent = name;
+    modal.classList.add('is-active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    modal.classList.remove('is-active');
+    document.body.style.overflow = '';
+  }
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
+  });
+
+  /* Filter Logic */
+  const chips = document.querySelectorAll('.tg-chip');
+  const cards = document.querySelectorAll('.tg-card');
+
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      const filter = chip.getAttribute('data-filter');
+      if (!filter) return;
+
+      chips.forEach(c => c.classList.remove('is-active'));
+      chip.classList.add('is-active');
+
+      cards.forEach(card => {
+        const category = card.getAttribute('data-category') || '';
+        if (filter === 'all' || category.split(' ').includes(filter)) {
+          card.style.display = 'block';
+          setTimeout(() => card.classList.remove('is-hidden'), 10);
+        } else {
+          card.classList.add('is-hidden');
+          setTimeout(() => {
+            if (card.classList.contains('is-hidden')) card.style.display = 'none';
+          }, 400);
+        }
+      });
+    });
+  });
+
+  // Handle preview buttons
+  document.querySelectorAll('.btn-preview-trigger').forEach(btn => {
+    btn.addEventListener('click', () => {
+      previewTemplate(btn.dataset.previewUrl, btn.dataset.previewName);
+    });
+  });
+</script>
 {% endblock %}
