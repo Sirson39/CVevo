@@ -58,10 +58,10 @@
               </div>
 
               <!-- Delete Button -->
-              <form action="{% url 'delete_analysis_result' result.id %}" method="post" style="margin-left: 0.5rem;"
-                onsubmit="return confirm('Delete this analysis result?')">
+              <form action="{% url 'delete_analysis_result' result.id %}" method="post" style="margin-left: 0.5rem;">
                 {% csrf_token %}
-                <button type="submit"
+                <button type="button"
+                  onclick="var f=this.form; appConfirm('Delete Result?', 'Are you sure you want to delete this analysis result? This action cannot be undone.', function(c){ if(c) f.submit(); });"
                   style="background:none; border:none; color:#94a3b8; cursor:pointer; padding: 4px; border-radius: 4px;"
                   class="hover-red" title="Delete Analysis">
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"

@@ -177,4 +177,6 @@
   );
 
   els.forEach((el) => io.observe(el));
+
+  els.forEach((el) => io.observe(el));
 })();
