@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.contrib.auth.password_validation import validate_password
-from .models import Education, Experience, Project, Skill
+from .models import Education, Experience, Project, Skill, Certificate, Reference
 
 User = get_user_model()
 
@@ -122,7 +122,23 @@ class ProjectForm(forms.ModelForm):
 class SkillForm(forms.ModelForm):
     class Meta:
         model = Skill
-        fields = ["name", "level"]
+        fields = ["name", "skill_type", "level"]
+
+
+class CertificateForm(forms.ModelForm):
+    class Meta:
+        model = Certificate
+        fields = ["name", "issuer", "date_obtained", "link", "description"]
+        widgets = {
+            "date_obtained": forms.DateInput(attrs={"type": "date"}),
+            "description": forms.Textarea(attrs={"rows": 3}),
+        }
+
+
+class ReferenceForm(forms.ModelForm):
+    class Meta:
+        model = Reference
+        fields = ["name", "relationship", "company", "email", "phone"]
 
 
 class ProfileUpdateForm(forms.ModelForm):

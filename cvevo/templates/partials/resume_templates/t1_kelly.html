@@ -27,18 +27,31 @@
     
     <div class="t1-sect-title">Details</div>
     <ul class="t1-contact">
-      {% if user.email %}<li>&#9993; {{ user.email }}</li>{% endif %}
+      {% if user.email %}<li>&#9993; {{ user.jobseeker_profile.email|default:user.email }}</li>{% endif %}
       {% if user.jobseeker_profile.phone %}<li>&#9742; {{ user.jobseeker_profile.phone }}</li>{% endif %}
       {% if user.jobseeker_profile.location %}<li>&#128205; {{ user.jobseeker_profile.location }}</li>{% endif %}
     </ul>
     
     {% if skills %}
-    <div class="t1-sect-title">Skills</div>
+    <div class="t1-sect-title">Technical Skills</div>
     <ul class="t1-skills">
-      {% for skill in skills %}
-      <li>{{ skill.name }}</li>
-      {% endfor %}
+      {% for skill in skills %}{% if skill.skill_type == 'Technical' %}<li>{{ skill.name }}</li>{% endif %}{% endfor %}
     </ul>
+    <div class="t1-sect-title" style="margin-top: 1.5rem;">Soft Skills</div>
+    <ul class="t1-skills">
+      {% for skill in skills %}{% if skill.skill_type == 'Soft' %}<li>{{ skill.name }}</li>{% endif %}{% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if references %}
+    <div class="t1-sect-title" style="margin-top: 1.5rem;">References</div>
+    {% for ref in references %}
+    <div class="t1-item" style="margin-bottom: 0.75rem;">
+      <h3 class="t1-role" style="font-size: 0.75rem;">{{ ref.name }}</h3>
+      <div class="t1-company">{{ ref.relationship }} at {{ ref.company }}</div>
+      <div class="t1-date" style="font-size: 10px;">{{ ref.email|default:"" }}</div>
+    </div>
+    {% endfor %}
     {% endif %}
   </div>
 
@@ -69,6 +82,17 @@
       <div class="t1-date">{{ edu.start_date|date:"Y" }} — {{ edu.end_date|date:"Y"|default:"Current" }}</div>
       <h3 class="t1-role">{{ edu.degree }}</h3>
       <div class="t1-company">{{ edu.institution }}</div>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if certificates %}
+    <div class="t1-r-title">Certificates</div>
+    {% for cert in certificates %}
+    <div class="t1-item">
+      <div class="t1-date">{{ cert.date_obtained|date:"M Y" }}</div>
+      <h3 class="t1-role">{{ cert.name }}</h3>
+      <div class="t1-company">{{ cert.issuer }}</div>
     </div>
     {% endfor %}
     {% endif %}

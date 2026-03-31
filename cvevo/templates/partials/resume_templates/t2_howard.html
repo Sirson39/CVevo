@@ -27,7 +27,7 @@
     <h1 class="t2-name">{{ user.jobseeker_profile.full_name }}</h1>
     <div class="t2-title">{{ user.jobseeker_profile.experiences.first.position|default:"Professional" }}</div>
     {% if user.jobseeker_profile.location %}<div class="t2-contact">{{ user.jobseeker_profile.location }}</div>{% endif %}
-    <div class="t2-contact">{{ user.email }} | {{ user.jobseeker_profile.phone }}</div>
+    <div class="t2-contact">{{ user.jobseeker_profile.email|default:user.email }} | {{ user.jobseeker_profile.phone }}</div>
   </div>
 
   {% if user.jobseeker_profile.summary %}
@@ -66,17 +66,70 @@
   {% endif %}
   
   {% if skills %}
-  <div class="t2-sect-head">Skills</div>
+  <div class="t2-sect-head">Technical Skills</div>
   <div class="t2-skills-wrap">
     <div style="width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 2rem;">
-      {% for skill in skills %}
+      {% for skill in skills %}{% if skill.skill_type == 'Technical' %}
       <div class="t2-skill-row">
         <span>{{ skill.name }}</span>
         <div class="t2-skill-dots"></div>
         <span style="font-size: 0.75rem; color: #666;">{{ skill.level }}</span>
       </div>
-      {% endfor %}
+      {% endif %}{% endfor %}
     </div>
+  </div>
+  <div class="t2-sect-head">Soft Skills</div>
+  <div class="t2-skills-wrap">
+    <div style="width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 2rem;">
+      {% for skill in skills %}{% if skill.skill_type == 'Soft' %}
+      <div class="t2-skill-row">
+        <span>{{ skill.name }}</span>
+        <div class="t2-skill-dots"></div>
+        <span style="font-size: 0.75rem; color: #666;">{{ skill.level }}</span>
+      </div>
+      {% endif %}{% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if projects %}
+  <div class="t2-sect-head">Projects</div>
+  {% for proj in projects %}
+  <div class="t2-item">
+    <div class="t2-item-top">
+      <div><span class="t2-bullet">❖</span>{{ proj.title }}</div>
+      <div class="t2-dotted"></div>
+      {% if proj.link %}<div><a href="{{ proj.link }}" style="color: inherit; font-size: 0.7rem;">Link</a></div>{% endif %}
+    </div>
+    <p class="t2-desc">{{ proj.description }}</p>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% if certificates %}
+  <div class="t2-sect-head">Certificates</div>
+  {% for cert in certificates %}
+  <div class="t2-item">
+    <div class="t2-item-top">
+      <div><span class="t2-bullet">❖</span>{{ cert.name }}</div>
+      <div class="t2-dotted"></div>
+      <div>{{ cert.date_obtained|date:"M Y" }}</div>
+    </div>
+    <div class="t2-sub" style="text-align: left; padding-left: 1.2rem;">{{ cert.issuer }}</div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% if references %}
+  <div class="t2-sect-head">References</div>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+    {% for ref in references %}
+    <div class="t2-item">
+      <div style="font-weight: 600;">{{ ref.name }}</div>
+      <div style="font-size: 0.75rem;">{{ ref.relationship }} at {{ ref.company }}</div>
+      <div style="font-size: 0.7rem; color: #475569;">{{ ref.email }} | {{ ref.phone }}</div>
+    </div>
+    {% endfor %}
   </div>
   {% endif %}
 </div>

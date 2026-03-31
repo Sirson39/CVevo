@@ -90,12 +90,38 @@ class Project(models.Model):
 
 
 class Skill(models.Model):
+    SKILL_TYPES = [('Technical', 'Technical Skill'), ('Soft', 'Soft Skill')]
     profile = models.ForeignKey(JobseekerProfile, on_delete=models.CASCADE, related_name="skills")
     name = models.CharField(max_length=100)
+    skill_type = models.CharField(max_length=20, choices=SKILL_TYPES, default='Technical')
     level = models.CharField(max_length=50, choices=[('Beginner', 'Beginner'), ('Intermediate', 'Intermediate'), ('Advanced', 'Advanced')], default='Intermediate')
 
     def __str__(self):
+        return f"{self.name} ({self.skill_type})"
+
+
+class Certificate(models.Model):
+    profile = models.ForeignKey(JobseekerProfile, on_delete=models.CASCADE, related_name="certificates")
+    name = models.CharField(max_length=200)
+    issuer = models.CharField(max_length=200)
+    date_obtained = models.DateField(null=True, blank=True)
+    link = models.URLField(blank=True)
+    description = models.TextField(blank=True)
+
+    def __str__(self):
         return self.name
+
+
+class Reference(models.Model):
+    profile = models.ForeignKey(JobseekerProfile, on_delete=models.CASCADE, related_name="references")
+    name = models.CharField(max_length=120)
+    relationship = models.CharField(max_length=100, help_text="e.g. Former Manager")
+    company = models.CharField(max_length=120)
+    email = models.EmailField(blank=True)
+    phone = models.CharField(max_length=20, blank=True)
+
+    def __str__(self):
+        return f"Reference: {self.name} ({self.company})"
 
 
 class HRProfile(models.Model):

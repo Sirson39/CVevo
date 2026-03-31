@@ -96,6 +96,8 @@
   <button class="rb-tab" data-tab="experience" type="button">Experience</button>
   <button class="rb-tab" data-tab="education" type="button">Education</button>
   <button class="rb-tab" data-tab="projects" type="button">Projects</button>
+  <button class="rb-tab" data-tab="certificates" type="button">Certificates</button>
+  <button class="rb-tab" data-tab="references" type="button">References</button>
 </nav>
 
 <div id="builder-container" class="rb-grid" style="display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 2rem; align-items: start;">
@@ -145,25 +147,52 @@
     <article class="card rb-panel" data-panel="skills" style="padding: 1.5rem; display:none;">
       <h2 class="rb-title" style="margin-bottom: 1.5rem;">Skills</h2>
 
+      <!-- Technical Skills Section -->
+      <h3 style="font-size: 1rem; margin-bottom: 1rem; color: var(--primary);">Technical Skills</h3>
       <div class="rb-skill-chips" style="display:flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem;">
         {% for skill in skills %}
-        <div class="chip"
-          style="display:flex; align-items:center; gap:0.5rem; padding: 0.4rem 0.8rem; background:#f1f5f9; border-radius: 999px;">
-          <span>{{ skill.name }} ({{ skill.level }})</span>
-          <form action="{% url 'delete_skill' skill.pk %}" method="post" style="display:inline;">
-            {% csrf_token %}
-            <button type="submit"
-              style="border:none; background:none; color:var(--red); cursor:pointer;">&times;</button>
-          </form>
-        </div>
+          {% if skill.skill_type == 'Technical' %}
+          <div class="chip" style="display:flex; align-items:center; gap:0.5rem; padding: 0.4rem 0.8rem; background:#f1f5f9; border-radius: 999px;">
+            <span>{{ skill.name }} ({{ skill.level }})</span>
+            <form action="{% url 'delete_skill' skill.pk %}" method="post" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" style="border:none; background:none; color:var(--red); cursor:pointer;">&times;</button>
+            </form>
+          </div>
+          {% endif %}
         {% endfor %}
       </div>
 
+      <!-- Soft Skills Section -->
+      <h3 style="font-size: 1rem; margin-bottom: 1rem; color: var(--primary);">Soft Skills</h3>
+      <div class="rb-skill-chips" style="display:flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem;">
+        {% for skill in skills %}
+          {% if skill.skill_type == 'Soft' %}
+          <div class="chip" style="display:flex; align-items:center; gap:0.5rem; padding: 0.4rem 0.8rem; background:#f1f5f9; border-radius: 999px;">
+            <span>{{ skill.name }} ({{ skill.level }})</span>
+            <form action="{% url 'delete_skill' skill.pk %}" method="post" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" style="border:none; background:none; color:var(--red); cursor:pointer;">&times;</button>
+            </form>
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      <hr style="margin: 1.5rem 0; opacity: 0.1;">
+
       <form action="{% url 'add_skill' %}" method="post" class="rb-form-grid">
         {% csrf_token %}
-        <label class="rb-field">
+        <label class="rb-field" style="grid-column: span 2;">
           <span>Skill Name</span>
-          <input type="text" name="name" placeholder="e.g. Python" required>
+          <input type="text" name="name" placeholder="e.g. Python or Teamwork" required>
+        </label>
+        <label class="rb-field">
+          <span>Type</span>
+          <select name="skill_type">
+            <option value="Technical" selected>Technical Skill</option>
+            <option value="Soft">Soft Skill</option>
+          </select>
         </label>
         <label class="rb-field">
           <span>Level</span>
@@ -305,6 +334,103 @@
       </form>
     </article>
 
+    <!-- CERTIFICATES -->
+    <article class="card rb-panel" data-panel="certificates" style="padding: 1.5rem; display:none;">
+      <h2 class="rb-title" style="margin-bottom: 1.5rem;">Training & Certificates</h2>
+
+      {% for cert in certificates %}
+      <div class="entry-card">
+        <form action="{% url 'delete_certificate' cert.pk %}" method="post">
+          {% csrf_token %}
+          <button type="button" class="entry-delete" 
+            onclick="var f = this.closest('form'); appConfirm('Remove Certificate?', 'Are you sure you want to remove this certificate? This cannot be undone.', (confirmed) => { if(confirmed) f.submit(); })">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          </button>
+        </form>
+        <div style="font-weight:700;">{{ cert.name }}</div>
+        <div class="muted">{{ cert.issuer }} | {{ cert.date_obtained|default:"" }}</div>
+        {% if cert.link %}<a href="{{ cert.link }}" class="small-link" target="_blank">{{ cert.link }}</a>{% endif %}
+      </div>
+      {% endfor %}
+
+      <form action="{% url 'add_certificate' %}" method="post">
+        {% csrf_token %}
+        <div class="rb-form-grid">
+          <label class="rb-field">
+            <span>Certificate Name</span>
+            <input type="text" name="name" required>
+          </label>
+          <label class="rb-field">
+            <span>Issuer</span>
+            <input type="text" name="issuer" required>
+          </label>
+          <label class="rb-field">
+            <span>Date Obtained</span>
+            <input type="date" name="date_obtained">
+          </label>
+          <label class="rb-field">
+            <span>Certificate Link</span>
+            <input type="url" name="link">
+          </label>
+        </div>
+        <div class="rb-field" style="margin-top: 1rem;">
+          <span>Description (Optional)</span>
+          <textarea name="description" rows="2"></textarea>
+        </div>
+        <button class="btn btn-primary" type="submit" style="margin-top: 1rem; width: 100%;">Add Certificate</button>
+      </form>
+    </article>
+
+    <!-- REFERENCES -->
+    <article class="card rb-panel" data-panel="references" style="padding: 1.5rem; display:none;">
+      <h2 class="rb-title" style="margin-bottom: 1.5rem;">References</h2>
+
+      {% for ref in references %}
+      <div class="entry-card">
+        <form action="{% url 'delete_reference' ref.pk %}" method="post">
+          {% csrf_token %}
+          <button type="button" class="entry-delete" 
+            onclick="var f = this.closest('form'); appConfirm('Remove Reference?', 'Are you sure you want to remove this reference? This cannot be undone.', (confirmed) => { if(confirmed) f.submit(); })">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          </button>
+        </form>
+        <div style="font-weight:700;">{{ ref.name }}</div>
+        <div class="muted">{{ ref.relationship }} at {{ ref.company }}</div>
+        <div style="font-size: 0.85rem; margin-top: 0.3rem;">
+          {% if ref.email %}{{ ref.email }}{% endif %}
+          {% if ref.phone %} | {{ ref.phone }}{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+
+      <form action="{% url 'add_reference' %}" method="post">
+        {% csrf_token %}
+        <div class="rb-form-grid">
+          <label class="rb-field">
+            <span>Name</span>
+            <input type="text" name="name" required>
+          </label>
+          <label class="rb-field">
+            <span>Relationship</span>
+            <input type="text" name="relationship" placeholder="e.g. Previous Manager" required>
+          </label>
+          <label class="rb-field">
+            <span>Company</span>
+            <input type="text" name="company" required>
+          </label>
+          <label class="rb-field">
+            <span>Email</span>
+            <input type="email" name="email">
+          </label>
+          <label class="rb-field">
+            <span>Phone</span>
+            <input type="text" name="phone">
+          </label>
+        </div>
+        <button class="btn btn-primary" type="submit" style="margin-top: 1rem; width: 100%;">Add Reference</button>
+      </form>
+    </article>
+
   </section>
 
   <aside class="rb-right">
@@ -374,6 +500,13 @@
     }
 
     tabs.forEach(t => t.addEventListener("click", () => activate(t.dataset.tab)));
+
+    // Handle initial tab from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialTab = urlParams.get('tab');
+    if (initialTab) {
+      activate(initialTab);
+    }
 
     // PDF Export Logic
     window.exportToPDF = function() {

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, JobseekerProfile, HRProfile, Resume, JobPost, ATSResult, ContactMessage, SupportRequest
+from .models import User, JobseekerProfile, HRProfile, Resume, JobPost, ATSResult, ContactMessage, SupportRequest, Education, Experience, Project, Skill, Certificate, Reference
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
@@ -27,6 +27,12 @@ admin.site.register(HRProfile)
 admin.site.register(Resume)
 admin.site.register(JobPost)
 admin.site.register(ATSResult)
+admin.site.register(Education)
+admin.site.register(Experience)
+admin.site.register(Project)
+admin.site.register(Skill)
+admin.site.register(Certificate)
+admin.site.register(Reference)
 
 @admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):

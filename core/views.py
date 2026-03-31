@@ -5,9 +5,10 @@ from django.utils.text import slugify
 from .forms import (
     JobseekerRegisterForm, HRRegisterForm, LoginForm, ResumeUploadForm,
     EducationForm, ExperienceForm, ProjectForm, SkillForm,
+    CertificateForm, ReferenceForm,
     ProfileUpdateForm, SupportTicketForm
 )
-from .models import JobseekerProfile, HRProfile, Resume, Education, Experience, Project, Skill, ParsedResumeData, JobPost, ATSResult, Notification, ContactMessage
+from .models import JobseekerProfile, HRProfile, Resume, Education, Experience, Project, Skill, Certificate, Reference, ParsedResumeData, JobPost, ATSResult, Notification, ContactMessage
 from .utils import extract_text_from_pdf, extract_text_from_docx, parse_resume_text, calculate_ats_score
 from django.contrib.auth.decorators import login_required
 from .decorators import hr_required, jobseeker_required
@@ -193,6 +194,7 @@ def help_support(request):
                 message=form.cleaned_data['message']
             )
             messages.success(request, "Message sent successfully! Our team will get back to you soon.")
+            Notification.push(request.user, "Support message sent. We'll get back to you soon.", icon="📧", notif_type="info")
             return redirect('help_support')
     return render(request, "pages/help_support.html")
 
@@ -379,12 +381,15 @@ def resume_builder(request):
         profile.summary = request.POST.get("summary", profile.summary)
         profile.save()
         messages.success(request, "Profile updated.")
+        Notification.push(request.user, "Contact & Summary info updated.", icon="👤", notif_type="success")
         return redirect('resume_builder')
 
     educations = profile.educations.all()
     experiences = profile.experiences.all()
     projects = profile.projects.all()
     skills = profile.skills.all()
+    certificates = profile.certificates.all()
+    references = profile.references.all()
 
     # Split name for templates that need it
     name_parts = profile.full_name.split(' ')
@@ -396,9 +401,51 @@ def resume_builder(request):
         "experiences": experiences,
         "projects": projects,
         "skills": skills,
+        "certificates": certificates,
+        "references": references,
         "first_name": first_name,
         "last_name": last_name,
     })
+
+
+@jobseeker_required
+def add_certificate(request):
+    if request.method == "POST":
+        form = CertificateForm(request.POST)
+        if form.is_valid():
+            cert = form.save(commit=False)
+            cert.profile = request.user.jobseeker_profile
+            cert.save()
+            messages.success(request, "Certificate added.")
+    return redirect('/resume/builder/?tab=certificates')
+
+
+@jobseeker_required
+def delete_certificate(request, pk):
+    cert = get_object_or_404(Certificate, pk=pk, profile=request.user.jobseeker_profile)
+    cert.delete()
+    messages.success(request, "Certificate deleted.")
+    return redirect('/resume/builder/?tab=certificates')
+
+
+@jobseeker_required
+def add_reference(request):
+    if request.method == "POST":
+        form = ReferenceForm(request.POST)
+        if form.is_valid():
+            ref = form.save(commit=False)
+            ref.profile = request.user.jobseeker_profile
+            ref.save()
+            messages.success(request, "Reference added.")
+    return redirect('/resume/builder/?tab=references')
+
+
+@jobseeker_required
+def delete_reference(request, pk):
+    ref = get_object_or_404(Reference, pk=pk, profile=request.user.jobseeker_profile)
+    ref.delete()
+    messages.success(request, "Reference deleted.")
+    return redirect('/resume/builder/?tab=references')
 
 
 @jobseeker_required
@@ -410,7 +457,7 @@ def add_education(request):
             edu.profile = request.user.jobseeker_profile
             edu.save()
             messages.success(request, "Education added.")
-    return redirect('resume_builder')
+    return redirect('/resume/builder/?tab=education')
 
 
 @jobseeker_required
@@ -418,7 +465,7 @@ def delete_education(request, pk):
     edu = get_object_or_404(Education, pk=pk, profile=request.user.jobseeker_profile)
     edu.delete()
     messages.success(request, "Education deleted.")
-    return redirect('resume_builder')
+    return redirect('/resume/builder/?tab=education')
 
 
 @jobseeker_required
@@ -430,7 +477,7 @@ def add_experience(request):
             exp.profile = request.user.jobseeker_profile
             exp.save()
             messages.success(request, "Experience added.")
-    return redirect('resume_builder')
+    return redirect('/resume/builder/?tab=experience')
 
 
 @jobseeker_required
@@ -438,7 +485,7 @@ def delete_experience(request, pk):
     exp = get_object_or_404(Experience, pk=pk, profile=request.user.jobseeker_profile)
     exp.delete()
     messages.success(request, "Experience deleted.")
-    return redirect('resume_builder')
+    return redirect('/resume/builder/?tab=experience')
 
 
 @jobseeker_required
@@ -450,7 +497,7 @@ def add_project(request):
             proj.profile = request.user.jobseeker_profile
             proj.save()
             messages.success(request, "Project added.")
-    return redirect('resume_builder')
+    return redirect('/resume/builder/?tab=projects')
 
 
 @jobseeker_required
@@ -458,7 +505,7 @@ def delete_project(request, pk):
     proj = get_object_or_404(Project, pk=pk, profile=request.user.jobseeker_profile)
     proj.delete()
     messages.success(request, "Project deleted.")
-    return redirect('resume_builder')
+    return redirect('/resume/builder/?tab=projects')
 
 
 @jobseeker_required
@@ -470,7 +517,7 @@ def add_skill(request):
             skill.profile = request.user.jobseeker_profile
             skill.save()
             messages.success(request, "Skill added.")
-    return redirect('resume_builder')
+    return redirect('/resume/builder/?tab=skills')
 
 
 @jobseeker_required
@@ -478,7 +525,7 @@ def delete_skill(request, pk):
     skill = get_object_or_404(Skill, pk=pk, profile=request.user.jobseeker_profile)
     skill.delete()
     messages.success(request, "Skill deleted.")
-    return redirect('resume_builder')
+    return redirect('/resume/builder/?tab=skills')
 
 
 @jobseeker_required
@@ -838,8 +885,15 @@ def export_resume_docx(request):
     doc.add_heading('Skills', level=1)
     skills = profile.skills.all()
     if skills:
-        skill_text = ", ".join([f"{s.name} ({s.level})" for s in skills])
-        doc.add_paragraph(skill_text)
+        tech_skills = [f"{s.name} ({s.level})" for s in skills if s.skill_type == 'Technical']
+        soft_skills = [f"{s.name} ({s.level})" for s in skills if s.skill_type == 'Soft']
+        
+        if tech_skills:
+            doc.add_heading('Technical Skills', level=2)
+            doc.add_paragraph(", ".join(tech_skills))
+        if soft_skills:
+            doc.add_heading('Soft Skills', level=2)
+            doc.add_paragraph(", ".join(soft_skills))
 
     doc.add_heading('Work Experience', level=1)
     for exp in profile.experiences.all():
@@ -851,6 +905,31 @@ def export_resume_docx(request):
     for edu in profile.educations.all():
         doc.add_heading(f"{edu.degree} - {edu.institution}", level=2)
         doc.add_paragraph(f"{edu.start_date} - {edu.end_date or 'Present'}")
+
+    projects = profile.projects.all()
+    if projects:
+        doc.add_heading('Projects', level=1)
+        for proj in projects:
+            doc.add_heading(proj.title, level=2)
+            if proj.link:
+                doc.add_paragraph(proj.link)
+            doc.add_paragraph(proj.description)
+
+    certificates = profile.certificates.all()
+    if certificates:
+        doc.add_heading('Training & Certificates', level=1)
+        for cert in certificates:
+            doc.add_heading(cert.name, level=2)
+            doc.add_paragraph(f"{cert.issuer} | {cert.date_obtained or ''}")
+            if cert.link: doc.add_paragraph(cert.link)
+
+    references = profile.references.all()
+    if references:
+        doc.add_heading('References', level=1)
+        for ref in references:
+            doc.add_heading(ref.name, level=2)
+            doc.add_paragraph(f"{ref.relationship} at {ref.company}")
+            doc.add_paragraph(f"Email: {ref.email} | Phone: {ref.phone}")
 
     # Save to buffer
     f = io.BytesIO()
