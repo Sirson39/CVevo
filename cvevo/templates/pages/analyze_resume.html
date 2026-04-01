@@ -52,6 +52,15 @@
           {% endif %}
         </div>
       </form>
+      
+      <div style="margin: 2rem 0; border-top: 1px solid #e2e8f0;"></div>
+      
+      <div class="stack" style="gap: 1rem;">
+        <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #1e293b;">⚡ Quality Scan (No Job Description)</h3>
+        <p class="muted" style="font-size: 12px; margin: -0.5rem 0 0.5rem 0;">Get structural feedback on your resume's professional formatting, contact info, and readability.</p>
+        
+        <a href="{% url 'general_analysis' resume.id %}" class="btn wide" style="padding: 10px; background: #3b82f6; color: white; border: none; font-weight: 700; text-align: center; border-radius: 8px; text-decoration: none; font-size: 14px;">Run General Quality Scan</a>
+      </div>
     </div>
 
     <!-- Right: Resume Info -->

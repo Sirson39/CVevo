@@ -194,20 +194,26 @@ class ATSResult(models.Model):
         return [k.strip() for k in self.missing_keywords.split(',') if k.strip()]
 
     @property
+    def general_scan_data(self):
+        """Parses the feedback field as JSON if it's a general quality scan."""
+        import json
+        if self.feedback.startswith('{') and self.feedback.endswith('}'):
+            try:
+                return json.loads(self.feedback)
+            except:
+                return None
+        return None
+
+    @property
     def concise_feedback(self):
+        # If it's a general scan, return the summary
+        data = self.general_scan_data
+        if data:
+            return data.get('summary', '')
+            
         # If it's already concise (from the new analyzer), return as is
         if not self.feedback.strip().startswith("1. **Final ATS Score**"):
             return self.feedback
-        
-        # fallback for old "messy" reports: build a summary from other fields
-        matched_count = len(self.matched_list)
-        missing_count = len(self.missing_list)
-        total = matched_count + missing_count
-        
-        msg = f"Matched {matched_count} out of {total} requirements identified in this analysis. "
-        if self.missing_list:
-            msg += f"Recommended additions: {', '.join(self.missing_list[:3])}."
-        return msg
 
     def __str__(self):
         return f"{self.resume.jobseeker.full_name} match for {self.job_post.title}: {self.score}%"

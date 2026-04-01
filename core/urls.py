@@ -31,6 +31,7 @@ urlpatterns = [
     path("analysis/results/",     views.analysis_results,            name="analysis_results"),
     path("analysis/delete/<int:pk>/", views.delete_analysis_result, name="delete_analysis_result"),
     path("analysis/analyze/<int:resume_id>/", views.analyze_resume, name="analyze_resume"),
+    path("analysis/general/<int:resume_id>/", views.general_analysis, name="general_analysis"),
     path("analysis/quick-analysis/", views.quick_analysis, name="quick_analysis"),
     path("resume/builder/",       views.resume_builder,              name="resume_builder"),
     path("resume/builder/education/add/", views.add_education, name="add_education"),

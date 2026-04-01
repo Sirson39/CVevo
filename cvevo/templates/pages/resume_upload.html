@@ -27,7 +27,7 @@
       {% csrf_token %}
       <div class="ru-drop" id="dropzone" style="min-height: 180px; border-radius: 12px; gap: 10px;">
         <input class="ru-input" id="resumeFile" name="resume_file" type="file" accept=".pdf,.docx"
-          onchange="this.form.submit()" style="opacity: 0; position: absolute; z-index: -1;" />
+          multiple onchange="this.form.submit()" style="opacity: 0; position: absolute; z-index: -1;" />
 
         <div class="ru-icon" aria-hidden="true" style="width: 48px; height: 48px; border-radius: 12px;">
           <!-- upload icon -->
@@ -41,8 +41,8 @@
         </div>
 
         <div class="ru-droptext">
-          <div class="ru-drop-title" style="font-size: 18px; font-weight: 700;">Drop your resume here</div>
-          <div class="ru-drop-sub" style="font-size: 13px; color: #64748b;">or <span class="ru-linklike" id="browseBtn" style="color: #10b981; font-weight: 600;">click to browse</span> • PDF or DOCX
+          <div class="ru-drop-title" style="font-size: 18px; font-weight: 700;">Drop your resumes here</div>
+          <div class="ru-drop-sub" style="font-size: 13px; color: #64748b;">or <span class="ru-linklike" id="browseBtn" style="color: #10b981; font-weight: 600;">click to browse</span> • Multi-select supported
           </div>
         </div>
       </div>
@@ -98,7 +98,8 @@
 
         <div class="ru-actions" style="gap: 8px;">
           <a href="{{ resume.file.url }}" class="ru-btn ghost" target="_blank" style="padding: 6px 12px; font-size: 13px; border-radius: 8px;">View</a>
-          <a href="{% url 'analyze_resume' resume.pk %}" class="ru-btn primary" style="padding: 6px 12px; font-size: 13px; border-radius: 8px; background: #10b981; color: #fff; text-decoration: none;">Analyze</a>
+          <a href="{% url 'general_analysis' resume.pk %}" class="ru-btn secondary" title="Fast Quality Scan (No JD)" style="padding: 6px 12px; font-size: 13px; border-radius: 8px; background: #f1f5f9; color: #475569; text-decoration: none; border: 1px solid #e2e8f0;">Quality Scan</a>
+          <a href="{% url 'analyze_resume' resume.pk %}" class="ru-btn primary" title="Full ATS Analysis (Select JD)" style="padding: 6px 12px; font-size: 13px; border-radius: 8px; background: #10b981; color: #fff; text-decoration: none;">Analyze</a>
           <form action="{% url 'resume_delete' resume.pk %}" method="post" style="display:inline;">
             {% csrf_token %}
             <button class="ru-btn danger" type="button" 

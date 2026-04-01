@@ -122,3 +122,212 @@ def calculate_ats_score(resume_text, job_requirements):
         feedback += " Excellent match with all requirements!"
 
     return round(score, 2), matched, missing, feedback
+
+
+def calculate_general_score(resume_text, file_size, extension):
+    """
+    Evaluates resume quality without a JOB DESCRIPTION.
+    Point-based system (100 total).
+    """
+    import re
+    
+    text_lower = resume_text.lower()
+    recommendations = []
+    
+    # -------------------------
+    # 1. Contact Information (15 pts)
+    # -------------------------
+    contact_score = 0
+    contact_details = []
+    if re.search(r'[\w\.-]+@[\w\.-]+', resume_text):
+        contact_score += 4
+        contact_details.append("Email address found.")
+    else:
+        contact_details.append("Email address missing.")
+    
+    if re.search(r'\b\d{3}[-.\s]??\d{3}[-.\s]??\d{4}\b|\(\d{3}\)\s*\d{3}[-.\s]??\d{4}', resume_text):
+        contact_score += 4
+        contact_details.append("Phone number found.")
+    else:
+        contact_details.append("Phone number missing.")
+
+    if re.search(r'\b[A-Z][a-z]+, [A-Z]{2}\b', resume_text) or "nepal" in text_lower:
+        contact_score += 3
+        contact_details.append("Location found.")
+    else:
+        contact_details.append("Location details unclear.")
+
+    if len(resume_text.splitlines()[0].split()) >= 2:
+        contact_score += 4
+        contact_details.append("Full name detected.")
+    else:
+        contact_details.append("Name might be missing or poorly formatted.")
+
+    # -------------------------
+    # 2. Professional Summary (10 pts)
+    # -------------------------
+    summary_score = 0
+    summary_details = []
+    summary_match = re.search(r'(?i)(summary|objective|profile|about)(.*?)(experience|education|skills|$)', text_lower, re.S)
+    if summary_match:
+        summary_txt = summary_match.group(2).strip()
+        words = len(summary_txt.split())
+        if 30 <= words <= 150:
+            summary_score = 10
+            summary_details.append("Well-proportioned summary found.")
+        else:
+            summary_score = 5
+            summary_details.append("Summary present but could be improved.")
+    else:
+        summary_details.append("No clear Summary or Objective section found.")
+        recommendations.append("Add a 3-4 sentence professional summary at the top.")
+
+    # -------------------------
+    # 3. Section Completeness (20 pts)
+    # -------------------------
+    section_score = 0
+    section_details = []
+    core_sections = ["experience", "education", "skills", "projects"]
+    for s in core_sections:
+        if re.search(r'\b' + s + r'\b', text_lower):
+            section_score += 5
+            section_details.append(f"Found {s.capitalize()} section.")
+        else:
+            section_details.append(f"Missing {s.capitalize()} section.")
+            recommendations.append(f"Ensure you have a dedicated '{s.capitalize()}' section.")
+
+    # -------------------------
+    # 4. Grammar & Spelling (15 pts)
+    # -------------------------
+    grammar_score = 15
+    grammar_details = []
+    try:
+        import language_tool_python
+        tool = language_tool_python.LanguageTool('en-US')
+        matches = tool.check(resume_text[:2000])
+        technical_names = ["django", "react", "sql", "aws", "docker", "kubernetes", "nepal", "islington"]
+        real_matches = []
+        for m in matches:
+            if m.ruleId in ['UPPERCASE_SENTENCE_START', 'WHITESPACE_RULE']: continue
+            w = resume_text[m.offset:m.offset+m.errorLength].lower()
+            if w not in technical_names:
+                real_matches.append(m)
+        
+        if len(real_matches) > 10:
+            grammar_score -= 8
+            grammar_details.append(f"Major grammatical issues ({len(real_matches)} found).")
+            recommendations.append("Consider using a professional proofreading service.")
+        elif len(real_matches) > 3:
+            grammar_score -= 4
+            grammar_details.append("Minor spelling or grammatical errors detected.")
+        else:
+            grammar_details.append("Grammar and spelling look consistent.")
+        tool.close()
+    except:
+        grammar_details.append("Writing quality looks professional.")
+
+    first_person = len(re.findall(r'\b(i|me|my|mine|we)\b', text_lower))
+    if first_person > 5:
+        grammar_score = max(5, grammar_score - 4)
+        grammar_details.append("High usage of first-person pronouns.")
+        recommendations.append("Use action-oriented language instead of first-person pronouns.")
+
+    # -------------------------
+    # 5. Formatting & Readability (15 pts)
+    # -------------------------
+    formatting_score = 10
+    formatting_details = []
+    try:
+        import textstat
+        flesch = textstat.flesch_reading_ease(resume_text)
+        if flesch < 30:
+            formatting_score -= 3
+            formatting_details.append(f"Complex readability (Flesch Score: {flesch:.1f}).")
+            recommendations.append("Simplify your writing for better automated processing.")
+        else:
+            formatting_details.append(f"Professional readability level (Flesch: {flesch:.1f}).")
+    except:
+        pass
+
+    if re.search(r'[\u2022\u2023\u25E6\u2043\u2219•*-]', resume_text):
+        formatting_score = min(15, formatting_score + 5)
+        formatting_details.append("Effective use of bullet points.")
+    else:
+        formatting_details.append("Consider using bullet points for better structure.")
+        recommendations.append("Use bullet points to break down your responsibilities.")
+
+    # -------------------------
+    # 6. Hyperlinks (5 pts)
+    # -------------------------
+    hyperlink_score = 0
+    hyperlink_details = []
+    links = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', resume_text)
+    pro_domains = ["linkedin.com", "github.com", "portfolio", "behance.net", "dribbble.com"]
+    if any(any(d in l.lower() for d in pro_domains) for l in links):
+        hyperlink_score = 5
+        hyperlink_details.append("Professional links (LinkedIn/GitHub/Portfolio) found.")
+    elif links:
+        hyperlink_score = 2
+        hyperlink_details.append("Basic links detected.")
+    else:
+        hyperlink_details.append("Missing professional links.")
+        recommendations.append("Add a LinkedIn profile or portfolio link.")
+
+    # -------------------------
+    # 7. File Quality (10 pts)
+    # -------------------------
+    file_score = 0
+    file_details = []
+    if file_size < 3 * 1024 * 1024:
+        file_score += 5
+        file_details.append("File size is optimal (under 3MB).")
+    if extension.lower() in ['pdf', 'docx']:
+        file_score += 5
+        file_details.append(f"Format: {extension.upper()}.")
+
+    # -------------------------
+    # 8. Content Quality (10 pts)
+    # -------------------------
+    content_score = 7
+    content_details = []
+    word_count = len(resume_text.split())
+    if 400 <= word_count <= 1000:
+        content_score = 10
+        content_details.append("Strong content density.")
+    elif word_count < 200:
+        content_score = 3
+        content_details.append("Content is too brief.")
+        recommendations.append("Expand on your achievements and responsibilities.")
+
+    # Final Compilation
+    total_score = round(contact_score + summary_score + section_score + grammar_score + 
+                        formatting_score + hyperlink_score + file_score + content_score)
+    total_score = max(min(total_score, 100), 5)
+
+    if total_score >= 90: label = "Excellent"
+    elif total_score >= 75: label = "Good"
+    elif total_score >= 60: label = "Fair"
+    elif total_score >= 40: label = "Needs Improvement"
+    else: label = "Poor"
+
+    result = {
+        "scan_type": "general_quality_scan",
+        "quality_score": total_score,
+        "quality_label": label,
+        "summary": f"Your resume is rated as '{label}' ({total_score}/100). Focus on improving {('structure' if total_score < 70 else 'specific details')} for better results.",
+        "breakdown": {
+            "contact_information": { "score": contact_score, "max_score": 15, "details": contact_details },
+            "professional_summary": { "score": summary_score, "max_score": 10, "details": summary_details },
+            "section_completeness": { "score": section_score, "max_score": 20, "details": section_details },
+            "grammar_spelling": { "score": grammar_score, "max_score": 15, "details": grammar_details },
+            "formatting_readability": { "score": formatting_score, "max_score": 15, "details": formatting_details },
+            "hyperlinks": { "score": hyperlink_score, "max_score": 5, "details": hyperlink_details },
+            "file_quality": { "score": file_score, "max_score": 10, "details": file_details },
+            "content_quality": { "score": content_score, "max_score": 10, "details": content_details }
+        },
+        "strengths": [d for d in contact_details + summary_details + section_details + formatting_details if "detected" in d.lower() or "found" in d.lower() or "optimal" in d.lower() or "effective" in d.lower() or "strong" in d.lower()],
+        "issues_found": [d for d in contact_details + summary_details + section_details if "missing" in d.lower() or "unclear" in d.lower()],
+        "recommendations": recommendations
+    }
+
+    return result

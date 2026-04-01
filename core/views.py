@@ -9,7 +9,7 @@ from .forms import (
     ProfileUpdateForm, SupportTicketForm
 )
 from .models import JobseekerProfile, HRProfile, Resume, Education, Experience, Project, Skill, Certificate, Reference, ParsedResumeData, JobPost, ATSResult, Notification, ContactMessage
-from .utils import extract_text_from_pdf, extract_text_from_docx, parse_resume_text, calculate_ats_score
+from .utils import extract_text_from_pdf, extract_text_from_docx, parse_resume_text, calculate_ats_score, calculate_general_score
 from django.contrib.auth.decorators import login_required
 from .decorators import hr_required, jobseeker_required
 from django.db.models import Avg, Q
@@ -712,26 +712,42 @@ def resume_parse_result(request, resume_id):
         "parsed_data": parsed_data
     })
 
+
 @jobseeker_required
 def resume_upload(request):
     if request.method == "POST":
-        form = ResumeUploadForm(request.POST, request.FILES)
-        if form.is_valid():
-            resume_file = request.FILES['resume_file']
+        files = request.FILES.getlist('resume_file')
+        if not files:
+            messages.error(request, "No files selected.")
+            return redirect('resume_upload')
+            
+        success_count = 0
+        last_resume_id = None
+        
+        for resume_file in files:
+            # Check size (5MB limit)
+            if resume_file.size > 5 * 1024 * 1024:
+                messages.warning(request, f"Skipped '{resume_file.name}': Too large (max 5MB).")
+                continue
+                
+            # Check extension
+            ext = resume_file.name.split('.')[-1].lower()
+            if ext not in ['pdf', 'docx']:
+                messages.warning(request, f"Skipped '{resume_file.name}': Unsupported format.")
+                continue
+
             resume = Resume.objects.create(
                 jobseeker=request.user.jobseeker_profile,
                 file=resume_file,
                 filename=resume_file.name
             )
+            last_resume_id = resume.id
             
             # --- Trigger Parsing ---
             file_path = resume.file.path
-            ext = resume.filename.split('.')[-1].lower()
             text = ""
-            if ext == 'pdf':
-                text = extract_text_from_pdf(file_path)
-            elif ext == 'docx':
-                text = extract_text_from_docx(file_path)
+            if ext == 'pdf': text = extract_text_from_pdf(file_path)
+            elif ext == 'docx': text = extract_text_from_docx(file_path)
             
             if text:
                 parsed_sections = parse_resume_text(text)
@@ -742,20 +758,66 @@ def resume_upload(request):
                     role=parsed_sections.get("role", ""),
                     email=parsed_sections.get("email", ""),
                     phone=parsed_sections.get("phone", ""),
-                    skills=", ".join(parsed_sections.get("skills", [])),
-                    experience=parsed_sections.get("sections", {}).get("experience", ""),
-                    education=parsed_sections.get("sections", {}).get("education", ""),
+                    skills=parsed_sections.get("skills", ""),
+                    experience=parsed_sections.get("experience", ""),
+                    education=parsed_sections.get("education", ""),
                 )
-            # -----------------------
+            success_count += 1
 
-            messages.success(request, f"Resume '{resume_file.name}' uploaded and parsed successfully.")
-            Notification.push(request.user, "Uploaded successfully", icon="📄", notif_type="success")
-            return redirect('resume_parse_result', resume_id=resume.id)
+        if success_count > 0:
+            messages.success(request, f"Successfully uploaded {success_count} resume(s).")
+            Notification.push(request.user, f"Uploaded {success_count} resume(s)", icon="📄", notif_type="success")
+            if success_count == 1:
+                return redirect('resume_parse_result', resume_id=last_resume_id)
+        return redirect('resume_upload')
     else:
         form = ResumeUploadForm()
     
     resumes = request.user.jobseeker_profile.resumes.all().order_by('-uploaded_at')
     return render(request, "pages/resume_upload.html", {"form": form, "resumes": resumes})
+
+
+@jobseeker_required
+def general_analysis(request, resume_id):
+    resume = get_object_or_404(Resume, pk=resume_id, jobseeker=request.user.jobseeker_profile)
+    
+    # 1. Get parsed text
+    parsed_data = getattr(resume, 'parsed_data', None)
+    if not parsed_data:
+        # Re-parse if needed
+        ext = resume.filename.split('.')[-1].lower()
+        text = ""
+        if ext == 'pdf': text = extract_text_from_pdf(resume.file.path)
+        elif ext == 'docx': text = extract_text_from_docx(resume.file.path)
+        if text:
+            parsed_data = ParsedResumeData.objects.create(resume=resume, extracted_text=text)
+    
+    if not parsed_data or not parsed_data.extracted_text:
+        messages.error(request, "Could not extract text from this resume for analysis.")
+        return redirect('resume_upload')
+        
+    # 2. Run General Quality Scan
+    scan_result = calculate_general_score(
+        parsed_data.extracted_text, 
+        resume.file.size, 
+        resume.filename.split('.')[-1]
+    )
+    
+    # 3. Create a result record (without a job post)
+    import json
+    ats_result = ATSResult.objects.create(
+        resume=resume,
+        job_post=None,
+        custom_job_title="General Quality Scan",
+        score=scan_result['quality_score'],
+        feedback=json.dumps(scan_result), # Store full JSON
+        matched_keywords=", ".join(scan_result['strengths']),
+        missing_keywords=", ".join(scan_result['issues_found'])
+    )
+    
+    messages.success(request, f"Quality scan complete! Structural score: {scan_result['quality_score']}%")
+    return redirect('analysis_results')
+
 
 @jobseeker_required
 def resume_delete(request, pk):

@@ -68,24 +68,11 @@ class LoginForm(forms.Form):
 
 
 class ResumeUploadForm(forms.Form):
-    resume_file = forms.FileField(
-        label="Select Resume (PDF or DOCX)",
-        help_text="Max size: 5MB"
-    )
-
-    def clean_resume_file(self):
-        file = self.cleaned_data.get("resume_file")
-        if file:
-            # Check extension
-            ext = file.name.split(".")[-1].lower()
-            if ext not in ["pdf", "docx"]:
-                raise ValidationError("Only PDF and DOCX files are allowed.")
-            
-            # Check size (5MB limit)
-            if file.size > 5 * 1024 * 1024:
-                raise ValidationError("File size must be under 5MB.")
-                
-        return file
+    """
+    Form for resume metadata. Files are handled manually via request.FILES.getlist
+    in the view to support multi-upload and avoid widget compatibility issues.
+    """
+    pass
 
 
 class EducationForm(forms.ModelForm):

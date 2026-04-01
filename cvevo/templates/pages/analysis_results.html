@@ -54,7 +54,7 @@
                 </div>
                 <div class="muted"
                   style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px;">
-                  ATS Match Score</div>
+                  {% if result.general_scan_data %}Quality Score{% else %}ATS Match Score{% endif %}</div>
               </div>
 
               <!-- Delete Button -->
@@ -80,43 +80,81 @@
         <div class="divider"></div>
 
         <div style="margin-top: 0.5rem;">
-          <h4 style="font-size:1rem; font-weight:700; color:#1e293b; margin:0 0 .5rem 0;">Feedback & Suggestions</h4>
+          <h4 style="font-size:1rem; font-weight:700; color:#1e293b; margin:0 0 .5rem 0;">Analysis & Feedback</h4>
           <p style="margin:0; font-size:.95rem; line-height:1.6; color: #475569;">{{ result.concise_feedback|linebreaksbr }}</p>
         </div>
 
-        <div class="grid" style="grid-template-columns:1fr 1fr; gap:1rem; margin-top:1.25rem;">
-          <div class="card" style="padding:1rem; background:#f0fdf4; border-color:#bcf0da;">
-            <h5 style="margin:0 0 .6rem 0; color:#166534; font-size:.82rem; font-weight:900;">MATCHED KEYWORDS</h5>
-            <div style="display:flex; flex-wrap:wrap; gap:.45rem;">
-              {% if result.matched_list %}
-              {% for kw in result.matched_list|slice:":12" %}
-              <span
-                style="font-size:.75rem; background:#fff; padding:.28rem .55rem; border-radius:999px; border:1px solid #bcf0da;">
-                {{ kw }}
-              </span>
-              {% endfor %}
-              {% else %}
-              <span class="muted" style="font-size:.82rem;">None detected</span>
-              {% endif %}
+        {% if result.general_scan_data %}
+          <!-- Detailed Quality Breakdown -->
+          <div style="margin-top:1.5rem; display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:0.75rem;">
+            {% for cat, data in result.general_scan_data.breakdown.items %}
+              <div class="card" style="padding:0.75rem; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span style="font-size:11px; font-weight:800; text-transform:uppercase; color:#64748b;">{{ cat|title }}</span>
+                  <span style="font-size:13px; font-weight:700; color:{% if data.score >= data.max_score|add:'-2' %}#10b981{% else %}#475569{% endif %};">{{ data.score }}/{{ data.max_score }}</span>
+                </div>
+                <div style="height:4px; width:100%; background:#e2e8f0; border-radius:2px; margin-top:6px; overflow:hidden;">
+                  <div style="height:100%; width:{% widthratio data.score data.max_score 100 %}%; background:{% if data.score >= data.max_score|add:'-2' %}#10b981{% else %}#10b981{% endif %};"></div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+          
+          <div class="grid" style="grid-template-columns:1fr 1fr; gap:1rem; margin-top:1.25rem;">
+            <div class="card" style="padding:1rem; background:#f0fdf4; border-color:#bcf0da;">
+              <h5 style="margin:0 0 .6rem 0; color:#166534; font-size:.82rem; font-weight:900;">STRENGTHS</h5>
+              <div style="display:flex; flex-wrap:wrap; gap:.45rem;">
+                {% for s in result.general_scan_data.strengths %}
+                  <span style="font-size:.72rem; background:#fff; padding:.2rem .5rem; border-radius:999px; border:1px solid #bcf0da; color:#166534;">✓ {{ s }}</span>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="card" style="padding:1rem; background:#fff1f2; border-color:#fecaca;">
+              <h5 style="margin:0 0 .6rem 0; color:#991b1b; font-size:.82rem; font-weight:900;">RECOMMENDATIONS</h5>
+              <div style="display:flex; flex-wrap:wrap; gap:.45rem;">
+                {% for r in result.general_scan_data.recommendations %}
+                  <span style="font-size:.72rem; background:#fff; padding:.2rem .5rem; border-radius:999px; border:1px solid #fecaca; color:#991b1b;">! {{ r }}</span>
+                {% endfor %}
+              </div>
             </div>
           </div>
 
-          <div class="card" style="padding:1rem; background:#fff1f2; border-color:#fecaca;">
-            <h5 style="margin:0 0 .6rem 0; color:#991b1b; font-size:.82rem; font-weight:900;">MISSING KEYWORDS</h5>
-            <div style="display:flex; flex-wrap:wrap; gap:.45rem;">
-              {% if result.missing_list %}
-              {% for kw in result.missing_list|slice:":12" %}
-              <span
-                style="font-size:.75rem; background:#fff; padding:.28rem .55rem; border-radius:999px; border:1px solid #fecaca;">
-                {{ kw }}
-              </span>
-              {% endfor %}
-              {% else %}
-              <span class="muted" style="font-size:.82rem;">Excellent matching!</span>
-              {% endif %}
+        {% else %}
+          <!-- Original Matched/Missing keywords view for standard ATS scans -->
+          <div class="grid" style="grid-template-columns:1fr 1fr; gap:1rem; margin-top:1.25rem;">
+            <div class="card" style="padding:1rem; background:#f0fdf4; border-color:#bcf0da;">
+              <h5 style="margin:0 0 .6rem 0; color:#166534; font-size:.82rem; font-weight:900;">MATCHED KEYWORDS</h5>
+              <div style="display:flex; flex-wrap:wrap; gap:.45rem;">
+                {% if result.matched_list %}
+                {% for kw in result.matched_list|slice:":12" %}
+                <span
+                  style="font-size:.75rem; background:#fff; padding:.28rem .55rem; border-radius:999px; border:1px solid #bcf0da;">
+                  {{ kw }}
+                </span>
+                {% endfor %}
+                {% else %}
+                <span class="muted" style="font-size:.82rem;">None detected</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="card" style="padding:1rem; background:#fff1f2; border-color:#fecaca;">
+              <h5 style="margin:0 0 .6rem 0; color:#991b1b; font-size:.82rem; font-weight:900;">MISSING KEYWORDS</h5>
+              <div style="display:flex; flex-wrap:wrap; gap:.45rem;">
+                {% if result.missing_list %}
+                {% for kw in result.missing_list|slice:":12" %}
+                <span
+                  style="font-size:.75rem; background:#fff; padding:.28rem .55rem; border-radius:999px; border:1px solid #fecaca;">
+                  {{ kw }}
+                </span>
+                {% endfor %}
+                {% else %}
+                <span class="muted" style="font-size:.82rem;">Excellent matching!</span>
+                {% endif %}
+              </div>
             </div>
           </div>
-        </div>
+        {% endif %}
       </article>
       {% empty %}
       <div class="ru-card">
