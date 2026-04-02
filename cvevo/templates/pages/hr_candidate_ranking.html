@@ -74,15 +74,34 @@
 
 {% if selected_job %}
 <div class="card pad-lg" style="margin-bottom: 2rem; background: #f8fafc; border-left: 4px solid #10b981;">
-  <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-    <div>
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 2rem;">
+    <div style="flex: 1;">
       <h2 style="margin: 0; font-size: 1.25rem;">{{ selected_job.title }}</h2>
-      <p class="muted" style="margin: 0.5rem 0 0;">{{ results|length }} candidates found for this position.</p>
+      <p class="muted" style="margin: 0.5rem 0 0.5rem;">{{ results|length }} candidates found for this position.</p>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; font-size: 0.85rem;">
+        <div>
+          <div style="font-weight: 700; color: #64748b; text-transform: uppercase; font-size: 0.7rem; margin-bottom: 0.25rem;">Required Skills</div>
+          <div style="color: #475569;">{{ selected_job.required_skills|default:"Not specified" }}</div>
+        </div>
+        <div>
+          <div style="font-weight: 700; color: #64748b; text-transform: uppercase; font-size: 0.7rem; margin-bottom: 0.25rem;">Experience Requirements</div>
+          <div style="color: #475569;">{{ selected_job.experience_requirements|default:"Not specified" }}</div>
+        </div>
+        <div>
+          <div style="font-weight: 700; color: #64748b; text-transform: uppercase; font-size: 0.7rem; margin-bottom: 0.25rem;">Education Requirements</div>
+          <div style="color: #475569;">{{ selected_job.education_requirements|default:"Not specified" }}</div>
+        </div>
+        <div>
+          <div style="font-weight: 700; color: #64748b; text-transform: uppercase; font-size: 0.7rem; margin-bottom: 0.25rem;">Tools and Technologies</div>
+          <div style="color: #475569;">{{ selected_job.tools_and_technologies|default:"Not specified" }}</div>
+        </div>
+      </div>
     </div>
-    <div style="text-align: right;">
-      <span class="muted" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Matching Requirements</span>
-      <div style="font-size: 0.85rem; max-width: 400px; color: #475569; margin-top: 0.4rem; font-style: italic;">
-        {{ selected_job.requirements|truncatechars:100 }}
+    <div style="text-align: right; min-width: 250px;">
+      <span class="muted" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">ATS Scanning Keywords</span>
+      <div style="font-size: 0.85rem; color: #10b981; margin-top: 0.4rem; font-style: italic; background: #ecfdf5; padding: 0.75rem; border-radius: 8px;">
+        {{ selected_job.requirements }}
       </div>
     </div>
   </div>

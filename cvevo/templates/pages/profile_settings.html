@@ -27,8 +27,19 @@
         {% endif %}
       </div>
       <div>
-        <div class="ps-name">{{ request.user.full_name|default:"Set your name" }}</div>
-        <div class="ps-email">{{ request.user.email }}</div>
+        <div class="ps-name">
+          {% if request.user.role == 'hr' and request.user.hr_profile.company %}
+            {{ request.user.hr_profile.company }}
+          {% else %}
+            {{ request.user.full_name|default:"Set your name" }}
+          {% endif %}
+        </div>
+        <div class="ps-email" style="font-size: 13px; color: #64748b;">
+          {% if request.user.role == 'hr' %}
+            <strong>{{ request.user.full_name }}</strong> &bull; {{ request.user.hr_profile.role }} &bull; 
+          {% endif %}
+          {{ request.user.email }}
+        </div>
       </div>
     </div>
 
@@ -42,6 +53,18 @@
         <label class="ps-label">Email Address</label>
         <input class="ps-input" type="email" name="email" value="{{ request.user.email }}" placeholder="your@email.com" required>
       </div>
+
+      {% if request.user.role == 'hr' %}
+      <div class="ps-field">
+        <label class="ps-label">Company Name</label>
+        <input class="ps-input" type="text" name="company" value="{{ request.user.hr_profile.company }}" placeholder="Your Company" required>
+      </div>
+
+      <div class="ps-field">
+        <label class="ps-label">Job Title / Position</label>
+        <input class="ps-input" type="text" name="role_title" value="{{ request.user.hr_profile.role }}" placeholder="Recruiter, Manager, etc." required>
+      </div>
+      {% endif %}
       
       <div style="margin-top: 0.5rem;">
         <button class="btn btn-primary" type="submit" name="update_profile" style="background: #10b981; border: none; padding: 10px 24px; display: flex; align-items: center; gap: 8px;">

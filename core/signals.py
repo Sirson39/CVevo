@@ -72,4 +72,3 @@ def ensure_profile_on_login(sender, request, user, **kwargs):
         user=user,
         defaults={"full_name": full_name, "email": user.email},
     )
-

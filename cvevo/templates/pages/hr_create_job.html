@@ -5,81 +5,278 @@
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'cvevo/css/dashboard.css' %}">
 <style>
-  .form-group { margin-bottom: 1.5rem; }
-  .form-label { display: block; font-weight: 700; font-size: 0.9rem; margin-bottom: 0.5rem; color: #475569; }
+  :root {
+    --primary-green: #10b981;
+    --primary-dark: #0f172a;
+    --border-light: #e2e8f0;
+    --bg-light: #f8fafc;
+  }
+
+  .form-group { margin-bottom: 2rem; }
+  
+  .form-label { 
+    display: block; 
+    font-weight: 600; 
+    font-size: 0.85rem; 
+    margin-bottom: 0.6rem; 
+    color: #334155;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+
   .form-input, .form-textarea {
     width: 100%;
-    padding: 0.75rem;
-    border: 1.5px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    transition: border-color 0.2s;
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    font-size: 1rem;
+    color: #1e293b;
+    background: #fff;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   }
+
   .form-input:focus, .form-textarea:focus {
     outline: none;
-    border-color: #10b981;
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
   }
-  .form-textarea { min-height: 120px; resize: vertical; }
-  .helper-text { font-size: 0.8rem; color: #64748b; margin-top: 0.4rem; }
+
+  .form-textarea { min-height: 140px; resize: vertical; line-height: 1.6; }
+  
+  .helper-text { 
+    font-size: 0.8rem; 
+    color: #64748b; 
+    margin-top: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .helper-text svg { color: var(--primary-green); }
+
+  /* Redesigned Side Cards */
+  .tip-card {
+    background: #ffffff;
+    border: 1px solid var(--border-light);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  }
+
+  .tip-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin-bottom: 1.25rem;
+  }
+
+  .tip-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .tip-item {
+    display: flex;
+    gap: 12px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #475569;
+  }
+
+  .tip-icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    background: #ecfdf5;
+    color: var(--primary-green);
+    border-radius: 6px;
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+  }
+
+  .example-code {
+    background: #f1f5f9;
+    border-radius: 10px;
+    padding: 1rem;
+    font-family: inherit;
+    font-size: 0.85rem;
+    color: #334155;
+    line-height: 1.6;
+    border: 1px solid #e2e8f0;
+    margin-top: 0.75rem;
+  }
+
+  .publish-btn {
+    background: var(--primary-green);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .publish-btn:hover {
+    background: #059669;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.2);
+  }
+
+  .dash-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+    gap: 2rem;
+  }
+
+  .btn-cancel {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    color: #64748b;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .btn-cancel:hover {
+    background: #fef2f2;
+    color: #dc2626;
+    border-color: #fca5a5;
+  }
+
+  @media (max-width: 1024px) {
+    .dash-head { flex-direction: column; align-items: flex-start; gap: 1rem; }
+    .grid-2 { grid-template-columns: 1fr !important; }
+  }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="dash-head" style="margin-bottom: 2rem;">
+<div class="dash-head">
   <div>
-    <h1 class="dash-welcome">Post New Job</h1>
-    <p class="dash-sub">Create a new job listing and define matching criteria.</p>
+    <h1 class="dash-welcome">Create Job Opening</h1>
+    <p class="dash-sub">Define requirements and matching criteria for AI screening.</p>
   </div>
   <div class="dash-actions">
-    <a href="{% url 'hr_dashboard' %}" class="btn btn-ghost">Cancel</a>
+    <a href="{% url 'hr_dashboard' %}" class="btn-cancel">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      Cancel
+    </a>
   </div>
 </div>
 
-<div class="grid grid-2" style="grid-template-columns: 1.5fr 1fr; gap: 3rem;">
+<div class="grid grid-2" style="grid-template-columns: 1.6fr 1fr; gap: 3rem;">
   <section>
-    <article class="card pad-lg">
+    <article class="card pad-lg shadow-sm" style="border-radius: 20px; border: 1px solid #e2e8f0;">
       <form method="POST">
         {% csrf_token %}
         <div class="form-group">
-          <label class="form-label" for="title">Job Title</label>
-          <input type="text" id="title" name="title" class="form-input" placeholder="e.g. Senior Frontend Developer" required>
+          <label class="form-label" for="title">Position Title</label>
+          <input type="text" id="title" name="title" class="form-input" required>
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="description">Job Description</label>
-          <textarea id="description" name="description" class="form-textarea" placeholder="Describe the role, responsibilities, and company culture..." required></textarea>
+          <label class="form-label" for="description">Role Description</label>
+          <textarea id="description" name="description" class="form-textarea" required></textarea>
         </div>
 
-        <div class="form-group">
-          <label class="form-label" for="requirements">Key Requirements / Keywords</label>
-          <textarea id="requirements" name="requirements" class="form-textarea" placeholder="e.g. React, TypeScript, Node.js, 3+ years experience, Agile..." required></textarea>
-          <p class="helper-text">Our AI uses these keywords to score applicant resumes. Separate them with commas or list them clearly.</p>
+        <div class="grid grid-2" style="grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+          <div class="form-group">
+            <label class="form-label" for="required_skills">Critical Skills</label>
+            <textarea id="required_skills" name="required_skills" class="form-textarea" style="min-height: 110px;"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="experience_requirements">Experience Level</label>
+            <textarea id="experience_requirements" name="experience_requirements" class="form-textarea" style="min-height: 110px;"></textarea>
+          </div>
         </div>
 
-        <div style="margin-top: 2rem;">
-          <button type="submit" class="btn btn-primary wide" style="background: #10b981; border: none; padding: 1rem;">
-            Publish Job Listing
+        <div class="grid grid-2" style="grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+          <div class="form-group">
+            <label class="form-label" for="education_requirements">Education Requirements</label>
+            <textarea id="education_requirements" name="education_requirements" class="form-textarea" style="min-height: 110px;"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="tools_and_technologies">Tech Stack / Tools</label>
+            <textarea id="tools_and_technologies" name="tools_and_technologies" class="form-textarea" style="min-height: 110px;"></textarea>
+          </div>
+        </div>
+
+        <div class="form-group" style="background: #f8fafc; padding: 1.5rem; border-radius: 16px; border: 1px solid #f1f5f9;">
+          <label class="form-label" for="requirements" style="color: var(--primary-green);">ATS Scanning Keywords</label>
+          <textarea id="requirements" name="requirements" class="form-textarea" style="min-height: 110px;" required></textarea>
+          <div class="helper-text">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            Our NLP engine uses these exact keywords to rank incoming resumes.
+          </div>
+        </div>
+
+        <div style="margin-top: 1rem;">
+          <button type="submit" class="publish-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Release Job Posting
           </button>
         </div>
       </form>
     </article>
   </section>
 
-  <aside class="stack">
-    <div class="card pad-lg" style="background: #f0fdf4; border-color: #bcf0da;">
-      <h3 style="margin: 0 0 1rem 0; color: #166534; font-size: 1.1rem;">ATS Pro-Tips</h3>
-      <ul style="padding-left: 1.25rem; font-size: 0.9rem; color: #166534; line-height: 1.6;">
-        <li>Be specific with technical tools (e.g., "React 18" instead of just "Frontend").</li>
-        <li>Include "soft skills" like "Leadership" or "Communication" if they are critical.</li>
-        <li>The AI prioritizes keywords found in the <strong>Key Requirements</strong> section.</li>
+  <aside class="stack" style="gap: 2rem;">
+    <div class="tip-card">
+      <div class="tip-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"/><path d="M12 16V12"/><path d="M12 8H12.01"/></svg>
+        ATS Pro-Tips
+      </div>
+      <ul class="tip-list">
+        <li class="tip-item">
+          <div class="tip-icon">✓</div>
+          <div><strong>Be Granular:</strong> Use specific versions (e.g. "React 18", "Python 3.11") for better matching precision.</div>
+        </li>
+        <li class="tip-item">
+          <div class="tip-icon">✓</div>
+          <div><strong>Soft Skills:</strong> Include power-words like "Cross-functional", "Architecture" or "Stakeholder management".</div>
+        </li>
+        <li class="tip-item">
+          <div class="tip-icon">✓</div>
+          <div><strong>Core Logic:</strong> The AI prioritizes keywords found in the <strong>ATS Scanning</strong> section over the description.</div>
+        </li>
       </ul>
     </div>
 
-    <div class="card pad-lg" style="margin-top: 2rem;">
-      <h4 style="margin: 0 0 1rem 0; font-size: 1rem;">Example Key Requirements</h4>
-      <code style="display: block; background: #f8fafc; padding: 1rem; border-radius: 8px; font-size: 0.85rem; color: #475569; border: 1px solid #e2e8f0;">
-        Python, Django, REST API, AWS S3, PostgreSQL, Unit Testing, Docker, Git, Problem Solving, Team Collaboration
-      </code>
+    <div class="tip-card" style="background: rgba(248, 250, 252, 0.65);">
+      <div class="tip-title" style="color: #64748b; font-size: 0.9rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        Keyword Examples
+      </div>
+      <p style="font-size: 0.85rem; color: #64748b; margin: 0;">Copy/Paste these patterns for best results:</p>
+      <div class="example-code">
+        Python, Django, REST API, AWS S3, PostgreSQL, Unit Testing, Docker, Git, Problem Solving, Agile
+      </div>
     </div>
   </aside>
 </div>

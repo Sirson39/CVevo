@@ -48,7 +48,13 @@
     {% if user.is_authenticated %}
     <button class="user">
       <span class="avatar">{{ user.full_name|default:user.email|slice:":1"|upper }}</span>
-      <span class="user-name">{{ user.full_name|default:user.email|slice:":15" }}</span>
+      <span class="user-name">
+        {% if user.role == 'hr' and user.hr_profile.company %}
+          {{ user.hr_profile.company|slice:":15" }}
+        {% else %}
+          {{ user.full_name|default:user.email|slice:":15" }}
+        {% endif %}
+      </span>
     </button>
     {% else %}
     <div class="topbar-actions" style="display: flex; gap: 0.5rem; align-items: center; margin-left: 1rem;">

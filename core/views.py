@@ -887,6 +887,10 @@ def hr_create_job(request):
     if request.method == "POST":
         title = request.POST.get("title")
         description = request.POST.get("description")
+        required_skills = request.POST.get("required_skills")
+        experience_requirements = request.POST.get("experience_requirements")
+        education_requirements = request.POST.get("education_requirements")
+        tools_and_technologies = request.POST.get("tools_and_technologies")
         requirements = request.POST.get("requirements")
         
         if title and description:
@@ -894,6 +898,10 @@ def hr_create_job(request):
                 hr=request.user.hr_profile,
                 title=title,
                 description=description,
+                required_skills=required_skills,
+                experience_requirements=experience_requirements,
+                education_requirements=education_requirements,
+                tools_and_technologies=tools_and_technologies,
                 requirements=requirements
             )
             messages.success(request, f"Job post '{title}' created successfully!")

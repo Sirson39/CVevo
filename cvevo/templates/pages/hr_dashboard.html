@@ -6,10 +6,17 @@
 <!-- Use same dashboard styles for consistency -->
 <link rel="stylesheet" href="{% static 'cvevo/css/dashboard.css' %}">
 <style>
+  .dash-head {
+    margin-bottom: 2.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
   .hr-stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1.25rem;
+    margin-top: 0.5rem;
     margin-bottom: 2rem;
   }
   .status-badge {
@@ -26,8 +33,10 @@
 {% block content %}
 <div class="dash-head">
   <div>
-    <h1 class="dash-welcome">HR Overview</h1>
-    <p class="dash-sub">Track your candidate pipeline and job performance.</p>
+    <h1 class="dash-welcome">{{ request.user.hr_profile.company|default:"HR Overview" }}</h1>
+    <p class="dash-sub">
+      <strong>{{ request.user.full_name }}</strong> &bull; {{ request.user.hr_profile.role }} &bull; {{ request.user.email }}
+    </p>
   </div>
   <div class="dash-actions">
     <a href="{% url 'hr_create_job' %}" class="btn btn-primary" style="background: #10b981; border: none;">

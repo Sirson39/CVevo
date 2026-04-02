@@ -130,6 +130,8 @@ class ReferenceForm(forms.ModelForm):
 
 class ProfileUpdateForm(forms.ModelForm):
     email = forms.EmailField()
+    company = forms.CharField(max_length=120, required=False, label="Company Name")
+    role_title = forms.CharField(max_length=120, required=False, label="Job Title / Position")
 
     class Meta:
         model = User
@@ -139,12 +141,30 @@ class ProfileUpdateForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if self.instance and self.instance.pk:
             self.fields["email"].initial = self.instance.email
+            if hasattr(self.instance, 'hr_profile'):
+                self.fields["company"].initial = self.instance.hr_profile.company
+                self.fields["role_title"].initial = self.instance.hr_profile.role
+                self.fields["company"].required = True
+                self.fields["role_title"].required = True
+            else:
+                self.fields["company"].widget = forms.HiddenInput()
+                self.fields["role_title"].widget = forms.HiddenInput()
 
     def clean_email(self):
         email = self.cleaned_data.get("email", "").strip().lower()
         if User.objects.filter(email__iexact=email).exclude(pk=self.instance.pk).exists():
             raise ValidationError("A user with this email already exists.")
         return email
+
+    def save(self, commit=True):
+        user = super().save(commit=commit)
+        if hasattr(user, 'hr_profile'):
+            hr_profile = user.hr_profile
+            hr_profile.company = self.cleaned_data.get("company")
+            hr_profile.role = self.cleaned_data.get("role_title")
+            hr_profile.full_name = user.full_name
+            hr_profile.save()
+        return user
 
 
 class SupportTicketForm(forms.Form):
