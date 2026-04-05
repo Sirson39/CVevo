@@ -17,10 +17,10 @@
 
   <!-- Scrollable menu area -->
   <div class="side-scroll">
-    {% if user.is_staff %}
-    <!-- STAFF / INTERNAL -->
+    {% if user.role == 'admin' %}
+    <!-- STAFF / INTERNAL - PREMIUM COMMAND CENTER SIDEBAR -->
     <div class="side-section">
-      <div class="side-title">INTERNAL ADMIN</div>
+      <div class="side-title">DASHBOARD</div>
       <nav class="nav">
         <a class="nav-item {% if request.resolver_match.url_name == 'super_admin_dashboard' %}active{% endif %}"
            href="{% url 'super_admin_dashboard' %}">
@@ -31,13 +31,77 @@
           </span>
           <span class="nav-text">Command Center</span>
         </a>
+      </nav>
+    </div>
+
+    <div class="side-section">
+      <div class="side-title">USER MANAGEMENT</div>
+      <nav class="nav">
+        <a class="nav-item" href="/admin/core/user/">
+          <span class="nav-ico">👥</span>
+          <span class="nav-text">All Users</span>
+        </a>
+        <a class="nav-item" href="/admin/core/jobseekerprofile/">
+          <span class="nav-ico">🎯</span>
+          <span class="nav-text">Jobseekers</span>
+        </a>
+        <a class="nav-item" href="/admin/core/hrprofile/">
+          <span class="nav-ico">🏢</span>
+          <span class="nav-text">HR Teams</span>
+        </a>
+      </nav>
+    </div>
+
+    <div class="side-section">
+      <div class="side-title">RESUME MANAGEMENT</div>
+      <nav class="nav">
+        <a class="nav-item" href="/admin/core/resume/">
+          <span class="nav-ico">📄</span>
+          <span class="nav-text">All Resumes</span>
+        </a>
+      </nav>
+    </div>
+
+    <div class="side-section">
+      <div class="side-title">ATS ANALYTICS</div>
+      <nav class="nav">
+        <a class="nav-item" href="/admin/core/atsresult/">
+          <span class="nav-ico">📊</span>
+          <span class="nav-text">ATS Results</span>
+        </a>
+      </nav>
+    </div>
+
+    <div class="side-section">
+      <div class="side-title">JOB MANAGEMENT</div>
+      <nav class="nav">
+        <a class="nav-item" href="/admin/core/jobpost/">
+          <span class="nav-ico">💼</span>
+          <span class="nav-text">Job Posts</span>
+        </a>
+      </nav>
+    </div>
+
+    <div class="side-section">
+      <div class="side-title">SUPPORT CENTER</div>
+      <nav class="nav">
+        <a class="nav-item" href="/admin/core/supportrequest/">
+          <span class="nav-ico">🎫</span>
+          <span class="nav-text">Support Tickets</span>
+        </a>
+        <a class="nav-item" href="/admin/core/contactmessage/">
+          <span class="nav-ico">💬</span>
+          <span class="nav-text">Contact Messages</span>
+        </a>
+      </nav>
+    </div>
+
+
+    <div class="side-section">
+      <div class="side-title">DATABASE TOOLS</div>
+      <nav class="nav">
         <a class="nav-item" href="/admin/" target="_blank">
-          <span class="nav-ico" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-              <path d="M9 3v18m6-18v18M3 9h18M3 15h18"/>
-            </svg>
-          </span>
+          <span class="nav-ico">🛠️</span>
           <span class="nav-text">DB Management</span>
         </a>
       </nav>

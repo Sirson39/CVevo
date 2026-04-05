@@ -1,0 +1,13 @@
+<svg width="120" height="40" viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg">
+  <!-- Brand Icon -->
+  <g transform="translate(0, 5)">
+    <rect x="0" y="0" width="30" height="30" rx="10" fill="rgba(47, 143, 122, 0.12)" />
+    <path d="M7 5h7l4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" stroke="#2f8f7a" stroke-width="2" fill="none" />
+    <path d="M9 15h6" stroke="#2f8f7a" stroke-width="2" stroke-linecap="round" />
+    <path d="M9 19h4" stroke="#2f8f7a" stroke-width="2" stroke-linecap="round" />
+  </g>
+  <!-- Brand Text -->
+  <text x="38" y="28" font-family="Plus Jakarta Sans, Inter, sans-serif" font-weight="800" font-size="22">
+    <tspan fill="#2f8f7a">CV</tspan><tspan fill="#ea8e5c">evo</tspan>
+  </text>
+</svg>

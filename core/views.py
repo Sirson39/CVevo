@@ -1104,16 +1104,52 @@ def internal_admin_dashboard(request):
     scans_30d = ATSResult.objects.filter(analyzed_at__gte=thirty_days_ago).count()
     total_jobs = JobPost.objects.count()
     
+    # Calculate more metrics for Command Center
+    from django.db.models import Avg, Max, Min, Count
+    from collections import Counter
+
+    avg_score = ATSResult.objects.aggregate(Avg('score'))['score__avg'] or 0
+    max_score = ATSResult.objects.aggregate(Max('score'))['score__max'] or 0
+    min_score = ATSResult.objects.aggregate(Min('score'))['score__min'] or 0
+
+    # ATS Score distribution
+    score_labels = ['Low (0-40)', 'Medium (40-70)', 'High (70-100)']
+    low_scores = ATSResult.objects.filter(score__lt=40).count()
+    med_scores = ATSResult.objects.filter(score__gte=40, score__lt=70).count()
+    high_scores = ATSResult.objects.filter(score__gte=70).count()
+    score_data = [low_scores, med_scores, high_scores]
+
+    # Daily counts for charts (last 14 days for more data)
+    fourteen_days_ago = now - timedelta(days=14)
+    days_list = [(now - timedelta(days=i)).date() for i in range(13, -1, -1)]
+    days_labels = [d.strftime("%b %d") for d in days_list]
+    
+    jobseeker_growth = []
+    hr_growth = []
+    scans_growth = []
+    
+    for d in days_list:
+        jobseeker_growth.append(User.objects.filter(role='jobseeker', date_joined__date=d).count())
+        hr_growth.append(User.objects.filter(role='hr', date_joined__date=d).count())
+        scans_growth.append(ATSResult.objects.filter(analyzed_at__date=d).count())
+
+    # Job Metrics
+    # Active jobs (last 30d) vs total
+    active_jobs = JobPost.objects.filter(created_at__gte=thirty_days_ago).count()
+    # Jobs with no applicants
+    from django.db.models import Count
+    jobs_list_all = JobPost.objects.annotate(num_applicants=Count('ats_results')).order_by('-created_at')
+    no_applicants_count = jobs_list_all.filter(num_applicants=0).count()
+    recent_jobs_list = jobs_list_all[:5]
+
     # Support Stats
     from .models import SupportRequest
     pending_support = SupportRequest.objects.filter(is_resolved=False).count()
     recent_support = SupportRequest.objects.select_related('user').order_by('-created_at')[:5]
     
     # Recent Platform Feed
-    recent_activity = []
-    # Mix of recent user registrations, resume uploads, and scans
-    recent_users = User.objects.order_by('-date_joined')[:3]
-    recent_scans = ATSResult.objects.select_related('resume', 'job_post').order_by('-analyzed_at')[:3]
+    recent_users = User.objects.order_by('-date_joined')[:5]
+    recent_scans = ATSResult.objects.select_related('resume', 'job_post').order_by('-analyzed_at')[:5]
     
     context = {
         "stats": {
@@ -1125,8 +1161,24 @@ def internal_admin_dashboard(request):
             "total_scans": total_scans,
             "scans_30d": scans_30d,
             "total_jobs": total_jobs,
+            "active_jobs": active_jobs,
+            "no_applicants": no_applicants_count,
             "pending_support": pending_support,
+            "avg_score": round(avg_score, 1),
+            "max_score": round(max_score, 1),
+            "min_score": round(min_score, 1),
         },
+        "score_distribution": {
+            "labels": score_labels,
+            "data": score_data,
+        },
+        "growth_chart": {
+            "labels": days_labels,
+            "jobseekers": jobseeker_growth,
+            "hr": hr_growth,
+            "scans": scans_growth,
+        },
+        "recent_jobs": recent_jobs_list,
         "recent_support": recent_support,
         "recent_users": recent_users,
         "recent_scans": recent_scans,

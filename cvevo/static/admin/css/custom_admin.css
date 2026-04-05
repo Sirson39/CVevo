@@ -1,0 +1,77 @@
+/* CVevo Admin: Atomic Casing & Branding Override */
+
+/* 1. Global Reset for Admin Panel - EVERYTHING */
+.main-header *, 
+.brand-link *, 
+.nav-sidebar *, 
+.card-title, 
+.content-header *, 
+.btn, 
+.table *, 
+.badge,
+.sidebar *,
+.nav-text,
+.breadcrumb *,
+.main-header .navbar-nav *,
+.card-header *,
+.timeline *,
+.recent-actions *,
+section.content * {
+    text-transform: none !important;
+    letter-spacing: normal !important;
+}
+
+/* 2. Target Table Rows / Emails specifically */
+.table td, 
+.table td a, 
+.table td span,
+.table td div,
+.field-email,
+.field-email a,
+.field-__str__, 
+.field-__str__ a,
+.column-email,
+.column-__str__ {
+    text-transform: none !important;
+    letter-spacing: normal !important;
+}
+
+/* 3. Force lowercase for any email fields specifically */
+[class*="email"] {
+    text-transform: lowercase !important;
+}
+
+/* 4. Fix Brand Area (Using SVG Logo from base.html) */
+.brand-link {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    padding: 0.75rem 1rem !important;
+    height: auto !important;
+}
+
+.brand-link .brand-image {
+    max-height: 34px !important;
+    width: auto !important;
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+    opacity: 1 !important;
+    float: none !important; /* Jazzmin default is float:left */
+}
+
+/* Hide redundant brand text since it's included in the SVG */
+.brand-link .brand-text {
+    display: none !important;
+}
+
+/* Hide the site_header/site_brand space if it renders */
+.brand-link .admin-site-header {
+    display: none !important;
+}
+
+/* 5. Target List-View results explicitly */
+.results table td,
+.results table td a,
+.results table td span {
+    text-transform: none !important;
+}

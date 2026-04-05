@@ -51,9 +51,9 @@ INSTALLED_APPS = [
 
 JAZZMIN_SETTINGS = {
     "site_title": "CVevo Admin",
-    "site_header": "CVevo Platform Control",
-    "site_brand": "CVevo Admin",
-    "site_logo": "cvevo/img/logo.png",
+    "site_header": " ",
+    "site_brand": " ",
+    "site_logo": "cvevo/img/admin_logo.svg",
     "login_logo": None,
     "login_logo_dark": None,
     "site_logo_classes": "img-circle",
@@ -81,17 +81,15 @@ JAZZMIN_SETTINGS = {
     "default_icon_parents": "fas fa-folder",
     "default_icon_children": "fas fa-caret-right",
     "related_modal_active": True,
-    "custom_css": None,
+    "custom_css": "admin/css/custom_admin.css",
     "custom_js": None,
     "show_sidebar": True,
     "navigation_expanded": True,
     "topmenu_links": [
         {"name": "Internal Dashboard", "url": "super_admin_dashboard", "permissions": ["core.view_user"]},
-        {"name": "Support", "url": "https://cvevo.ai/support", "new_window": True},
         {"model": "core.User"},
     ],
     "usermenu_links": [
-        {"name": "Support", "url": "https://github.com/farridav/django-jazzmin/issues", "new_window": True},
         {"model": "core.User"},
     ],
 }
