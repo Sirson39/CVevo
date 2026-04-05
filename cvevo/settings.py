@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "jazzmin",  # Better admin UI
     "core.apps.CoreConfig",
     'django.contrib.admin',
     'django.contrib.auth',
@@ -47,6 +48,85 @@ INSTALLED_APPS = [
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
 ]
+
+JAZZMIN_SETTINGS = {
+    "site_title": "CVevo Admin",
+    "site_header": "CVevo Platform Control",
+    "site_brand": "CVevo Admin",
+    "site_logo": "cvevo/img/logo.png",
+    "login_logo": None,
+    "login_logo_dark": None,
+    "site_logo_classes": "img-circle",
+    "add_section_at_top": True,
+    "show_ui_builder": False, # Hide in production/final
+    "changeform_format": "horizontal_tabs",
+    "navigation_expanded": True,
+    "hide_apps": [],
+    "hide_models": [],
+    "order_with_respect_to": ["core.User", "core.JobseekerProfile", "core.HRProfile", "core.Resume", "core.JobPost", "core.ATSResult"],
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user-shield",
+        "auth.Group": "fas fa-users",
+        "core.User": "fas fa-user-lock",
+        "core.JobseekerProfile": "fas fa-id-badge",
+        "core.HRProfile": "fas fa-briefcase",
+        "core.Resume": "fas fa-file-invoice",
+        "core.JobPost": "fas fa-bullhorn",
+        "core.ATSResult": "fas fa-chart-line",
+        "core.ContactMessage": "fas fa-comment-dots",
+        "core.SupportRequest": "fas fa-ticket-alt",
+        "core.Notification": "fas fa-bell",
+    },
+    "default_icon_parents": "fas fa-folder",
+    "default_icon_children": "fas fa-caret-right",
+    "related_modal_active": True,
+    "custom_css": None,
+    "custom_js": None,
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "topmenu_links": [
+        {"name": "Internal Dashboard", "url": "super_admin_dashboard", "permissions": ["core.view_user"]},
+        {"name": "Support", "url": "https://cvevo.ai/support", "new_window": True},
+        {"model": "core.User"},
+    ],
+    "usermenu_links": [
+        {"name": "Support", "url": "https://github.com/farridav/django-jazzmin/issues", "new_window": True},
+        {"model": "core.User"},
+    ],
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "navbar_small_text": False,
+    "footer_small_text": False,
+    "body_small_text": False,
+    "brand_small_text": False,
+    "brand_colour": "navbar-indigo",
+    "accent": "accent-indigo",
+    "navbar": "navbar-white navbar-light",
+    "no_navbar_border": False,
+    "navbar_fixed": True,
+    "layout_boxed": False,
+    "footer_fixed": False,
+    "sidebar_fixed": True,
+    "sidebar": "sidebar-dark-indigo",
+    "sidebar_nav_small_text": False,
+    "sidebar_disable_expand": False,
+    "sidebar_nav_child_indent": True,
+    "sidebar_nav_compact_style": False,
+    "sidebar_nav_legacy_style": False,
+    "sidebar_nav_flat_style": False,
+    "theme": "lux", # Modern, high-end typography
+    "dark_mode_theme": None,
+    "button_classes": {
+        "primary": "btn-primary",
+        "secondary": "btn-secondary",
+        "info": "btn-info",
+        "warning": "btn-warning",
+        "danger": "btn-danger",
+        "success": "btn-success"
+    }
+}
 
 SITE_ID = 1
 

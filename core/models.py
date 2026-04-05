@@ -25,7 +25,7 @@ class User(AbstractUser):
     full_name = models.CharField(max_length=120)
     role = models.CharField(
         max_length=20, 
-        choices=[('jobseeker', 'Jobseeker'), ('hr', 'HR')], 
+        choices=[('jobseeker', 'Jobseeker'), ('hr', 'HR'), ('admin', 'Admin')], 
         default='jobseeker'
     )
     is_verified = models.BooleanField(default=False)
@@ -159,7 +159,8 @@ class Resume(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.jobseeker.full_name} - {self.filename}"
+        owner = self.jobseeker.full_name if self.jobseeker else "Bulk Upload"
+        return f"{owner} - {self.filename}"
 
 
 class ParsedResumeData(models.Model):
@@ -186,6 +187,12 @@ class ATSResult(models.Model):
     matched_keywords = models.TextField(blank=True)
     missing_keywords = models.TextField(blank=True)
     analyzed_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=50, choices=[
+        ('Applied', 'Applied'),
+        ('Shortlisted', 'Shortlisted'),
+        ('Interviewing', 'Interviewing'),
+        ('Rejected', 'Rejected')
+    ], default='Applied')
     
     @property
     def matched_list(self):
@@ -220,7 +227,9 @@ class ATSResult(models.Model):
             return self.feedback
 
     def __str__(self):
-        return f"{self.resume.jobseeker.full_name} match for {self.job_post.title}: {self.score}%"
+        job_title = self.job_post.title if self.job_post else self.custom_job_title or "Quick Scan"
+        candidate_name = self.resume.jobseeker.full_name if self.resume.jobseeker else "Candidate"
+        return f"{candidate_name} match for {job_title}: {self.score}%"
 
 class Notification(models.Model):
     TYPE_CHOICES = [('success','Success'),('info','Info'),('warning','Warning'),('error','Error')]

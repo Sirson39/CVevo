@@ -63,10 +63,12 @@ urlpatterns = [
     path("hr/resume-upload/",     views.hr_resume_upload,     name="hr_resume_upload"),
     path("hr/ranking/",           views.hr_candidate_ranking, name="hr_candidate_ranking"),
     path("hr/candidate/",         views.hr_candidate_detail,  name="hr_candidate_detail"),
+    path("hr/candidate/update-status/", views.hr_update_candidate_status, name="hr_update_status"),
     path("hr/reports/",           views.hr_reports_export,    name="hr_reports_export"),
     path("hr/reports/export-csv/", views.hr_export_csv,       name="hr_export_csv"),
 
     # Notifications
     path("notifications/read/",   views.mark_notifications_read, name="mark_notifications_read"),
     path("export/pdf/notify/",    views.notify_pdf_export, name="notify_pdf_export"),
+    path("internal/dashboard/", views.internal_admin_dashboard, name="super_admin_dashboard"),
 ]

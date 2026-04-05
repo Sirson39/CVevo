@@ -44,6 +44,57 @@ def contact_view(request):
 def organizations(request):
     return render(request, "organization.html")
 
+from django.urls import reverse
+
+@hr_required
+def hr_update_candidate_status(request):
+    """Recruitment workflow: Updates status and notifies candidate."""
+    if request.method == "POST":
+        result_id = request.POST.get("result_id")
+        action = request.POST.get("action")
+        
+        # Mapping button actions to DB statuses
+        status_map = {
+            'shortlist': 'Shortlisted',
+            'interview': 'Interviewing',
+            'reject': 'Rejected'
+        }
+        new_status = status_map.get(action)
+        
+        if not new_status:
+            messages.error(request, "Invalid recruitment action.")
+            return redirect('hr_dashboard')
+
+        result = get_object_or_404(ATSResult.objects.select_related('resume', 'resume__jobseeker', 'job_post'), pk=result_id, job_post__hr=request.user.hr_profile)
+        
+        result.status = new_status
+        result.save()
+        
+        # Notify the Jobseeker
+        if result.resume.jobseeker and result.resume.jobseeker.user:
+            company_name = request.user.hr_profile.company or "The Company"
+            
+            notif_messages = {
+                'Shortlisted': f"Great news! Your application for '{result.job_post.title}' at {company_name} has been shortlisted.",
+                'Interviewing': f"Interview Request: {company_name} would like to interview you for the '{result.job_post.title}' role.",
+                'Rejected': f"Thank you for your interest in the '{result.job_post.title}' role at {company_name}. We have decided to move forward with other candidates."
+            }
+            
+            notif_icons = { 'Shortlisted': '✨', 'Interviewing': '📅', 'Rejected': '❌' }
+            notif_types = { 'Shortlisted': 'success', 'Interviewing': 'info', 'Rejected': 'warning' }
+            
+            Notification.push(
+                result.resume.jobseeker.user, 
+                notif_messages[new_status], 
+                icon=notif_icons[new_status], 
+                notif_type=notif_types[new_status]
+            )
+
+        messages.success(request, f"Candidate status updated to {new_status}.")
+        return redirect(f"{reverse('hr_candidate_detail')}?result_id={result_id}")
+        
+    return redirect('hr_dashboard')
+
 @hr_required
 def hr_candidate_detail(request):
     hr = request.user.hr_profile
@@ -874,12 +925,27 @@ def hr_dashboard(request):
         top_score=Max('ats_results__score')
     ).order_by('-created_at')[:5]
 
+    # 3. Selection Funnel Logic (Real Data)
+    total_apps = ATSResult.objects.filter(job_post__hr=hr).count()
+    funnel = { 'apps': 0, 'screening': 0, 'interviewing': 0 }
+    
+    if total_apps > 0:
+        scr_count = ATSResult.objects.filter(job_post__hr=hr, status__in=['Shortlisted', 'Interviewing']).count()
+        int_count = ATSResult.objects.filter(job_post__hr=hr, status='Interviewing').count()
+        
+        funnel = {
+            'apps': 100,
+            'screening': round((scr_count / total_apps) * 100),
+            'interviewing': round((int_count / total_apps) * 100)
+        }
+
     return render(request, "pages/hr_dashboard.html", {
         "open_jobs_count": open_jobs_count,
         "total_candidates": total_candidates,
         "avg_score": avg_score,
         "shortlisted_count": shortlisted_count,
         "active_jobs": active_jobs,
+        "funnel": funnel,
     })
 
 @hr_required
@@ -1011,6 +1077,62 @@ def export_resume_docx(request):
     
     Notification.push(request.user, "DOCX exported successfully.", icon="📥", notif_type="success")
     return response
+
+from django.contrib.admin.views.decorators import staff_member_required
+
+@staff_member_required
+def internal_admin_dashboard(request):
+    """
+    CVevo Platform Command Center.
+    High-level metrics for superusers to manage the system.
+    """
+    from django.utils import timezone
+    from datetime import timedelta
+    
+    now = timezone.now()
+    thirty_days_ago = now - timedelta(days=30)
+    
+    # User Stats
+    total_users = User.objects.count()
+    jobseekers_count = User.objects.filter(role='jobseeker').count()
+    hr_count = User.objects.filter(role='hr').count()
+    new_users_30d = User.objects.filter(date_joined__gte=thirty_days_ago).count()
+    
+    # Platform Activity
+    total_resumes = Resume.objects.count()
+    total_scans = ATSResult.objects.count()
+    scans_30d = ATSResult.objects.filter(analyzed_at__gte=thirty_days_ago).count()
+    total_jobs = JobPost.objects.count()
+    
+    # Support Stats
+    from .models import SupportRequest
+    pending_support = SupportRequest.objects.filter(is_resolved=False).count()
+    recent_support = SupportRequest.objects.select_related('user').order_by('-created_at')[:5]
+    
+    # Recent Platform Feed
+    recent_activity = []
+    # Mix of recent user registrations, resume uploads, and scans
+    recent_users = User.objects.order_by('-date_joined')[:3]
+    recent_scans = ATSResult.objects.select_related('resume', 'job_post').order_by('-analyzed_at')[:3]
+    
+    context = {
+        "stats": {
+            "total_users": total_users,
+            "jobseekers": jobseekers_count,
+            "hr": hr_count,
+            "new_users_30d": new_users_30d,
+            "total_resumes": total_resumes,
+            "total_scans": total_scans,
+            "scans_30d": scans_30d,
+            "total_jobs": total_jobs,
+            "pending_support": pending_support,
+        },
+        "recent_support": recent_support,
+        "recent_users": recent_users,
+        "recent_scans": recent_scans,
+    }
+    
+    return render(request, "pages/super_admin_dashboard.html", context)
 
 
 @jobseeker_required
