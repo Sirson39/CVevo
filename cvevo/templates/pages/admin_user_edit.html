@@ -1,0 +1,113 @@
+{% extends "base_app.html" %}
+{% load static %}
+
+{% block title %}Edit User | CVevo Admin{% endblock %}
+
+{% block content %}
+<div class="admin-dashboard-container">
+    <div class="admin-header">
+        <div class="header-left">
+            <h1>Edit User account</h1>
+            <p>Modifying details for: <strong>{{ edit_user.email }}</strong></p>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'admin_users' %}" class="admin-btn outline">
+                Cancel
+            </a>
+        </div>
+    </div>
+
+    <div class="grid-card full-width">
+        <form method="POST" class="admin-form">
+            {% csrf_token %}
+            <div class="form-row">
+                <div class="form-group">
+                    <label id="fullname-label">{% if edit_user.role == 'hr' %}Company Name{% else %}Full Name{% endif %}</label>
+                    <input type="text" name="full_name" value="{{ edit_user.full_name }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" name="email" value="{{ edit_user.email }}" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Account Role</label>
+                    <select name="role" onchange="updateLabel(this.value)">
+                        <option value="jobseeker" {% if edit_user.role == "jobseeker" %}selected{% endif %}>Jobseeker</option>
+                        <option value="hr" {% if edit_user.role == "hr" %}selected{% endif %}>HR Recruiter</option>
+                        <option value="admin" {% if edit_user.role == "admin" %}selected{% endif %}>Admin</option>
+                    </select>
+                </div>
+                <div class="form-group checkbox-group">
+                    <label class="switch">
+                        <input type="checkbox" name="is_active" {% if edit_user.is_active %}checked{% endif %}>
+                        <span class="slider round"></span>
+                    </label>
+                    <span>Account Active</span>
+                </div>
+            </div>
+
+            <div class="form-footer">
+                <button type="submit" class="admin-btn primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function updateLabel(val) {
+        const label = document.getElementById('fullname-label');
+        if (val === 'hr') {
+            label.textContent = 'Company Name';
+        } else {
+            label.textContent = 'Full Name';
+        }
+    }
+</script>
+
+<style>
+    .admin-dashboard-container { padding: 40px; max-width: 900px; margin: 0 auto; }
+    .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    .admin-header h1 { font-size: 1.8rem; font-weight: 800; color: #1e293b; }
+    .admin-header p { color: #64748b; margin-top: 5px; }
+
+    .admin-form { display: flex; flex-direction: column; gap: 24px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
+    .form-group label { font-size: 0.85rem; font-weight: 700; color: #475569; }
+    
+    .form-group input, .form-group select {
+        padding: 12px 16px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        font-family: inherit;
+        font-size: 0.95rem;
+        transition: 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus {
+        outline: none;
+        border-color: #6366f1;
+        background: #fff;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+
+    .checkbox-group { flex-direction: row; align-items: center; gap: 12px; margin-top: 25px; }
+    .form-footer { margin-top: 20px; border-top: 1px solid #f1f5f9; padding-top: 30px; display: flex; justify-content: flex-end; }
+    
+    .admin-btn { padding: 12px 24px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; border: none; font-family: inherit; text-decoration: none; display: inline-flex; align-items: center; }
+    .admin-btn.outline { background: #fff; border: 1px solid #e2e8f0; color: #475569; }
+    .admin-btn.primary { background: #1e293b; color: white; }
+    .admin-btn.primary:hover { background: #0f172a; transform: translateY(-1px); }
+
+    /* Toggle Switch */
+    .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 34px; }
+    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+    input:checked + .slider { background-color: #10b981; }
+    input:checked + .slider:before { transform: translateX(20px); }
+</style>
+{% endblock %}

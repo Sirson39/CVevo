@@ -11,8 +11,8 @@ from .forms import (
 from .models import JobseekerProfile, HRProfile, Resume, Education, Experience, Project, Skill, Certificate, Reference, ParsedResumeData, JobPost, ATSResult, Notification, ContactMessage
 from .utils import extract_text_from_pdf, extract_text_from_docx, parse_resume_text, calculate_ats_score, calculate_general_score
 from django.contrib.auth.decorators import login_required
-from .decorators import hr_required, jobseeker_required
-from django.db.models import Avg, Q
+from .decorators import hr_required, jobseeker_required, admin_required
+from django.db.models import Avg, Q, Count
 from django.utils import timezone
 
 User = get_user_model()
@@ -134,6 +134,11 @@ def hr_resume_upload(request):
             return redirect('hr_resume_upload')
             
         job_post = get_object_or_404(JobPost, pk=job_id, hr=hr)
+        
+        if job_post.status != 'Open' or job_post.is_expired:
+            job_post.update_status_if_expired() # Refresh status if needed
+            messages.error(request, "This job is closed and no longer accepting applications.")
+            return redirect('hr_resume_upload')
         
         if not files:
             messages.error(request, "Please select at least one resume file.")
@@ -582,11 +587,23 @@ def delete_skill(request, pk):
 @jobseeker_required
 def analyze_resume(request, resume_id):
     resume = get_object_or_404(Resume, pk=resume_id, jobseeker=request.user.jobseeker_profile)
-    job_posts = JobPost.objects.all().order_by('-created_at')
+    # Only show 'Open' jobs that are not expired
+    job_posts = JobPost.objects.filter(status='Open').order_by('-created_at')
+    
+    # Trigger status update for these jobs to be sure
+    for job in job_posts:
+        job.update_status_if_expired()
+    
+    # Re-fetch only truly open ones
+    job_posts = job_posts.filter(status='Open')
 
     if request.method == "POST":
         job_id = request.POST.get("job_id")
         job_post = get_object_or_404(JobPost, pk=job_id)
+
+        if job_post.status != 'Open' or job_post.is_expired:
+            messages.error(request, "This job is closed and no longer accepting applications.")
+            return redirect('analyze_resume', resume_id=resume_id)
 
         # Get parsed text
         parsed_data = getattr(resume, 'parsed_data', None)
@@ -905,6 +922,10 @@ def select_template(request, template_name):
 def hr_dashboard(request):
     hr = request.user.hr_profile
     
+    # 0. Update status of expired jobs
+    for job in JobPost.objects.filter(hr=hr, status='Open'):
+        job.update_status_if_expired()
+
     # 1. Dashboard Stats
     open_jobs_count = JobPost.objects.filter(hr=hr, status='Open').count()
     
@@ -958,6 +979,7 @@ def hr_create_job(request):
         education_requirements = request.POST.get("education_requirements")
         tools_and_technologies = request.POST.get("tools_and_technologies")
         requirements = request.POST.get("requirements")
+        deadline = request.POST.get("deadline")
         
         if title and description:
             JobPost.objects.create(
@@ -968,7 +990,8 @@ def hr_create_job(request):
                 experience_requirements=experience_requirements,
                 education_requirements=education_requirements,
                 tools_and_technologies=tools_and_technologies,
-                requirements=requirements
+                requirements=requirements,
+                deadline=deadline if deadline else None
             )
             messages.success(request, f"Job post '{title}' created successfully!")
             Notification.push(request.user, f"Job post '{title}' created.", icon="💼", notif_type="success")
@@ -981,6 +1004,11 @@ def hr_create_job(request):
 @hr_required
 def hr_manage_jobs(request):
     hr = request.user.hr_profile
+    
+    # Update status of expired jobs
+    for job in JobPost.objects.filter(hr=hr, status='Open'):
+        job.update_status_if_expired()
+
     from django.db.models import Count, Max
     jobs = JobPost.objects.filter(hr=hr).annotate(
         candidate_count=Count('ats_results', distinct=True),
@@ -1078,9 +1106,86 @@ def export_resume_docx(request):
     Notification.push(request.user, "DOCX exported successfully.", icon="📥", notif_type="success")
     return response
 
-from django.contrib.admin.views.decorators import staff_member_required
 
-@staff_member_required
+@admin_required
+def admin_edit_user(request, pk):
+    """
+    Dashboard-native user editing.
+    """
+    edit_user = get_object_or_404(User, pk=pk)
+    if request.method == "POST":
+        edit_user.full_name = request.POST.get("full_name", edit_user.full_name)
+        edit_user.email = request.POST.get("email", edit_user.email)
+        # Handle role and activity
+        edit_user.role = request.POST.get("role", edit_user.role)
+        edit_user.is_active = request.POST.get("is_active") == "on"
+        edit_user.save()
+        messages.success(request, f"User {edit_user.email} updated successfully.")
+        return redirect("admin_users")
+    
+    return render(request, "pages/admin_user_edit.html", {"edit_user": edit_user})
+
+
+@admin_required
+def admin_edit_job(request, pk):
+    """
+    Dashboard-native job listing moderator view.
+    """
+    job = get_object_or_404(JobPost, pk=pk)
+    applicants_count = ATSResult.objects.filter(job_post=job).count()
+    
+    if request.method == "POST":
+        job.title = request.POST.get("title", job.title)
+        job.status = request.POST.get("status", job.status)
+        job.admin_note = request.POST.get("admin_note", job.admin_note)
+        job.save()
+        messages.success(request, f"Job listing '{job.title}' updated.")
+        return redirect("admin_jobs")
+    
+    return render(request, "pages/admin_job_edit.html", {
+        "job": job,
+        "applicants_count": applicants_count
+    })
+
+
+@admin_required
+def admin_view_resume(request, pk):
+    """
+    Dashboard-native resume viewing.
+    """
+    resume = get_object_or_404(Resume, pk=pk)
+    return render(request, "pages/admin_resume_view.html", {"resume": resume})
+
+
+@admin_required
+def admin_create_user(request):
+    """
+    Dashboard-native user creation.
+    """
+    if request.method == "POST":
+        email = request.POST.get("email")
+        full_name = request.POST.get("full_name")
+        role = request.POST.get("role", "jobseeker")
+        password = request.POST.get("password", "CVevo@2026")
+        
+        if User.objects.filter(email=email).exists():
+            messages.error(request, f"User with email {email} already exists.")
+        else:
+            User.objects.create_user(
+                email=email,
+                full_name=full_name,
+                role=role,
+                password=password,
+                is_active=True
+            )
+            messages.success(request, f"User {email} created successfully.")
+            return redirect("admin_users")
+    
+    return render(request, "pages/admin_user_create.html")
+
+from .decorators import jobseeker_required, hr_required, admin_required
+
+@admin_required
 def internal_admin_dashboard(request):
     """
     CVevo Platform Command Center.
@@ -1140,16 +1245,17 @@ def internal_admin_dashboard(request):
     from django.db.models import Count
     jobs_list_all = JobPost.objects.annotate(num_applicants=Count('ats_results')).order_by('-created_at')
     no_applicants_count = jobs_list_all.filter(num_applicants=0).count()
-    recent_jobs_list = jobs_list_all[:5]
+    recent_jobs_list = jobs_list_all[:50] # Show more for explorer
 
     # Support Stats
     from .models import SupportRequest
-    pending_support = SupportRequest.objects.filter(is_resolved=False).count()
-    recent_support = SupportRequest.objects.select_related('user').order_by('-created_at')[:5]
+    pending_support_count = SupportRequest.objects.filter(is_resolved=False).count()
+    all_support_list = SupportRequest.objects.select_related('user').order_by('-created_at')[:100]
     
     # Recent Platform Feed
-    recent_users = User.objects.order_by('-date_joined')[:5]
-    recent_scans = ATSResult.objects.select_related('resume', 'job_post').order_by('-analyzed_at')[:5]
+    recent_users = User.objects.order_by('-date_joined')[:50] # Show more for explorer
+    recent_scans = ATSResult.objects.select_related('resume', 'job_post').order_by('-analyzed_at')[:50]
+    all_resumes = Resume.objects.select_related('jobseeker').order_by('-uploaded_at')[:100]
     
     context = {
         "stats": {
@@ -1163,7 +1269,7 @@ def internal_admin_dashboard(request):
             "total_jobs": total_jobs,
             "active_jobs": active_jobs,
             "no_applicants": no_applicants_count,
-            "pending_support": pending_support,
+            "pending_support": pending_support_count,
             "avg_score": round(avg_score, 1),
             "max_score": round(max_score, 1),
             "min_score": round(min_score, 1),
@@ -1178,13 +1284,182 @@ def internal_admin_dashboard(request):
             "hr": hr_growth,
             "scans": scans_growth,
         },
-        "recent_jobs": recent_jobs_list,
-        "recent_support": recent_support,
-        "recent_users": recent_users,
+        "all_users_list": recent_users,
+        "all_jobs_list": recent_jobs_list,
+        "all_resumes_list": all_resumes,
+        "all_support_list": all_support_list,
         "recent_scans": recent_scans,
     }
     
     return render(request, "pages/super_admin_dashboard.html", context)
+
+@admin_required
+def admin_delete_user(request, pk):
+    u = get_object_or_404(User, pk=pk)
+    if u.is_superuser:
+        messages.error(request, "Superusers cannot be deleted via dashboard.")
+    else:
+        u.delete()
+        messages.success(request, f"User {u.email} deleted.")
+    return redirect('super_admin_dashboard')
+
+@admin_required
+def admin_delete_job(request, pk):
+    job = get_object_or_404(JobPost, pk=pk)
+    job.delete()
+    messages.success(request, f"Job '{job.title}' deleted.")
+    return redirect('super_admin_dashboard')
+
+@admin_required
+def admin_delete_resume(request, pk):
+    resume = get_object_or_404(Resume, pk=pk)
+    resume.delete()
+    messages.success(request, f"Resume {resume.filename} deleted.")
+    return redirect('super_admin_dashboard')
+
+@admin_required
+def admin_resolve_support(request, pk):
+    from .models import SupportRequest
+    req = get_object_or_404(SupportRequest, pk=pk)
+    req.is_resolved = True
+    req.save()
+    messages.success(request, "Support request marked as resolved.")
+    return redirect('admin_support')
+
+@admin_required
+def admin_users_view(request):
+    """
+    Dedicated User Management Page with role distribution and growth stats.
+    """
+    users_list = User.objects.order_by('-date_joined')
+    jobseekers = User.objects.filter(role='jobseeker').count()
+    hr_users = User.objects.filter(role='hr').count()
+    admins = User.objects.filter(role='admin').count()
+    
+    # Role Chart Content
+    role_labels = ['Jobseekers', 'HR Users', 'Admins']
+    role_counts = [jobseekers, hr_users, admins]
+    
+    context = {
+        "users": users_list,
+        "show_stats": {
+            "Jobseekers": jobseekers,
+            "HR": hr_users,
+            "Admins": admins,
+            "Total": users_list.count()
+        },
+        "role_chart": {
+            "labels": role_labels,
+            "data": role_counts
+        }
+    }
+    return render(request, "pages/admin_users.html", context)
+
+@admin_required
+def admin_jobs_view(request):
+    """
+    Job Management with active/closed stats and applicant volume.
+    """
+    from django.db.models import Count
+    jobs_list = JobPost.objects.annotate(num_applicants=Count('ats_results')).order_by('-created_at')
+    active = jobs_list.filter(status='Open').count()
+    closed = jobs_list.filter(status='Closed').count()
+    
+    # Job Status Chart
+    status_labels = ['Active', 'Closed']
+    status_counts = [active, closed]
+    
+    context = {
+        "jobs": jobs_list,
+        "show_stats": {
+            "Active": active,
+            "Closed": closed,
+            "Total Listings": jobs_list.count()
+        },
+        "status_chart": {
+            "labels": status_labels,
+            "data": status_counts
+        }
+    }
+    return render(request, "pages/admin_jobs.html", context)
+
+@admin_required
+def admin_resumes_view(request):
+    """
+    Resume Analytics with source breakdown and upload trends.
+    """
+    resumes_list = Resume.objects.select_related('jobseeker').order_by('-uploaded_at')
+    
+    # Source breakdown
+    from django.db.models import Count
+    sources = Resume.objects.values('source').annotate(count=Count('id'))
+    source_labels = [s['source'] or 'Upload' for s in sources]
+    source_counts = [s['count'] for s in sources]
+    
+    context = {
+        "resumes": resumes_list,
+        "show_stats": {
+            "Total Resumes": resumes_list.count(),
+        },
+        "source_chart": {
+            "labels": source_labels,
+            "data": source_counts
+        }
+    }
+    return render(request, "pages/admin_resumes.html", context)
+
+@admin_required
+def admin_support_view(request):
+    """
+    Support Center with priority and resolution stats.
+    """
+    from .models import SupportRequest
+    tickets = SupportRequest.objects.select_related('user').order_by('-created_at')
+    resolved = tickets.filter(is_resolved=True).count()
+    pending = tickets.filter(is_resolved=False).count()
+    
+    context = {
+        "tickets": tickets,
+        "show_stats": {
+            "Pending": pending,
+            "Resolved": resolved,
+            "Total": tickets.count()
+        }
+    }
+    return render(request, "pages/admin_support.html", context)
+
+@admin_required
+def admin_ats_view(request):
+    """
+    ATS Analytics Page with score distribution and platform-wide performance.
+    """
+    ats_list = ATSResult.objects.select_related('resume', 'resume__jobseeker', 'job_post').order_by('-analyzed_at')
+    
+    # Dynamic Scoring Stats
+    avg_score = ats_list.aggregate(Avg('score'))['score__avg'] or 0
+    total_scans = ats_list.count()
+    
+    # Score Distribution (0-40, 40-70, 70-100)
+    low = ats_list.filter(score__lt=40).count()
+    mid = ats_list.filter(score__gte=40, score__lt=70).count()
+    high = ats_list.filter(score__gte=70).count()
+    
+    score_labels = ['Low (0-40)', 'Mid (40-70)', 'High (70-100)']
+    score_counts = [low, mid, high]
+    
+    context = {
+        "ats_results": ats_list,
+        "show_stats": {
+            "Avg Score": round(avg_score, 1),
+            "Total Scans": total_scans,
+            "Profiles Analyzed": ats_list.values('resume__jobseeker').distinct().count()
+        },
+        "score_chart": {
+            "labels": score_labels,
+            "data": score_counts
+        }
+    }
+    return render(request, "pages/admin_ats.html", context)
 
 
 @jobseeker_required
@@ -1254,3 +1529,12 @@ def hr_export_csv(request):
         ])
         
     return response
+
+
+@admin_required
+def admin_delete_support(request, pk):
+    """Delete a support ticket."""
+    ticket = get_object_or_404(SupportRequest, pk=pk)
+    ticket.delete()
+    messages.success(request, "Support ticket deleted.")
+    return redirect("admin_support")

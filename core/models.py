@@ -144,8 +144,23 @@ class JobPost(models.Model):
     education_requirements = models.TextField(blank=True)
     tools_and_technologies = models.TextField(blank=True, help_text="Specific tools or software")
     requirements = models.TextField(help_text="Expected keywords for ATS matching")
-    status = models.CharField(max_length=20, choices=[('Open', 'Open'), ('Closed', 'Closed')], default='Open')
+    status = models.CharField(max_length=20, choices=[('Open', 'Open'), ('Closed', 'Closed'), ('Disabled', 'Disabled')], default='Open')
+    deadline = models.DateTimeField(null=True, blank=True, help_text="Deadline for applications")
+    admin_note = models.TextField(blank=True, null=True, help_text="Internal notes for administrators.")
     created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def is_expired(self):
+        from django.utils import timezone
+        if self.deadline and timezone.now() > self.deadline:
+            return True
+        return False
+
+    def update_status_if_expired(self):
+        if self.status == 'Open' and self.is_expired:
+            self.status = 'Closed'
+            self.save()
+        return self.status
 
     def __str__(self):
         return self.title

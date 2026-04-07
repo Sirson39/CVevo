@@ -5,24 +5,6 @@
 
 {% block content %}
 <div class="admin-dashboard-container">
-    <!-- Header -->
-    <div class="admin-header">
-        <div class="header-left">
-            <h1>Command Center</h1>
-            <p>Monitor platform performance and system health.</p>
-        </div>
-        <div class="header-actions">
-            <div class="search-bar">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" placeholder="Search analytics...">
-            </div>
-            <a href="/admin/" target="_blank" class="admin-btn">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M9 3v18M15 3v18M3 9h18M3 15h18" /></svg>
-                Database
-            </a>
-        </div>
-    </div>
-
     <!-- Summary Grid -->
     <div class="summary-grid">
         <div class="summary-card">
@@ -129,111 +111,53 @@
         </div>
 
         <!-- Recent Activity Feed -->
-        <div class="grid-card">
+        <div class="grid-card activity-card wide">
             <div class="grid-card-header">
-                <h3>Recent Activity</h3>
+                <h3>System Activity</h3>
+                <div class="activity-pagination">
+                    <button class="pag-btn" id="prevAct" title="Previous"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
+                    <span id="actPage" class="page-num">1</span>
+                    <button class="pag-btn" id="nextAct" title="Next"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+                </div>
             </div>
-            <div class="activity-feed">
+            <div class="activity-feed" id="activityList">
                 {% for scan in recent_scans %}
-                <div class="activity-item">
+                <div class="activity-item" data-index="{{ forloop.counter0 }}">
                     <div class="activity-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
                     <div class="activity-text">
                         <strong>ATS Scan completed</strong>
-                        <p>{{ scan.resume.filename }} • {{ scan.score }}%</p>
+                        <p>{{ scan.resume.filename|truncatechars:40 }} • {{ scan.score }}%</p>
                         <small>{{ scan.analyzed_at|timesince }} ago</small>
                     </div>
                 </div>
-                {% endfor %}
-                {% for u in recent_users %}
-                <div class="activity-item">
-                    <div class="activity-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="16" y1="11" x2="22" y2="11"/></svg></div>
-                    <div class="activity-text">
-                        <strong>New User Signed Up</strong>
-                        <p>{{ u.email|truncatechars:20 }} • {{ u.role|title }}</p>
-                        <small>{{ u.date_joined|timesince }} ago</small>
-                    </div>
-                </div>
+                {% empty %}
+                <div class="empty-state">No recent activity</div>
                 {% endfor %}
             </div>
         </div>
 
-        <!-- Support Tickets -->
+        <!-- Live Job Postings -->
         <div class="grid-card">
             <div class="grid-card-header">
-                <h3>Support Pipeline</h3>
-                <span class="badge">{{ stats.pending_support }} active</span>
+                <h3>Live Postings</h3>
+                <a href="{% url 'admin_jobs' %}" class="btn-text">Manage</a>
             </div>
-            <div class="tickets-list">
-                {% for ticket in recent_support %}
-                <div class="ticket-card">
-                    <div class="ticket-header">
-                        <span class="ticket-priority p-{{ ticket.priority|lower }}">{{ ticket.priority }}</span>
-                        <small>{{ ticket.created_at|date:"M d, H:i" }}</small>
+            <div class="mini-list">
+                {% for job in all_jobs_list|slice:":6" %}
+                <div class="ml-item">
+                    <div class="ml-info">
+                        <strong>{{ job.title|truncatechars:25 }}</strong>
+                        <p>{{ job.hr.company|truncatechars:20 }}</p>
                     </div>
-                    <h4>{{ ticket.subject }}</h4>
-                    <p>{{ ticket.message|truncatechars:80 }}</p>
-                    <div class="ticket-footer">
-                        <span>{{ ticket.user.full_name }}</span>
-                    </div>
+                    <div class="ml-count">{{ job.num_applicants }} apps</div>
                 </div>
                 {% empty %}
-                <div class="empty-state">No pending tickets.</div>
+                <div class="empty-state">No jobs posted</div>
                 {% endfor %}
             </div>
         </div>
+    </div>
 
-        <!-- Job Performance -->
-        <div class="grid-card">
-            <div class="grid-card-header">
-                <h3>Job Activity</h3>
-            </div>
-            <div class="job-activity-stats">
-                <div class="ja-stat">
-                    <span>Active</span>
-                    <strong>{{ stats.active_jobs }}</strong>
-                </div>
-                <div class="ja-stat warning">
-                    <span>No Applicants</span>
-                    <strong>{{ stats.no_applicants }}</strong>
-                </div>
-            </div>
-            <div class="job-list-mini">
-                {% for job in recent_jobs %}
-                <div class="jl-item">
-                    <div>
-                        <strong>{{ job.title }}</strong>
-                        <p>{{ job.hr.company }}</p>
-                    </div>
-                    <span class="jl-count">{{ job.num_applicants }}</span>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-
-        <!-- System Alerts -->
-        <div class="grid-card">
-            <div class="grid-card-header">
-                <h3>System Health Alerts</h3>
-            </div>
-            <div class="alerts-feed">
-                {% if stats.pending_support > 5 %}
-                <div class="alert-item high">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                    <span>High support volume ({{ stats.pending_support }} tickets)</span>
-                </div>
-                {% endif %}
-                {% if stats.no_applicants > 0 %}
-                <div class="alert-item med">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                    <span>{{ stats.no_applicants }} jobs have no applicants</span>
-                </div>
-                {% endif %}
-                <div class="alert-item low">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                    <span>ATS Engine running within nominal latency</span>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 
@@ -304,10 +228,57 @@ document.addEventListener('DOMContentLoaded', function() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 20 } } },
-            cutout: '70%'
+            plugins: { 
+                legend: { 
+                    position: 'bottom', 
+                    labels: { boxWidth: 12, padding: 25, usePointStyle: true } 
+                } 
+            },
+            cutout: '70%',
+            layout: { padding: { bottom: 10 } }
         }
     });
+
+    // Activity Pagination
+    const activityItems = document.querySelectorAll('#activityList .activity-item');
+    const itemsPerPage = 10;
+    let currentActivityPage = 1;
+    const totalActivityPages = Math.ceil(activityItems.length / itemsPerPage);
+
+    function showActivityPage(page) {
+        const start = (page - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+
+        activityItems.forEach((item, index) => {
+            if (index >= start && index < end) {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+
+        document.getElementById('actPage').textContent = page;
+        document.getElementById('prevAct').disabled = (page === 1);
+        document.getElementById('nextAct').disabled = (page === totalActivityPages || totalActivityPages === 0);
+    }
+
+    if (activityItems.length > 0) {
+        showActivityPage(1);
+
+        document.getElementById('prevAct').addEventListener('click', () => {
+            if (currentActivityPage > 1) {
+                currentActivityPage--;
+                showActivityPage(currentActivityPage);
+            }
+        });
+
+        document.getElementById('nextAct').addEventListener('click', () => {
+            if (currentActivityPage < totalActivityPages) {
+                currentActivityPage++;
+                showActivityPage(currentActivityPage);
+            }
+        });
+    }
 });
 </script>
 
@@ -353,6 +324,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     .header-left h1 { font-size: 2rem; font-weight: 800; color: var(--text-dark); margin: 0; letter-spacing: -0.5px; }
     .header-left p { color: var(--text-muted); margin: 5px 0 0 0; font-size: 1rem; }
+
+    .empty-state { padding: 30px; text-align: center; color: var(--text-muted); font-size: 0.9rem; font-weight: 600; background: #f8fafc; border-radius: 12px; border: 1px dashed #e2e8f0; }
 
     .header-actions { display: flex; gap: 15px; }
     
@@ -453,6 +426,16 @@ document.addEventListener('DOMContentLoaded', function() {
     .insight-row span { color: var(--text-muted); font-size: 0.9rem; font-weight: 500; }
     .insight-row strong { color: var(--text-dark); font-weight: 700; }
 
+    .mini-list { display: flex; flex-direction: column; gap: 8px; }
+    .ml-item { 
+        display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; 
+        background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9; transition: 0.2s;
+    }
+    .ml-item:hover { border-color: var(--primary-green); transform: translateX(4px); }
+    .ml-info strong { display: block; font-size: 0.85rem; color: var(--text-dark); }
+    .ml-info p { margin: 0; font-size: 0.75rem; color: var(--text-muted); }
+    .ml-count { background: #fff; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; color: var(--primary-green); border: 1px solid #e2e8f0; }
+
     /* Activity Feed */
     .activity-feed { display: flex; flex-direction: column; gap: 20px; }
     .activity-item { display: flex; gap: 15px; }
@@ -501,6 +484,60 @@ document.addEventListener('DOMContentLoaded', function() {
     .alert-item.high { background: #fff1f2; color: #e11d48; }
     .alert-item.med { background: #fffbeb; color: #d97706; }
     .alert-item.low { background: #f0fdf4; color: #16a34a; }
+
+    /* Tabs */
+    .tab-selectors { display: flex; gap: 8px; background: #f1f5f9; padding: 4px; border-radius: 12px; }
+    .tab-btn { padding: 6px 16px; border: none; background: transparent; border-radius: 9px; cursor: pointer; font-weight: 600; color: var(--text-muted); font-size: 0.85rem; transition: all 0.2s; }
+    .tab-btn.active { background: #fff; color: var(--primary-green); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    .hidden { display: none; }
+
+    /* Data Table */
+    .table-responsive { overflow-x: auto; margin-top: 15px; }
+    .data-table { width: 100%; border-collapse: collapse; text-align: left; }
+    .data-table th { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
+    .data-table td { padding: 16px 15px; border-bottom: 1px solid #f8fafc; vertical-align: middle; }
+    .data-table tr:hover td { background: #fcfdfe; }
+
+    .user-cell { display: flex; align-items: center; gap: 12px; }
+    .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: #2f8f7a1a; color: #2f8f7a; display: grid; place-items: center; font-weight: 700; font-size: 0.85rem; }
+    .user-cell p { font-size: 0.75rem; color: var(--text-muted); margin: 0; }
+    
+    .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .role-hr { background: #ffe4e6; color: #e11d48; }
+    .role-jobseeker { background: #e0f2fe; color: #0284c7; }
+    .role-admin { background: #f3e8ff; color: #7c3aed; }
+    .badge.resolved { background: #dcfce7; color: #15803d; }
+    .badge.pending { background: #fff7ed; color: #ea580c; }
+
+    .status-pill { padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+    .status-pill.open { background: #dcfce7; color: #15803d; }
+    .status-pill.closed { background: #fee2e2; color: #b91c1c; }
+
+    .dot-status { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; background: #94a3b8; }
+    .dot-status.active { background: #10b981; }
+
+    .actions { display: flex; gap: 8px; }
+    .btn-icon { width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; border: 1px solid #e2e8f0; background: #fff; cursor: pointer; transition: all 0.2s; color: var(--text-muted); }
+    .btn-icon:hover { border-color: var(--primary-green); color: var(--primary-green); }
+    .btn-icon.delete:hover { border-color: #ef4444; color: #ef4444; }
+    .btn-icon svg { width: 16px; height: 16px; }
+
+    .file-cell { display: flex; align-items: center; gap: 8px; }
+    .file-icon { width: 18px; color: #64748b; }
+    .source-tag { font-size: 0.7rem; color: #64748b; font-weight: 600; padding: 2px 6px; background: #f1f5f9; border-radius: 4px; }
+    
+    .btn-text { color: var(--primary-green); font-weight: 700; font-size: 0.85rem; text-decoration: none; margin-right: 10px; }
+    .btn-text:hover { text-decoration: underline; }
+
+    .activity-card { height: 100%; display: flex; flex-direction: column; }
+    .activity-pagination { display: flex; align-items: center; gap: 8px; }
+    .pag-btn { 
+        padding: 4px; border-radius: 6px; border: 1px solid #e2e8f0; background: #fff; 
+        cursor: pointer; color: var(--text-muted); transition: 0.2s; display: flex; align-items: center; justify-content: center;
+    }
+    .pag-btn:hover:not(:disabled) { border-color: var(--primary-green); color: var(--primary-green); background: #f0fdfa; }
+    .pag-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .page-num { font-size: 0.8rem; font-weight: 700; color: var(--text-dark); min-width: 12px; text-align: center; }
 
     @media (max-width: 1400px) {
         .dashboard-grid { grid-template-columns: repeat(2, 1fr); }

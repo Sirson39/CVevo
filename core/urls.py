@@ -70,5 +70,25 @@ urlpatterns = [
     # Notifications
     path("notifications/read/",   views.mark_notifications_read, name="mark_notifications_read"),
     path("export/pdf/notify/",    views.notify_pdf_export, name="notify_pdf_export"),
+    # Internal Admin Suite
     path("internal/dashboard/", views.internal_admin_dashboard, name="super_admin_dashboard"),
+    path("internal/users/", views.admin_users_view, name="admin_users"),
+    path("internal/jobs/", views.admin_jobs_view, name="admin_jobs"),
+    path("internal/resumes/", views.admin_resumes_view, name="admin_resumes"),
+    path("internal/ats/", views.admin_ats_view, name="admin_ats"),
+    path("internal/support/", views.admin_support_view, name="admin_support"),
+    
+    # Internal Admin Actions
+    path("internal/user/delete/<int:pk>/", views.admin_delete_user, name="admin_delete_user"),
+    path("internal/job/delete/<int:pk>/", views.admin_delete_job, name="admin_delete_job"),
+    path("internal/resume/delete/<int:pk>/", views.admin_delete_resume, name="admin_delete_resume"),
+    path("internal/support/resolve/<int:pk>/", views.admin_resolve_support, name="admin_resolve_support"),
+    path("internal/support/delete/<int:pk>/", views.admin_delete_support, name="admin_delete_support"),
+
+    
+    # Internal Admin Edit/Create
+    path("internal/user/create/", views.admin_create_user, name="admin_create_user"),
+    path("internal/user/edit/<int:pk>/", views.admin_edit_user, name="admin_edit_user"),
+    path("internal/job/edit/<int:pk>/", views.admin_edit_job, name="admin_edit_job"),
+    path("internal/resume/view/<int:pk>/", views.admin_view_resume, name="admin_view_resume"),
 ]

@@ -1,0 +1,146 @@
+{% extends "base_app.html" %}
+{% load static %}
+
+{% block title %}ATS Analytics | CVevo Admin{% endblock %}
+
+{% block content %}
+<div class="admin-dashboard-container">
+    <div class="admin-header">
+        <div class="header-left">
+            <h1>ATS Intelligence</h1>
+            <p>Monitor scoring trends and matching engine performance.</p>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'super_admin_dashboard' %}" class="admin-btn outline">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                Dashboard
+            </a>
+        </div>
+    </div>
+
+    <div class="analytics-row">
+        <div class="grid-card main-chart">
+            <div class="grid-card-header">
+                <h3>Score Distribution</h3>
+            </div>
+            <div class="chart-container">
+                <canvas id="scoreChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="stats-sidebar">
+            {% for label, val in show_stats.items %}
+            <div class="mini-stat-card">
+                <span>{{ label }}</span>
+                <strong>{{ val }}</strong>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="grid-card full-width" style="margin-top: 30px;">
+        <div class="grid-card-header">
+            <h3>Recent Scan Results</h3>
+        </div>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Jobseeker</th>
+                        <th>Target Job</th>
+                        <th>Score</th>
+                        <th>Skills Found</th>
+                        <th>Scanned At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in ats_results %}
+                    <tr>
+                        <td><strong>{{ result.resume.jobseeker.full_name|default:"Bulk Upload" }}</strong></td>
+                        <td>{{ result.job_post.title|default:result.custom_job_title }}</td>
+                        <td>
+                            <div class="score-pill-container">
+                                <span class="score-value">{{ result.score }}%</span>
+                                <div class="score-bar"><div class="score-progress" style="width: {{ result.score }}%;"></div></div>
+                            </div>
+                        </td>
+                        <td><span class="skill-count">{{ result.matched_list|length }} Skills</span></td>
+                        <td>{{ result.analyzed_at|date:"M d, H:i" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('scoreChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ score_chart.labels|safe }},
+            datasets: [{
+                data: {{ score_chart.data|safe }},
+                backgroundColor: ['#f43f5e', '#f59e0b', '#10b981'],
+                borderWidth: 0,
+                hoverOffset: 15
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { 
+                    position: 'bottom', 
+                    labels: { 
+                        usePointStyle: true, 
+                        padding: 30, // Increased padding
+                        font: { size: 12, weight: '600' }
+                    } 
+                }
+            },
+            cutout: '70%',
+            layout: {
+                padding: { bottom: 20 } // Ensure legend has room
+            }
+        }
+    });
+});
+</script>
+
+<style>
+    .admin-dashboard-container { padding: 40px; }
+    .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    .admin-header h1 { font-size: 1.8rem; font-weight: 800; color: #1e293b; }
+    .admin-header p { color: #64748b; margin-top: 5px; }
+    
+    .analytics-row { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+    .grid-card { background: #fff; padding: 24px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+    .main-chart { height: 400px; }
+    .chart-container { height: 320px; margin-top: 20px; }
+    
+    .stats-sidebar { display: flex; flex-direction: column; gap: 15px; }
+    .mini-stat-card { background: #fff; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; }
+    .mini-stat-card span { display: block; font-size: 0.8rem; font-weight: 700; color: #64748b; text-transform: uppercase; }
+    .mini-stat-card strong { font-size: 1.6rem; font-weight: 800; color: #1e293b; display: block; margin-top: 5px; }
+
+    /* Score Table Styles */
+    .table-responsive { overflow-x: auto; margin-top: 15px; }
+    .data-table { width: 100%; border-collapse: collapse; text-align: left; }
+    .data-table th { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; color: #64748b; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
+    .data-table td { padding: 16px 15px; border-bottom: 1px solid #f8fafc; vertical-align: middle; }
+    
+    .score-pill-container { display: flex; align-items: center; gap: 10px; width: 140px; }
+    .score-value { font-weight: 800; color: #1e293b; font-size: 0.9rem; min-width: 40px; }
+    .score-bar { flex: 1; height: 6px; background: #f1f5f9; border-radius: 10px; overflow: hidden; }
+    .score-progress { height: 100%; background: linear-gradient(90deg, #6366f1, #2f8f7a); border-radius: 10px; }
+    
+    .skill-count { background: #f1f5f9; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; color: #475569; }
+
+    .full-width { grid-column: 1 / -1; }
+    .admin-btn.outline { border: 1px solid #e2e8f0; padding: 10px 18px; border-radius: 12px; display: flex; align-items: center; gap: 8px; font-weight: 700; color: #1e293b; text-decoration: none; font-size: 0.9rem; }
+</style>
+{% endblock %}

@@ -227,6 +227,15 @@
           </div>
         </div>
 
+        <div class="form-group" style="margin-bottom: 2rem;">
+          <label class="form-label" for="deadline">Application Deadline</label>
+          <input type="datetime-local" id="deadline" name="deadline" class="form-input">
+          <div class="helper-text">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            Job will automatically close at this time and prevent further applications.
+          </div>
+        </div>
+
         <div class="form-group" style="background: #f8fafc; padding: 1.5rem; border-radius: 16px; border: 1px solid #f1f5f9;">
           <label class="form-label" for="requirements" style="color: var(--primary-green);">ATS Scanning Keywords</label>
           <textarea id="requirements" name="requirements" class="form-textarea" style="min-height: 110px;" required></textarea>
@@ -254,15 +263,15 @@
       </div>
       <ul class="tip-list">
         <li class="tip-item">
-          <div class="tip-icon">✓</div>
+          <div class="tip-icon"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg></div>
           <div><strong>Be Granular:</strong> Use specific versions (e.g. "React 18", "Python 3.11") for better matching precision.</div>
         </li>
         <li class="tip-item">
-          <div class="tip-icon">✓</div>
+          <div class="tip-icon"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg></div>
           <div><strong>Soft Skills:</strong> Include power-words like "Cross-functional", "Architecture" or "Stakeholder management".</div>
         </li>
         <li class="tip-item">
-          <div class="tip-icon">✓</div>
+          <div class="tip-icon"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg></div>
           <div><strong>Core Logic:</strong> The AI prioritizes keywords found in the <strong>ATS Scanning</strong> section over the description.</div>
         </li>
       </ul>
