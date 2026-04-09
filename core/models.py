@@ -185,9 +185,12 @@ class ParsedResumeData(models.Model):
     role = models.CharField(max_length=255, blank=True)
     email = models.EmailField(blank=True)
     phone = models.CharField(max_length=50, blank=True)
+    summary = models.TextField(blank=True)
     skills = models.TextField(blank=True)  # JSON-like or comma separated
     experience = models.TextField(blank=True)
     education = models.TextField(blank=True)
+    projects = models.TextField(blank=True)
+    certifications = models.TextField(blank=True)
 
     def __str__(self):
         return f"Parsed data for {self.resume.filename}"
@@ -208,6 +211,7 @@ class ATSResult(models.Model):
         ('Interviewing', 'Interviewing'),
         ('Rejected', 'Rejected')
     ], default='Applied')
+    score_breakdown = models.TextField(blank=True, help_text="JSON storage for weighted score pillars")
     
     @property
     def matched_list(self):
@@ -218,6 +222,17 @@ class ATSResult(models.Model):
     def missing_list(self):
         if not self.missing_keywords: return []
         return [k.strip() for k in self.missing_keywords.split(',') if k.strip()]
+
+    @property
+    def breakdown_data(self):
+        """Parses the score_breakdown JSON field."""
+        import json
+        if not self.score_breakdown:
+            return {}
+        try:
+            return json.loads(self.score_breakdown)
+        except:
+            return {}
 
     @property
     def general_scan_data(self):

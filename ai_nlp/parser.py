@@ -1,148 +1,154 @@
+import re
 import spacy
 from spacy.matcher import PhraseMatcher
-import re
 
-# Load spaCy model
-# Note: Ensure 'en_core_web_sm' is downloaded
 try:
     nlp = spacy.load("en_core_web_sm")
 except OSError:
-    # This will be handled after installation
     nlp = None
 
-def extract_contact_info(text):
-    """
-    Extracts name, email and phone number using regex.
-    """
-    email = re.findall(r'[\w\.-]+@[\w\.-]+', text)
-    phone = re.findall(r'\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}', text)
-    
-    # Simple name extraction: look at the first few lines
-    lines = [L.strip() for L in text.split('\n') if L.strip()]
+SYNONYM_MAP = {
+    "js": "javascript",
+    "postgres": "postgresql",
+    "restful api": "rest api",
+    "restful": "rest api",
+    "ml": "machine learning",
+    "dl": "deep learning",
+    "ai": "artificial intelligence",
+    "nlp": "natural language processing",
+    "aws": "amazon web services",
+    "gcp": "google cloud platform",
+    "reactjs": "react",
+    "nextjs": "next.js",
+    "nodejs": "node.js",
+    "mongodb": "mongo",
+}
+
+DEFAULT_SKILLS = [
+    "Python", "Java", "C++", "C#", "PHP", "Ruby", "Swift", "Go", "Rust",
+    "JavaScript", "TypeScript", "React", "Angular", "Vue", "Node.js", "Express", "Next.js",
+    "Django", "Flask", "Spring Boot", "Laravel", "Ruby on Rails",
+    "PostgreSQL", "MySQL", "MongoDB", "Redis", "SQLite", "Oracle",
+    "AWS", "Docker", "Kubernetes", "Azure", "GCP", "Terraform", "Jenkins",
+    "Machine Learning", "Data Analysis", "Deep Learning", "Computer Vision",
+    "HTML", "CSS", "Sass", "Tailwind", "Bootstrap",
+    "Git", "Agile", "Scrum", "Project Management", "Product Management",
+    "NLP", "AI", "TensorFlow", "PyTorch", "Pandas", "NumPy", "Scikit-learn",
+    "Tableau", "Power BI", "SQL", "NoSQL", "REST API", "GraphQL", "Microservices",
+    "Cybersecurity", "Blockchain", "Solidity", "Unit Testing", "DevOps"
+]
+
+SECTION_PATTERNS = {
+    "summary": [r"summary", r"objective", r"profile", r"about me", r"professional summary"],
+    "experience": [r"experience", r"work experience", r"employment", r"work history", r"professional experience"],
+    "education": [r"education", r"academic background", r"qualification", r"educational background"],
+    "projects": [r"projects", r"personal projects", r"academic projects", r"key projects"],
+    "certifications": [r"certifications", r"certificates", r"licenses", r"awards"],
+    "skills": [r"skills", r"technical skills", r"core skills", r"expertise", r"competencies"],
+}
+
+def clean_and_normalize_text(text: str) -> str:
+    if not text:
+        return ""
+
+    text = text.lower()
+    text = re.sub(r"[^\w\s+#./-]", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+
+    for old, new in SYNONYM_MAP.items():
+        text = re.sub(rf"\b{re.escape(old)}\b", new, text)
+
+    return text
+
+def extract_contact_info(text: str) -> dict:
+    email_pattern = r"[\w\.-]+@[\w\.-]+\.\w+"
+    phone_pattern = r"(?:\+?\d{1,3}[-.\s]?)?(?:\(?\d{2,4}\)?[-.\s]?)?\d{3,4}[-.\s]?\d{3,4}"
+    linkedin_pattern = r"(?:https?://)?(?:www\.)?linkedin\.com/in/[\w\d-]+"
+    github_pattern = r"(?:https?://)?(?:www\.)?github\.com/[\w\d-]+"
+
+    emails = re.findall(email_pattern, text)
+    phones = re.findall(phone_pattern, text)
+    linkedin = re.findall(linkedin_pattern, text, flags=re.I)
+    github = re.findall(github_pattern, text, flags=re.I)
+
+    lines = [line.strip() for line in text.split("\n") if line.strip()]
     name = ""
-    if lines:
-        # Usually the first non-empty line is the name
-        # We skip lines that look like emails or phones
-        for line in lines[:5]:
-            if not re.search(r'@', line) and not re.search(r'\d{3}', line):
-                name = line
-                break
+    for line in lines[:6]:
+        if "@" not in line and len(line.split()) <= 4 and not re.search(r"\d", line):
+            name = line
+            break
 
     return {
         "name": name,
-        "email": email[0] if email else "",
-        "phone": phone[0] if phone else ""
+        "email": emails[0] if emails else "",
+        "phone": phones[0] if phones else "",
+        "links": {
+            "linkedin": linkedin[0] if linkedin else "",
+            "github": github[0] if github else "",
+        },
     }
 
-def extract_skills(text, skills_list=None):
-    """
-    Extracts skills using PhraseMatcher or simple keyword matching.
-    """
-    if not nlp: return []
-    
-    if not skills_list:
-        # Default common skills for a tech project
-        skills_list = [
-            "Python", "Java", "C++", "C#", "PHP", "Ruby", "Swift", "Go", "Rust",
-            "JavaScript", "React", "Angular", "Vue", "Node.js", "Express", "Next.js",
-            "Django", "Flask", "Spring Boot", "Laravel", "Ruby on Rails",
-            "PostgreSQL", "MySQL", "MongoDB", "Redis", "SQLite", "Oracle",
-            "AWS", "Docker", "Kubernetes", "Azure", "GCP", "Terraform", "Jenkins",
-            "Machine Learning", "Data Analysis", "Deep Learning", "Computer Vision",
-            "HTML", "CSS", "Sass", "TypeScript", "Tailwind", "Bootstrap",
-            "Git", "Agile", "Scrum", "Project Management", "Product Management",
-            "NLP", "AI", "TensorFlow", "PyTorch", "Pandas", "NumPy", "Scikit-learn",
-            "Tableau", "PowerBI", "SQL", "NoSQL", "REST API", "GraphQL", "Microservices",
-            "Cybersecurity", "Blockchain", "Solidity", "Unit Testing", "DevOps"
-        ]
-    
-    matcher = PhraseMatcher(nlp.vocab, attr="LOWER")
-    patterns = [nlp.make_doc(skill) for skill in skills_list]
-    matcher.add("SKILLS", patterns)
-    
-    doc = nlp(text)
-    matches = matcher(doc)
-    
-    extracted_skills = set()
-    for match_id, start, end in matches:
-        span = doc[start:end]
-        extracted_skills.add(span.text)
-    
-    return list(extracted_skills)
+def extract_skills(text: str, skills_list=None) -> list:
+    skills_list = skills_list or DEFAULT_SKILLS
+    if not text:
+        return []
 
-def extract_role(text):
-    """
-    Identifies the likely current or target role of the candidate.
-    """
-    if not nlp: return "Unknown"
-    
-    doc = nlp(text)
-    # Look for common role indicators or first non-entity lines
-    # Often found near the top or after names
-    lines = [L.strip() for L in text.split('\n') if L.strip()]
-    
-    # Common job titles candidates put near the top
-    common_roles = ["Developer", "Engineer", "Manager", "Analyst", "Consultant", "Architect", "Designer", "Lead"]
-    
-    for line in lines[:10]:
-        if any(role.lower() in line.lower() for role in common_roles):
-            # Clean up the line for role extraction
-            if len(line.split()) < 6: # Likely a title, not a sentence
-                return line
-                
-    return "Not specified"
+    if nlp:
+        matcher = PhraseMatcher(nlp.vocab, attr="LOWER")
+        patterns = [nlp.make_doc(skill) for skill in skills_list]
+        matcher.add("SKILLS", patterns)
 
-def extract_sections(text):
-    """
-    Identify sections like Experience, Education using common headers.
-    """
-    sections = {
-        "experience": "",
-        "education": "",
-        "projects": "",
-        "summary": ""
-    }
-    
-    # Simple header detection
-    headers = {
-        "experience": [r'experience', r'work history', r'employment', r'professional background'],
-        "education": [r'education', r'academic', r'qualification'],
-        "projects": [r'projects', r'personal projects', r'academic projects'],
-        "summary": [r'summary', r'objective', r'profile']
-    }
-    
-    lines = text.split('\n')
+        doc = nlp(text)
+        matches = matcher(doc)
+        found = {doc[start:end].text.strip() for _, start, end in matches}
+        return sorted(found)
+
+    normalized = text.lower()
+    found = []
+    for skill in skills_list:
+        if re.search(rf"\b{re.escape(skill.lower())}\b", normalized):
+            found.append(skill)
+    return sorted(set(found))
+
+def is_section_header(line: str) -> str | None:
+    cleaned = re.sub(r"[^a-z ]", "", line.lower()).strip()
+    for section, patterns in SECTION_PATTERNS.items():
+        for pattern in patterns:
+            if cleaned == pattern:
+                return section
+    return None
+
+def extract_sections(text: str) -> dict:
+    sections = {key: "" for key in SECTION_PATTERNS.keys()}
+    lines = text.split("\n")
     current_section = None
-    
+
     for line in lines:
-        clean_line = line.strip().lower()
-        found_header = False
-        for section, patterns in headers.items():
-            for pattern in patterns:
-                if re.match(r'^' + pattern + r'[:\s]*$', clean_line):
-                    current_section = section
-                    found_header = True
-                    break
-            if found_header: break
-        
-        if not found_header and current_section:
-            sections[current_section] += line + "\n"
-            
+        stripped = line.strip()
+        if not stripped:
+            continue
+
+        header = is_section_header(stripped)
+        if header:
+            current_section = header
+            continue
+
+        if current_section:
+            sections[current_section] += stripped + "\n"
+
     return {k: v.strip() for k, v in sections.items()}
 
-def parse_resume(text):
-    """
-    Main parsing function.
-    """
+def parse_resume(text: str) -> dict:
     contact = extract_contact_info(text)
-    skills = extract_skills(text)
     sections = extract_sections(text)
-    role = extract_role(text)
-    
+    full_skills = extract_skills(text)
+    section_skills = extract_skills(sections.get("skills", "")) if sections.get("skills") else []
+    found_skills = sorted(set(full_skills + section_skills))
+
     return {
         "contact": contact,
-        "skills": skills,
+        "skills": found_skills,
         "sections": sections,
-        "role": role,
-        "full_text": text
+        "full_text": text,
+        "normalized_text": clean_and_normalize_text(text),
     }

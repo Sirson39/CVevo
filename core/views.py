@@ -164,17 +164,32 @@ def hr_resume_upload(request):
                 text = extract_text_from_docx(resume.file.path)
             
             if text:
-                # 3. Analyze against the selected Job Post
-                score, matched, missing, feedback = calculate_ats_score(text, job_post.requirements)
+                # 3. Analyze against the selected Job Post (using all specific fields)
+                job_data = {
+                    "title": job_post.title,
+                    "description": job_post.description,
+                    "required_skills": job_post.required_skills,
+                    "experience_requirements": job_post.experience_requirements,
+                    "education_requirements": job_post.education_requirements,
+                    "tools_and_technologies": job_post.tools_and_technologies,
+                    "requirements": job_post.requirements,
+                }
+                score, matched, missing, feedback, breakdown = calculate_ats_score(
+                    text, 
+                    job_post.requirements, 
+                    jd_fields=job_data
+                )
                 
                 # 4. Save Results
+                import json
                 ATSResult.objects.create(
                     resume=resume,
                     job_post=job_post,
                     score=score,
                     feedback=feedback,
                     matched_keywords=",".join(matched),
-                    missing_keywords=",".join(missing)
+                    missing_keywords=",".join(missing),
+                    score_breakdown=json.dumps(breakdown)
                 )
                 success_count += 1
             else:
@@ -655,24 +670,48 @@ def analyze_resume(request, resume_id):
             elif ext == 'docx': text = extract_text_from_docx(file_path)
             
             if text:
+                parsed_sections = parse_resume_text(text)
                 parsed_data = ParsedResumeData.objects.create(
                     resume=resume,
-                    extracted_text=text
+                    extracted_text=text,
+                    name=parsed_sections.get("name", ""),
+                    role=parsed_sections.get("role", ""),
+                    email=parsed_sections.get("email", ""),
+                    phone=parsed_sections.get("phone", ""),
+                    summary=parsed_sections.get("summary", ""),
+                    skills=parsed_sections.get("skills", ""),
+                    experience=parsed_sections.get("experience", ""),
+                    education=parsed_sections.get("education", ""),
+                    projects=parsed_sections.get("projects", ""),
+                    certifications=parsed_sections.get("certifications", ""),
                 )
         
         if parsed_data:
-            score, matched, missing, feedback = calculate_ats_score(
+            # Prepare rich job context for precision analysis
+            job_data = {
+                "title": job_post.title,
+                "description": job_post.description,
+                "required_skills": job_post.required_skills,
+                "experience_requirements": job_post.experience_requirements,
+                "education_requirements": job_post.education_requirements,
+                "tools_and_technologies": job_post.tools_and_technologies,
+                "requirements": job_post.requirements,
+            }
+            score, matched, missing, feedback, breakdown = calculate_ats_score(
                 parsed_data.extracted_text, 
-                job_post.requirements
+                job_post.requirements,
+                jd_fields=job_data
             )
 
+            import json
             ATSResult.objects.create(
                 resume=resume,
                 job_post=job_post,
                 score=score,
                 feedback=feedback,
                 matched_keywords=",".join(matched),
-                missing_keywords=",".join(missing)
+                missing_keywords=",".join(missing),
+                score_breakdown=json.dumps(breakdown)
             )
             messages.success(request, f"Analysis complete for {job_post.title}. Score: {score}%")
             Notification.push(request.user, f"ATS analysis complete for '{job_post.title}': {score}% match.", icon="🎯", notif_type="success")
@@ -712,10 +751,11 @@ def quick_analysis(request):
             messages.error(request, "Could not extract text from the selected resume.")
             return redirect("quick_analysis")
             
-        # 2. Run ATS Analysis — returns (score, matched, missing, feedback)
-        score, matched, missing, feedback = calculate_ats_score(resume_text, job_description)
+        # 2. Run ATS Analysis — returns (score, matched, missing, feedback, breakdown)
+        score, matched, missing, feedback, breakdown = calculate_ats_score(resume_text, job_description)
         
         # 3. Save Result
+        import json
         ats_result = ATSResult.objects.create(
             resume=resume,
             job_post=None,  # Null for quick analysis
@@ -723,7 +763,8 @@ def quick_analysis(request):
             score=score,
             feedback=feedback,
             matched_keywords=", ".join(matched),
-            missing_keywords=", ".join(missing)
+            missing_keywords=", ".join(missing),
+            score_breakdown=json.dumps(breakdown)
         )
         
         # 4. Save score to resume for history
@@ -865,9 +906,12 @@ def resume_upload(request):
                     role=parsed_sections.get("role", ""),
                     email=parsed_sections.get("email", ""),
                     phone=parsed_sections.get("phone", ""),
+                    summary=parsed_sections.get("summary", ""),
                     skills=parsed_sections.get("skills", ""),
                     experience=parsed_sections.get("experience", ""),
                     education=parsed_sections.get("education", ""),
+                    projects=parsed_sections.get("projects", ""),
+                    certifications=parsed_sections.get("certifications", ""),
                 )
             success_count += 1
 
@@ -919,7 +963,8 @@ def general_analysis(request, resume_id):
         score=scan_result['quality_score'],
         feedback=json.dumps(scan_result), # Store full JSON
         matched_keywords=", ".join(scan_result['strengths']),
-        missing_keywords=", ".join(scan_result['issues_found'])
+        missing_keywords=", ".join(scan_result['issues_found']),
+        score_breakdown=json.dumps(scan_result.get('breakdown', {}))
     )
     
     messages.success(request, f"Quality scan complete! Structural score: {scan_result['quality_score']}%")

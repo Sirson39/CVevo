@@ -36,12 +36,14 @@
           <div>
             <h3 style="margin:0; font-size:1.35rem; color:#1e293b; font-weight:700;">{{ result.job_post.title|default:result.custom_job_title }}</h3>
             {% if result.job_post %}
-              <span style="display:inline-block; margin-top:6px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; padding:2px 8px; border-radius:999px; background:#dbeafe; color:#1d4ed8;">ATS Scan</span>
+            <span style="display:inline-block; margin-top:6px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; padding:2px 8px; border-radius:999px; background:#dbeafe; color:#1d4ed8;">ATS Scan</span>
             {% else %}
-              <span style="display:inline-flex; align-items: center; gap: 4px; margin-top:6px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; padding:2px 8px; border-radius:999px; background:#fef9c3; color:#92400e;">
-                <svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
-                Quick Scan
-              </span>
+            <span style="display:inline-flex; align-items: center; gap: 4px; margin-top:6px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; padding:2px 8px; border-radius:999px; background:#fef9c3; color:#92400e;">
+              <svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+              </svg>
+              Quick Scan
+            </span>
             {% endif %}
             <p class="muted" style="margin:.4rem 0 0; font-size: 0.9rem;">
               {{ result.resume.jobseeker.full_name|default:"Candidate" }} • Analyzed on {{ result.analyzed_at|date:"M d, Y" }}
@@ -88,82 +90,83 @@
         </div>
 
         {% if result.general_scan_data %}
-          <!-- Detailed Quality Breakdown -->
-          <div style="margin-top:1.5rem; display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:0.75rem;">
-            {% for cat, data in result.general_scan_data.breakdown.items %}
-              <div class="card" style="padding:0.75rem; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                  <span style="font-size:11px; font-weight:800; text-transform:uppercase; color:#64748b;">{{ cat|title }}</span>
-                  <span style="font-size:13px; font-weight:700; color:{% if data.score >= data.max_score|add:'-2' %}#10b981{% else %}#475569{% endif %};">{{ data.score }}/{{ data.max_score }}</span>
-                </div>
-                <div style="height:4px; width:100%; background:#e2e8f0; border-radius:2px; margin-top:6px; overflow:hidden;">
-                  <div style="height:100%; width:{% widthratio data.score data.max_score 100 %}%; background:{% if data.score >= data.max_score|add:'-2' %}#10b981{% else %}#10b981{% endif %};"></div>
-                </div>
-              </div>
-            {% endfor %}
-          </div>
-          
-          <div class="grid" style="grid-template-columns:1fr 1fr; gap:1rem; margin-top:1.25rem;">
-            <div class="card" style="padding:1rem; background:#f0fdf4; border-color:#bcf0da;">
-              <h5 style="margin:0 0 .6rem 0; color:#166534; font-size:.82rem; font-weight:900;">STRENGTHS</h5>
-              <div style="display:flex; flex-wrap:wrap; gap:.45rem;">
-                {% for s in result.general_scan_data.strengths %}
-                  <span style="font-size:.72rem; background:#fff; padding:.2rem .5rem; border-radius:999px; border:1px solid #bcf0da; color:#166534; display: inline-flex; align-items: center; gap: 4px;">
-                    <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                    {{ s }}
-                  </span>
-                {% endfor %}
-              </div>
-            </div>
-            <div class="card" style="padding:1rem; background:#fff1f2; border-color:#fecaca;">
-              <h5 style="margin:0 0 .6rem 0; color:#991b1b; font-size:.82rem; font-weight:900;">RECOMMENDATIONS</h5>
-              <div style="display:flex; flex-wrap:wrap; gap:.45rem;">
-                {% for r in result.general_scan_data.recommendations %}
-                  <span style="font-size:.72rem; background:#fff; padding:.2rem .5rem; border-radius:999px; border:1px solid #fecaca; color:#991b1b; display: inline-flex; align-items: center; gap: 4px;">
-                    <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                    {{ r }}
-                  </span>
-                {% endfor %}
-              </div>
+        <!-- Detailed Quality Breakdown -->
+        <div style="margin-top:1.5rem; display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:0.75rem;">
+          {% for cat, data in result.general_scan_data.breakdown.items %}
+          <div class="card" style="padding:0.75rem; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:11px; font-weight:800; text-transform:uppercase; color:#64748b;">{{ cat|title }}</span>
+              <span style="font-size:13px; font-weight:700; color:{% if data.score >= data.max_score|add:'-2' %}#10b981{% else %}#475569{% endif %};">{{ data.score }}/{{ data.max_score }}</span>
             </div>
           </div>
+          {% endfor %}
+        </div>
+        {% elif result.breakdown_data %}
+        <!-- AI Pillars for ATS Scan -->
+        <div style="margin-top:1.5rem; display:grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap:0.75rem;">
+          {% for pillar, score in result.breakdown_data.items %}
+          <div class="card" style="padding:0.75rem; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:10px; font-weight:800; text-transform:uppercase; color:#64748b;">{{ pillar }}</span>
+              <span style="font-size:13px; font-weight:700; color:#475569;">{{ score }}%</span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
 
-        {% else %}
-          <!-- Original Matched/Missing keywords view for standard ATS scans -->
-          <div class="grid" style="grid-template-columns:1fr 1fr; gap:1rem; margin-top:1.25rem;">
-            <div class="card" style="padding:1rem; background:#f0fdf4; border-color:#bcf0da;">
-              <h5 style="margin:0 0 .6rem 0; color:#166534; font-size:.82rem; font-weight:900;">MATCHED KEYWORDS</h5>
-              <div style="display:flex; flex-wrap:wrap; gap:.45rem;">
+        <div class="grid" style="grid-template-columns:1fr 1fr; gap:1rem; margin-top:1.25rem;">
+          <div class="card" style="padding:1rem; background:#f0fdf4; border-color:#bcf0da;">
+            <h5 style="margin:0 0 .6rem 0; color:#166534; font-size:.82rem; font-weight:900;">{% if result.general_scan_data %}STRENGTHS{% else %}MATCHED KEYWORDS{% endif %}</h5>
+            <div style="display:flex; flex-wrap:wrap; gap:.45rem;">
+              {% if result.general_scan_data %}
+                {% for s in result.general_scan_data.strengths %}
+                <span style="font-size:.72rem; background:#fff; padding:.2rem .5rem; border-radius:999px; border:1px solid #bcf0da; color:#166534; display: inline-flex; align-items: center; gap: 4px;">
+                  <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  {{ s }}
+                </span>
+                {% endfor %}
+              {% else %}
                 {% if result.matched_list %}
                 {% for kw in result.matched_list|slice:":12" %}
-                <span
-                  style="font-size:.75rem; background:#fff; padding:.28rem .55rem; border-radius:999px; border:1px solid #bcf0da;">
-                  {{ kw }}
-                </span>
+                <span style="font-size:.75rem; background:#fff; padding:.28rem .55rem; border-radius:999px; border:1px solid #bcf0da;">{{ kw }}</span>
                 {% endfor %}
                 {% else %}
                 <span class="muted" style="font-size:.82rem;">None detected</span>
                 {% endif %}
-              </div>
+              {% endif %}
             </div>
+          </div>
 
-            <div class="card" style="padding:1rem; background:#fff1f2; border-color:#fecaca;">
-              <h5 style="margin:0 0 .6rem 0; color:#991b1b; font-size:.82rem; font-weight:900;">MISSING KEYWORDS</h5>
-              <div style="display:flex; flex-wrap:wrap; gap:.45rem;">
+          <div class="card" style="padding:1rem; background:#fff1f2; border-color:#fecaca;">
+            <h5 style="margin:0 0 .6rem 0; color:#991b1b; font-size:.82rem; font-weight:900;">{% if result.general_scan_data %}RECOMMENDATIONS{% else %}MISSING KEYWORDS{% endif %}</h5>
+            <div style="display:flex; flex-wrap:wrap; gap:.45rem;">
+              {% if result.general_scan_data %}
+                {% for r in result.general_scan_data.recommendations %}
+                <span style="font-size:.72rem; background:#fff; padding:.2rem .5rem; border-radius:999px; border:1px solid #fecaca; color:#991b1b; display: inline-flex; align-items: center; gap: 4px;">
+                  <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                  </svg>
+                  {{ r }}
+                </span>
+                {% endfor %}
+              {% else %}
                 {% if result.missing_list %}
                 {% for kw in result.missing_list|slice:":12" %}
-                <span
-                  style="font-size:.75rem; background:#fff; padding:.28rem .55rem; border-radius:999px; border:1px solid #fecaca;">
-                  {{ kw }}
-                </span>
+                <span style="font-size:.75rem; background:#fff; padding:.28rem .55rem; border-radius:999px; border:1px solid #fecaca;">{{ kw }}</span>
                 {% endfor %}
                 {% else %}
                 <span class="muted" style="font-size:.82rem;">Excellent matching!</span>
                 {% endif %}
-              </div>
+              {% endif %}
             </div>
           </div>
-        {% endif %}
+        </div>
+
       </article>
       {% empty %}
       <div class="ru-card">
@@ -192,7 +195,8 @@
           A higher score indicates better alignment with the recruiter’s automated filters.
         </p>
         <div class="divider" style="background:rgba(255,255,255,.12); margin:1.5rem 0;"></div>
-        <button id="learnMoreBtn" class="btn wide" style="background:#fff; color:var(--primary); border:none; cursor:pointer;">Learn More</button>
+        <button id="learnMoreBtn" class="btn wide"
+          style="background:#fff; color:var(--primary); border:none; cursor:pointer;">Learn More</button>
       </article>
     </aside>
   </div>
@@ -200,38 +204,64 @@
 </section>
 
 <!-- ATS Scoring Info Modal -->
-<div id="atsScoringModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.6); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(4px); opacity:0; transition:opacity 0.3s ease;">
-  <div class="modal-content" style="background:#fff; border-radius:16px; width:90%; max-width:600px; padding:2rem; box-shadow:0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); transform:translateY(20px); transition:transform 0.3s ease, opacity 0.3s ease; opacity:0;">
-    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:1rem; margin-bottom:1.5rem;">
+<div id="atsScoringModal" class="modal-overlay"
+  style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.6); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(4px); opacity:0; transition:opacity 0.3s ease;">
+  <div class="modal-content"
+    style="background:#fff; border-radius:16px; width:90%; max-width:600px; padding:2rem; box-shadow:0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); transform:translateY(20px); transition:transform 0.3s ease, opacity 0.3s ease; opacity:0;">
+    <div
+      style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:1rem; margin-bottom:1.5rem;">
       <h2 style="margin:0; font-size:1.5rem; color:#0f172a; font-weight:800;">Understanding Your Score</h2>
-      <button id="closeModalBtn" style="background:none; border:none; cursor:pointer; color:#64748b; padding:0.5rem; border-radius:8px; display:flex; align-items:center; justify-content:center; transition:background 0.2s, color 0.2s;" onmouseover="this.style.background='#f1f5f9'; this.style.color='#0f172a';" onmouseout="this.style.background='none'; this.style.color='#64748b';">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button id="closeModalBtn"
+        style="background:none; border:none; cursor:pointer; color:#64748b; padding:0.5rem; border-radius:8px; display:flex; align-items:center; justify-content:center; transition:background 0.2s, color 0.2s;"
+        onmouseover="this.style.background='#f1f5f9'; this.style.color='#0f172a';"
+        onmouseout="this.style.background='none'; this.style.color='#64748b';">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
       </button>
     </div>
-    
+
     <div style="color:#475569; font-size:0.95rem; line-height:1.6;">
-      <p style="margin-bottom:1rem;">Our advanced AI-powered engine evaluates your resume against industry standards and specific job descriptions to provide you with an objective score.</p>
-      
-      <h3 style="color:#1e293b; font-size:1.1rem; margin:1.5rem 0 0.5rem 0; font-weight:700;">ATS Match Score (Targeted)</h3>
-      <p style="margin-bottom:1rem;">When you analyze your resume against a specific job post, we calculate the match percentage based on how many required keywords, skills, and tools from the job description are successfully identified in your resume.</p>
-      
-      <h3 style="color:#1e293b; font-size:1.1rem; margin:1.5rem 0 0.5rem 0; font-weight:700;">Quality Score (Quick Scan)</h3>
-      <p style="margin-bottom:1rem;">A Quick Scan assesses the overall structural quality of your resume across critical categories like Professional Summary, Grammar & Spelling, Section Completeness, and Readability. Each category contributes to the total score of 100.</p>
-      
+      <p style="margin-bottom:1rem;">Our advanced AI-powered engine evaluates your resume against industry standards and
+        specific job descriptions to provide you with an objective score.</p>
+
+      <h3 style="color:#1e293b; font-size:1.1rem; margin:1.5rem 0 0.5rem 0; font-weight:700;">ATS Match Score (Targeted)
+      </h3>
+      <p style="margin-bottom:1rem;">When you analyze your resume against a specific job post, we calculate the match
+        percentage based on how many required keywords, skills, and tools from the job description are successfully
+        identified in your resume.</p>
+
+      <h3 style="color:#1e293b; font-size:1.1rem; margin:1.5rem 0 0.5rem 0; font-weight:700;">Quality Score (Quick Scan)
+      </h3>
+      <p style="margin-bottom:1rem;">A Quick Scan assesses the overall structural quality of your resume across critical
+        categories like Professional Summary, Grammar & Spelling, Section Completeness, and Readability. Each category
+        contributes to the total score of 100.</p>
+
       <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:1rem; margin-top:1.5rem;">
-        <h4 style="margin:0 0 0.5rem 0; color:#0f172a; font-size:0.95rem; font-weight:700; display: flex; align-items: center; gap: 6px;">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #f59e0b;"><path d="M9.663 17h4.674"></path><path d="M10 20h4"></path><path d="M12 2a7 7 0 0 0-7 7c0 2.144 1.155 4.312 2.5 5.5s2.5 3.5 2.5 5.5h4c0-2 1.155-4.312 2.5-5.5s2.5-3.356 2.5-5.5a7 7 0 0 0-7-7z"></path></svg>
+        <h4
+          style="margin:0 0 0.5rem 0; color:#0f172a; font-size:0.95rem; font-weight:700; display: flex; align-items: center; gap: 6px;">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" style="color: #f59e0b;">
+            <path d="M9.663 17h4.674"></path>
+            <path d="M10 20h4"></path>
+            <path
+              d="M12 2a7 7 0 0 0-7 7c0 2.144 1.155 4.312 2.5 5.5s2.5 3.5 2.5 5.5h4c0-2 1.155-4.312 2.5-5.5s2.5-3.356 2.5-5.5a7 7 0 0 0-7-7z">
+            </path>
+          </svg>
           Pro Tip for Higher Scores
         </h4>
-        <p style="margin:0; font-size:0.9rem;">Tailor your resume for every application. Use the exact keywords mentioned in the job post, and ensure your formatting is clean and ATS-friendly without complex tables or graphics.</p>
+        <p style="margin:0; font-size:0.9rem;">Tailor your resume for every application. Use the exact keywords
+          mentioned in the job post, and ensure your formatting is clean and ATS-friendly without complex tables or
+          graphics.</p>
       </div>
     </div>
-    
+
     <div style="margin-top:2rem; text-align:right;">
-      <button id="closeModalBtnBottom" class="btn" style="background:#0f172a; color:#fff; border-radius:8px; padding:0.6rem 1.5rem; font-weight:600; font-size:0.95rem; outline:none; border:none; cursor:pointer;" onmouseover="this.style.background='#1e293b';" onmouseout="this.style.background='#0f172a';">Got it</button>
+      <button id="closeModalBtnBottom" class="btn"
+        style="background:#0f172a; color:#fff; border-radius:8px; padding:0.6rem 1.5rem; font-weight:600; font-size:0.95rem; outline:none; border:none; cursor:pointer;"
+        onmouseover="this.style.background='#1e293b';" onmouseout="this.style.background='#0f172a';">Got it</button>
     </div>
   </div>
 </div>
@@ -240,14 +270,14 @@
 
 {% block extra_js %}
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     const learnMoreBtn = document.getElementById('learnMoreBtn');
     const modal = document.getElementById('atsScoringModal');
     const modalContent = modal.querySelector('.modal-content');
     const closeBtns = [document.getElementById('closeModalBtn'), document.getElementById('closeModalBtnBottom')];
-    
-    if(learnMoreBtn && modal) {
-      learnMoreBtn.addEventListener('click', function(e) {
+
+    if (learnMoreBtn && modal) {
+      learnMoreBtn.addEventListener('click', function (e) {
         e.preventDefault();
         modal.style.display = 'flex';
         // Trigger reflow
@@ -256,8 +286,8 @@
         modalContent.style.opacity = '1';
         modalContent.style.transform = 'translateY(0)';
       });
-      
-      const closeModal = function() {
+
+      const closeModal = function () {
         modal.style.opacity = '0';
         modalContent.style.opacity = '0';
         modalContent.style.transform = 'translateY(20px)';
@@ -265,12 +295,12 @@
           modal.style.display = 'none';
         }, 300);
       };
-      
+
       closeBtns.forEach(btn => {
-        if(btn) btn.addEventListener('click', closeModal);
+        if (btn) btn.addEventListener('click', closeModal);
       });
-      
-      modal.addEventListener('click', function(e) {
+
+      modal.addEventListener('click', function (e) {
         if (e.target === modal) {
           closeModal();
         }
