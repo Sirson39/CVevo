@@ -80,7 +80,7 @@ def hr_update_candidate_status(request):
                 'Rejected': f"Thank you for your interest in the '{result.job_post.title}' role at {company_name}. We have decided to move forward with other candidates."
             }
             
-            notif_icons = { 'Shortlisted': '✨', 'Interviewing': '📅', 'Rejected': '❌' }
+            notif_icons = { 'Shortlisted': 'award', 'Interviewing': 'calendar', 'Rejected': 'x-circle' }
             notif_types = { 'Shortlisted': 'success', 'Interviewing': 'info', 'Rejected': 'warning' }
             
             Notification.push(
@@ -381,6 +381,8 @@ def login_page(request):
                 
                 if user.role == "hr":
                     return redirect("hr_dashboard")
+                elif user.role == "admin" or user.is_staff:
+                    return redirect("super_admin_dashboard")
                 else:
                     return redirect("jobseeker_dashboard")
             else:
@@ -389,6 +391,43 @@ def login_page(request):
         form = LoginForm()
 
     return render(request, "auth-login.html", {"form": form})
+
+
+def admin_login_page(request):
+    """
+    Dedicated secure login page for Administrative access.
+    Only users with the 'admin' role or staff privileges can log in here.
+    """
+    if request.user.is_authenticated:
+        if request.user.role == 'admin' or request.user.is_staff:
+            return redirect('super_admin_dashboard')
+        else:
+            # If logged in as something else, logout first to allow admin login
+            logout(request)
+
+    if request.method == "POST":
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data["email"]
+            password = form.cleaned_data["password"]
+            remember = form.cleaned_data["remember"]
+            
+            user = authenticate(request, email=email, password=password)
+            if user:
+                if user.role == 'admin' or user.is_staff:
+                    auth_login(request, user)
+                    if not remember:
+                        request.session.set_expiry(0)
+                    messages.success(request, f"Welcome to the CVevo Command Center, {user.full_name}.")
+                    return redirect("super_admin_dashboard")
+                else:
+                    messages.error(request, "Access denied. This portal is for administrators only.")
+            else:
+                messages.error(request, "Invalid administrative credentials.")
+    else:
+        form = LoginForm()
+
+    return render(request, "pages/admin_login.html", {"form": form})
 
 
 def logout_view(request):
@@ -437,7 +476,7 @@ def resume_builder(request):
         profile.summary = request.POST.get("summary", profile.summary)
         profile.save()
         messages.success(request, "Profile updated.")
-        Notification.push(request.user, "Contact & Summary info updated.", icon="👤", notif_type="success")
+        Notification.push(request.user, "Contact & Summary info updated.", icon="user", notif_type="success")
         return redirect('resume_builder')
 
     educations = profile.educations.all()
@@ -1472,7 +1511,7 @@ from django.http import JsonResponse
 @jobseeker_required
 def notify_pdf_export(request):
     """AJAX endpoint to record that a user downloaded their PDF."""
-    Notification.push(request.user, "PDF exported successfully", icon="📄", notif_type="success")
+    Notification.push(request.user, "PDF exported successfully", icon="file-text", notif_type="success")
     return JsonResponse({"status": "ok"})
 
 @hr_required

@@ -38,7 +38,10 @@
             {% if result.job_post %}
               <span style="display:inline-block; margin-top:6px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; padding:2px 8px; border-radius:999px; background:#dbeafe; color:#1d4ed8;">ATS Scan</span>
             {% else %}
-              <span style="display:inline-block; margin-top:6px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; padding:2px 8px; border-radius:999px; background:#fef9c3; color:#92400e;">⚡ Quick Scan</span>
+              <span style="display:inline-flex; align-items: center; gap: 4px; margin-top:6px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; padding:2px 8px; border-radius:999px; background:#fef9c3; color:#92400e;">
+                <svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                Quick Scan
+              </span>
             {% endif %}
             <p class="muted" style="margin:.4rem 0 0; font-size: 0.9rem;">
               {{ result.resume.jobseeker.full_name|default:"Candidate" }} • Analyzed on {{ result.analyzed_at|date:"M d, Y" }}
@@ -105,7 +108,10 @@
               <h5 style="margin:0 0 .6rem 0; color:#166534; font-size:.82rem; font-weight:900;">STRENGTHS</h5>
               <div style="display:flex; flex-wrap:wrap; gap:.45rem;">
                 {% for s in result.general_scan_data.strengths %}
-                  <span style="font-size:.72rem; background:#fff; padding:.2rem .5rem; border-radius:999px; border:1px solid #bcf0da; color:#166534;">✓ {{ s }}</span>
+                  <span style="font-size:.72rem; background:#fff; padding:.2rem .5rem; border-radius:999px; border:1px solid #bcf0da; color:#166534; display: inline-flex; align-items: center; gap: 4px;">
+                    <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    {{ s }}
+                  </span>
                 {% endfor %}
               </div>
             </div>
@@ -113,7 +119,10 @@
               <h5 style="margin:0 0 .6rem 0; color:#991b1b; font-size:.82rem; font-weight:900;">RECOMMENDATIONS</h5>
               <div style="display:flex; flex-wrap:wrap; gap:.45rem;">
                 {% for r in result.general_scan_data.recommendations %}
-                  <span style="font-size:.72rem; background:#fff; padding:.2rem .5rem; border-radius:999px; border:1px solid #fecaca; color:#991b1b;">! {{ r }}</span>
+                  <span style="font-size:.72rem; background:#fff; padding:.2rem .5rem; border-radius:999px; border:1px solid #fecaca; color:#991b1b; display: inline-flex; align-items: center; gap: 4px;">
+                    <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    {{ r }}
+                  </span>
                 {% endfor %}
               </div>
             </div>
@@ -213,7 +222,10 @@
       <p style="margin-bottom:1rem;">A Quick Scan assesses the overall structural quality of your resume across critical categories like Professional Summary, Grammar & Spelling, Section Completeness, and Readability. Each category contributes to the total score of 100.</p>
       
       <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:1rem; margin-top:1.5rem;">
-        <h4 style="margin:0 0 0.5rem 0; color:#0f172a; font-size:0.95rem; font-weight:700;">💡 Pro Tip for Higher Scores</h4>
+        <h4 style="margin:0 0 0.5rem 0; color:#0f172a; font-size:0.95rem; font-weight:700; display: flex; align-items: center; gap: 6px;">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #f59e0b;"><path d="M9.663 17h4.674"></path><path d="M10 20h4"></path><path d="M12 2a7 7 0 0 0-7 7c0 2.144 1.155 4.312 2.5 5.5s2.5 3.5 2.5 5.5h4c0-2 1.155-4.312 2.5-5.5s2.5-3.356 2.5-5.5a7 7 0 0 0-7-7z"></path></svg>
+          Pro Tip for Higher Scores
+        </h4>
         <p style="margin:0; font-size:0.9rem;">Tailor your resume for every application. Use the exact keywords mentioned in the job post, and ensure your formatting is clean and ATS-friendly without complex tables or graphics.</p>
       </div>
     </div>

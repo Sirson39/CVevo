@@ -49,14 +49,17 @@
     </form>
 
     <div class="ru-meta" style="margin-top: 1rem; gap: 8px;">
-      <div class="ru-pill ok" style="padding: 6px 12px; font-size: 12px; border-radius: 999px;">
-        <span class="ru-pill-ico" style="font-size: 11px;">✓</span> PDF files
+      <div class="ru-pill ok" style="padding: 6px 12px; font-size: 12px; border-radius: 999px; display: flex; align-items: center; gap: 6px;">
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <span>PDF files</span>
       </div>
-      <div class="ru-pill ok" style="padding: 6px 12px; font-size: 12px; border-radius: 999px;">
-        <span class="ru-pill-ico" style="font-size: 11px;">✓</span> DOCX files
+      <div class="ru-pill ok" style="padding: 6px 12px; font-size: 12px; border-radius: 999px; display: flex; align-items: center; gap: 6px;">
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <span>DOCX files</span>
       </div>
-      <div class="ru-pill warn" style="padding: 6px 12px; font-size: 12px; border-radius: 999px;">
-        <span class="ru-pill-ico" style="font-size: 11px;">!</span> Max 5MB
+      <div class="ru-pill warn" style="padding: 6px 12px; font-size: 12px; border-radius: 999px; display: flex; align-items: center; gap: 6px;">
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <span>Max 5MB</span>
       </div>
     </div>
 
@@ -89,7 +92,9 @@
       {% for resume in resumes %}
       <div class="ru-row" style="padding: 12px 16px; border-radius: 12px; background: #f8fafc; border: 1px solid #f1f5f9;">
         <div class="ru-file">
-          <span class="ru-file-ico" style="width: 36px; height: 36px; border-radius: 10px; font-size: 16px;">📄</span>
+          <span class="ru-file-ico" style="width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: #fff; border: 1px solid #e2e8f0; color: #64748b;">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          </span>
           <div>
             <div class="ru-file-name" style="font-size: 14px; font-weight: 600;">{{ resume.filename }}</div>
             <div class="ru-file-sub" style="font-size: 11px; color: #64748b;">Uploaded: {{ resume.uploaded_at|date:"Y-m-d" }} • {{ resume.file.size|filesizeformat }}</div>
