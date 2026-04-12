@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login • CVevo</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="../../assets/css/styles.css">
+  <link rel="stylesheet" href="../../assets/css/auth.css">
+  <script src="../../assets/js/app.js" defer></script>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="index.html">
+        <span class="brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7 3h7l4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" />
+            <path d="M9 13h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <path d="M9 17h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </span>
+        <span class="brand-text"><span class="c">CV</span><span class="e">evo</span></span>
+      </a>
+
+      <nav class="nav-links" id="navLinks">
+        <a href="index.html#templates">Templates</a>
+        <a href="index.html#features">Features</a>
+        <a href="index.html#how">How It Works</a>
+        <a href="organization.html">For Organizations</a>
+        <a href="index.html#resources">Resources</a>
+        <a href="index.html#contact">Contact</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a class="link" href="login.html">Sign In</a>
+        <a class="btn btn-green" href="auth-register-choose.html">Get Started</a>
+
+        <button class="burger" id="burgerBtn" aria-label="Open menu" aria-controls="navLinks" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="auth">
+    <section class="auth-shell">
+      <div class="auth-left">
+        <a class="brand" href="index.html">
+          <span class="brand-mark"></span>
+          <div class="brand-text">
+            <div class="brand-name">CVevo</div>
+            <div class="brand-sub">ATS Resume Analyzer & Builder</div>
+          </div>
+        </a>
+
+        <h1 class="auth-h1">Welcome back 👋</h1>
+        <p class="auth-p">Login to continue building an ATS-optimized resume and track your progress.</p>
+
+        <div class="auth-highlights">
+          <div class="chip">✓ Fast ATS Scan</div>
+          <div class="chip">✓ Keyword Match</div>
+          <div class="chip">✓ Templates + Export</div>
+        </div>
+
+        <div class="auth-card glass">
+          <div class="auth-card-title">Sign in</div>
+
+          <form class="form" id="loginForm" autocomplete="off">
+            <label class="field">
+              <span>Email</span>
+              <input type="email" name="email" placeholder="you@email.com" required autocomplete="off">
+            </label>
+
+            <label class="field">
+              <span>Password</span>
+              <div class="pass-row">
+                <input id="loginPass" name="password" type="password" placeholder="Your password" required autocomplete="new-password">
+              </div>
+            </label>
+
+            <div class="row between">
+              <label class="auth-check">
+                <input type="checkbox" name="remember">
+                <span>Remember me</span>
+              </label>
+              <a class="link" href="#">Forgot password?</a>
+            </div>
+
+            <button class="btn primary w100" type="submit">Login →</button>
+
+            <div class="divider"><span>or</span></div>
+
+            <a class="btn google w100" href="http://127.0.0.1:8000/auth/google/jobseeker/">
+              <span class="g-ico" aria-hidden="true">
+                <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                  <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303C33.675 32.657 29.224 36 24 36c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+                  <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4c-7.682 0-14.344 4.337-17.694 10.691z"/>
+                  <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.191-5.238C29.211 35.091 26.715 36 24 36c-5.202 0-9.64-3.317-11.283-7.946l-6.52 5.02C9.504 39.556 16.227 44 24 44z"/>
+                  <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-.792 2.225-2.282 4.104-4.085 5.57l6.191 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+                </svg>
+              </span>
+              <span>Continue with Google</span>
+            </a>
+
+            <p class="small center mt">
+              Don’t have an account?
+              <a class="link strong" href="auth-register-choose.html">Create one</a>
+            </p>
+
+            <div id="loginError" class="form-errors" style="display:none;"></div>
+          </form>
+        </div>
+      </div>
+
+      <aside class="auth-right">
+        <div class="right-card">
+          <div class="kpi">
+            <div class="kpi-num">+32%</div>
+            <div class="kpi-text">higher shortlisting rate (demo)</div>
+          </div>
+
+          <div class="mini-grid">
+            <div class="mini-card">
+              <div class="mini-top">
+                <span class="mini-dot"></span>
+                <div class="mini-title">ATS Scan</div>
+              </div>
+              <div class="mini-sub">Instant section score</div>
+            </div>
+
+            <div class="mini-card">
+              <div class="mini-top">
+                <span class="mini-dot"></span>
+                <div class="mini-title">Keyword Match</div>
+              </div>
+              <div class="mini-sub">Matched + missing</div>
+            </div>
+
+            <div class="mini-card">
+              <div class="mini-top">
+                <span class="mini-dot"></span>
+                <div class="mini-title">Export</div>
+              </div>
+              <div class="mini-sub">ATS-safe PDF</div>
+            </div>
+          </div>
+
+          <div class="preview">
+            <div class="preview-head">
+              <div class="preview-title">Live resume preview</div>
+              <div class="pill">PDF / DOCX</div>
+            </div>
+
+            <div class="preview-body">
+              <div class="resume-mock">
+                <div class="line w80"></div>
+                <div class="line w55"></div>
+                <div class="line w70"></div>
+                <div class="line w45"></div>
+                <div class="line w60"></div>
+                <div class="line w35"></div>
+
+                <div class="tags">
+                  <span class="tag">Python</span>
+                  <span class="tag">Django</span>
+                  <span class="tag">SQL</span>
+                </div>
+              </div>
+
+              <div class="meter" style="--p:72%">
+                <div class="meter-top">
+                  <div class="meter-title">Match meter</div>
+                  <div class="meter-val">72%</div>
+                </div>
+                <div class="bar"><span></span></div>
+                <div class="meter-note">Best when you add a job description.</div>
+
+                <svg class="spark" viewBox="0 0 120 28" fill="none" aria-hidden="true">
+                  <path d="M2 22 C 18 20, 22 10, 34 12 C 45 14, 52 24, 62 18 C 74 10, 80 8, 92 12 C 104 16, 110 6, 118 8"
+                        stroke="rgba(255,255,255,.65)" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="steps">
+            <div class="step">
+              <div class="step-dot"></div>
+              <div>
+                <div class="step-title">Upload resume</div>
+                <div class="step-desc">PDF / DOCX supported</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot"></div>
+              <div>
+                <div class="step-title">Get ATS breakdown</div>
+                <div class="step-desc">Keywords + structure feedback</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-dot"></div>
+              <div>
+                <div class="step-title">Export and apply</div>
+                <div class="step-desc">Clean, ATS-safe formatting</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="quote">
+            “CVevo helped me understand exactly what my resume was missing.”
+            <div class="quote-by">— Demo user</div>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    function togglePassword(id, btn){
+      const el = document.getElementById(id);
+      if(!el) return;
+      const showing = el.type === "password";
+      el.type = showing ? "text" : "password";
+      btn.classList.toggle("is-showing", showing);
+      btn.setAttribute("aria-label", showing ? "Hide password" : "Show password");
+    }
+
+    document.getElementById("loginForm").addEventListener("submit", async function(e){
+      e.preventDefault();
+
+      const form = e.target;
+      const errorBox = document.getElementById("loginError");
+      errorBox.style.display = "none";
+      errorBox.innerHTML = "";
+
+      const payload = {
+        email: form.email.value,
+        password: form.password.value,
+        remember: form.remember.checked
+      };
+
+      try {
+        const res = await fetch("/api/auth/login/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+          credentials: "include"
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          errorBox.style.display = "block";
+          errorBox.innerHTML = data.error || data.detail || data.message || "Login failed.";
+          return;
+        }
+
+        if (data.user) {
+          localStorage.setItem("currentUser", JSON.stringify(data.user));
+          if (data.user.role === "hr") {
+            window.location.href = "../hr/hr_dashboard.html";
+          } else {
+            window.location.href = "../jobseeker/jobseeker_dashboard.html";
+          }
+        } else {
+          window.location.href = "index.html";
+        }
+      } catch (err) {
+        console.error("Login Fetch Error:", err);
+        errorBox.style.display = "block";
+        errorBox.innerHTML = "Connection error. Please check if the server is running.";
+      }
+    });
+  </script>
+</body>
+</html>

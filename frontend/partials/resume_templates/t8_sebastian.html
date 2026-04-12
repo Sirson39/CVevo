@@ -1,0 +1,67 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap');
+  .t8-wrap { font-family: 'Roboto', sans-serif; background: #fff; text-align: left; position: relative; padding-bottom: 3rem; }
+  .t8-head { background-color: #ffd84d; padding: 2rem; display: flex; align-items: center; gap: 2rem; border-bottom: 2px solid #000; }
+  .t8-img-box { width: 100px; height: 100px; background: #eee; background-size: cover; border: 3px solid #000; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 900; }
+  .t8-title-box h1 { margin: 0; font-size: 2.2rem; font-weight: 900; color: #000; text-transform: uppercase; line-height: 1; }
+  .t8-role { font-size: 1rem; font-weight: 700; color: #444; margin-top: 0.5rem; }
+  
+  .t8-main { padding: 2rem; }
+  .t8-sect-head { background: #000; color: #fff; display: inline-block; padding: 0.25rem 0.8rem; font-weight: 900; text-transform: uppercase; font-size: 0.9rem; margin-bottom: 1rem; letter-spacing: 1px; }
+  .t8-p { font-size: 0.9rem; line-height: 1.6; margin-bottom: 2rem; color: #222; }
+  
+  .t8-item { margin-bottom: 1.5rem; }
+  .t8-item-title { font-weight: 900; font-size: 1rem; color: #000; border-bottom: 1px solid #eee; padding-bottom: 0.2rem; margin-bottom: 0.5rem; }
+  .t8-item-date { font-weight: 700; font-size: 0.8rem; color: #888; text-transform: uppercase; margin-bottom: 0.4rem; }
+  .t8-desc { font-size: 0.9rem; line-height: 1.6; padding-left: 1.2rem; margin: 0; }
+  
+  .t8-skills { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+  .t8-skill { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 0.9rem; }
+  .t8-skill::before { content: "▪"; color: #ffd84d; font-size: 1.2rem; }
+</style>
+
+<div class="t8-wrap">
+  <div class="t8-head">
+    <div class="t8-img-box" data-field="full_name">U</div>
+    <div class="t8-title-box">
+      <h1 data-field="full_name">YOUR NAME</h1>
+      <div class="t8-role" data-field="position">PROFESSIONAL TITLE</div>
+    </div>
+  </div>
+
+  <div class="t8-main">
+    <div class="t8-sect-head">Details</div>
+    <div class="t8-p">
+      <span data-field="location">City, Country</span><br>
+      <span data-field="phone">+1 234 567 890</span><br>
+      <span data-field="email">email@example.com</span>
+    </div>
+
+    <div class="t8-sect-head">Summary</div>
+    <p class="t8-p" data-field="summary">Your summary...</p>
+
+    <div class="t8-sect-head">Experience</div>
+    <div data-list="experiences">
+      <div class="t8-item" data-tpl>
+        <div class="t8-item-title"><span data-field="position">Position</span>, <span data-field="company">Company</span></div>
+        <div class="t8-item-date" data-field="date_range">Jan 2020 - Present</div>
+        <ul class="t8-desc">
+          <li data-field="description">Description...</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="t8-sect-head">Education</div>
+    <div data-list="educations">
+      <div class="t8-item" data-tpl>
+        <div class="t8-item-title"><span data-field="degree">Degree</span>, <span data-field="institution">Institution</span></div>
+        <div class="t8-item-date" data-field="date_range">2016 - 2020</div>
+      </div>
+    </div>
+
+    <div class="t8-sect-head">Skills</div>
+    <div class="t8-skills" data-list="skills">
+      <div class="t8-skill" data-tpl data-field="name">Skill</div>
+    </div>
+  </div>
+</div>

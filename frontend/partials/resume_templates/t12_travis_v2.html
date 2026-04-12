@@ -1,0 +1,74 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+  .t12-wrap { font-family: 'Roboto', sans-serif; background: #fff; color: #333; text-align: left; padding-bottom: 2rem; }
+  .t12-top { background-color: #fce7e7; padding: 1.5rem; text-align: center; border-bottom: 1px solid #ddd; }
+  .t12-contact-top { font-size: 0.85rem; color: #555; margin-bottom: 1rem; }
+  .t12-name { font-size: 2.22rem; font-weight: 400; color: #111; letter-spacing: 1px; text-transform: uppercase; margin: 0; }
+  .t12-role { font-size: 0.9rem; font-weight: 700; color: #555; margin-top: 0.5rem; letter-spacing: 0.5px; }
+  
+  .t12-main { padding: 2rem; }
+  .t12-sect { display: flex; gap: 2rem; margin-bottom: 2rem; }
+  .t12-label { width: 120px; font-weight: 700; text-transform: uppercase; font-size: 0.9rem; border-bottom: 2px solid #fce7e7; height: fit-content; padding-bottom: 2px; }
+  .t12-content { flex: 1; }
+  
+  .t12-p { font-size: 0.95rem; line-height: 1.6; color: #333; margin: 0; }
+  
+  .t12-item { margin-bottom: 1.5rem; }
+  .t12-item-title { font-weight: 700; font-size: 1.05rem; color: #111; margin-bottom: 0.3rem; }
+  .t12-item-date { font-weight: 700; font-size: 0.85rem; color: #000; margin-bottom: 0.5rem; }
+  .t12-desc { font-size: 0.9rem; line-height: 1.6; padding-left: 1.2rem; margin: 0.5rem 0 0 0; }
+  
+  .t12-skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .t12-skill { display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; }
+  .t12-skill::before { content: "•"; color: #fce7e7; font-size: 1.5rem; }
+</style>
+
+<div class="t12-wrap">
+  <div class="t12-top">
+    <div class="t12-contact-top"><span data-field="location">City</span> &bull; <span data-field="phone">Phone</span> &bull; <span data-field="email">Email</span></div>
+    <h1 class="t12-name" data-field="full_name">YOUR NAME</h1>
+    <div class="t12-role" data-field="position">PROFESSIONAL TITLE</div>
+  </div>
+
+  <div class="t12-main">
+    <div class="t12-sect">
+      <div class="t12-label">Summary</div>
+      <div class="t12-content">
+        <p class="t12-p" data-field="summary">Summary content...</p>
+      </div>
+    </div>
+
+    <div class="t12-sect">
+      <div class="t12-label">Skills</div>
+      <div class="t12-content">
+        <div class="t12-skills-grid" data-list="skills">
+          <div class="t12-skill" data-tpl data-field="name">Skill</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t12-sect">
+      <div class="t12-label">Experience</div>
+      <div class="t12-content" data-list="experiences">
+        <div class="t12-item" data-tpl>
+          <div class="t12-item-title"><span data-field="position" style="text-transform: uppercase;">POSITION</span> AT <span data-field="company" style="text-transform: uppercase;">COMPANY</span></div>
+          <div class="t12-item-date" data-field="date_range">01/2020 - Present</div>
+          <ul class="t12-desc">
+            <li data-field="description">Description...</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="t12-sect" style="margin-bottom:0;">
+      <div class="t12-label">Education</div>
+      <div class="t12-content" data-list="educations">
+        <div class="t12-item" data-tpl>
+          <div class="t12-item-title" style="text-transform: uppercase;" data-field="institution">INSTITUTION</div>
+          <div class="t12-item-date" data-field="date_range">2016 - 2020</div>
+          <p class="t12-p" data-field="degree">Degree Name</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

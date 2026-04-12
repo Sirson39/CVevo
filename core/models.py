@@ -45,8 +45,9 @@ class JobseekerProfile(models.Model):
     email = models.EmailField(max_length=255, blank=True)
     phone = models.CharField(max_length=20, blank=True)
     location = models.CharField(max_length=120, blank=True)
-    linkedin = models.URLField(blank=True)
-    portfolio = models.URLField(blank=True)
+    position = models.CharField(max_length=120, blank=True, help_text="Professional Title / Job Title")
+    linkedin = models.CharField(max_length=255, blank=True)
+    portfolio = models.CharField(max_length=255, blank=True)
     summary = models.TextField(blank=True)
     selected_template = models.CharField(max_length=50, default='modern_professional')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -59,7 +60,7 @@ class Education(models.Model):
     profile = models.ForeignKey(JobseekerProfile, on_delete=models.CASCADE, related_name="educations")
     institution = models.CharField(max_length=200)
     degree = models.CharField(max_length=200)
-    start_date = models.DateField()
+    start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
     description = models.TextField(blank=True)
 
@@ -71,9 +72,9 @@ class Experience(models.Model):
     profile = models.ForeignKey(JobseekerProfile, on_delete=models.CASCADE, related_name="experiences")
     company = models.CharField(max_length=200)
     position = models.CharField(max_length=200)
-    start_date = models.DateField()
+    start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
-    description = models.TextField()
+    description = models.TextField(blank=True)
 
     def __str__(self):
         return f"{self.position} at {self.company}"
@@ -83,7 +84,7 @@ class Project(models.Model):
     profile = models.ForeignKey(JobseekerProfile, on_delete=models.CASCADE, related_name="projects")
     title = models.CharField(max_length=200)
     link = models.URLField(blank=True)
-    description = models.TextField()
+    description = models.TextField(blank=True)
 
     def __str__(self):
         return self.title
@@ -172,6 +173,7 @@ class Resume(models.Model):
     filename = models.CharField(max_length=255)
     source = models.CharField(max_length=50, choices=[('Jobseeker', 'Jobseeker'), ('HR Bulk', 'HR Bulk')], default='Jobseeker')
     uploaded_at = models.DateTimeField(auto_now_add=True)
+    latest_score = models.FloatField(default=0)
 
     def __str__(self):
         owner = self.jobseeker.full_name if self.jobseeker else "Bulk Upload"

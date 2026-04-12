@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Register (HR) • CVevo</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../assets/css/styles.css">
+  <link rel="stylesheet" href="../../assets/css/auth.css">
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="index.html">
+        <span class="brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7 3h7l4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" />
+            <path d="M9 13h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <path d="M9 17h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </span>
+        <span class="brand-text"><span class="c">CV</span><span class="e">evo</span></span>
+      </a>
+
+      <nav class="nav-links" id="navLinks">
+        <a href="index.html#templates">Templates</a>
+        <a href="index.html#features">Features</a>
+        <a href="index.html#how">How It Works</a>
+        <a href="organization.html">For Organizations</a>
+        <a href="index.html#resources">Resources</a>
+        <a href="index.html#contact">Contact</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a class="link" href="login.html">Sign In</a>
+        <a class="btn btn-green" href="auth-register-choose.html">Get Started</a>
+
+        <button class="burger" id="burgerBtn" aria-label="Open menu" aria-controls="navLinks" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="auth auth--hr">
+    <section class="auth-shell">
+      <div class="auth-left">
+        <h1 class="auth-h1">Create your HR account ✨</h1>
+        <p class="auth-p">Screen faster, rank candidates consistently, and export shortlists professionally.</p>
+
+        <div class="auth-card glass">
+          <div class="auth-card-title">Sign up (HR / Recruiter)</div>
+
+          <form class="form" id="registerForm">
+            <div class="grid2">
+              <label class="field">
+                <span>Full name</span>
+                <input type="text" name="full_name" placeholder="e.g., Alex Johnson" required>
+              </label>
+
+              <label class="field">
+                <span>Company</span>
+                <input type="text" name="company" placeholder="e.g., ABC Tech" required>
+              </label>
+            </div>
+
+            <div class="grid2">
+              <label class="field">
+                <span>Work email</span>
+                <input type="email" name="email" placeholder="name@company.com" required>
+              </label>
+
+              <label class="field">
+                <span>Role</span>
+                <input type="text" name="role" placeholder="e.g., Recruiter / HR Manager" required>
+              </label>
+            </div>
+
+            <div class="grid2">
+              <label class="field">
+                <span>Password</span>
+                <input id="hrPass" type="password" name="password" placeholder="Minimum 8 characters" required>
+              </label>
+
+              <label class="field">
+                <span>Confirm password</span>
+                <input type="password" name="confirm_password" placeholder="Re-enter password" required>
+              </label>
+            </div>
+
+            <label class="auth-check">
+              <input type="checkbox" required>
+              <span>I agree to the <a class="link strong" href="#">Terms</a> and <a class="link strong" href="#">Privacy</a>.</span>
+            </label>
+
+            <button class="btn primary w100" type="submit">Create HR account →</button>
+
+            <div id="formError" class="form-errors" style="display:none; margin-top: 1rem;"></div>
+
+            <p class="small center mt">
+              Jobseeker instead?
+              <a class="link strong" href="auth-register-jobseeker.html">Create jobseeker account</a>
+            </p>
+
+            <p class="small center mt">
+              Already have an account?
+              <a class="link strong" href="login.html">Login</a>
+            </p>
+          </form>
+        </div>
+      </div>
+
+      <aside class="auth-right">
+        <div class="right-card">
+          <div class="right-title">HR tools you’ll get</div>
+
+          <div class="mini-grid">
+            <div class="mini-card">
+              <div class="mini-top"><span class="mini-dot"></span><div class="mini-title">Bulk screening</div></div>
+              <div class="mini-sub">Score resumes consistently</div>
+            </div>
+            <div class="mini-card">
+              <div class="mini-top"><span class="mini-dot"></span><div class="mini-title">Candidate ranking</div></div>
+              <div class="mini-sub">Shortlist faster</div>
+            </div>
+            <div class="mini-card">
+              <div class="mini-top"><span class="mini-dot"></span><div class="mini-title">Reports</div></div>
+              <div class="mini-sub">Export clean results</div>
+            </div>
+          </div>
+
+          <div class="feature">
+            <div class="f-ico">📌</div>
+            <div>
+              <div class="f-title">Job descriptions + match</div>
+              <div class="f-desc">Compare candidates to your JD with clear reasons.</div>
+            </div>
+          </div>
+
+          <div class="feature">
+            <div class="f-ico">🧾</div>
+            <div>
+              <div class="f-title">Consistent ATS scoring</div>
+              <div class="f-desc">Reduce bias with a repeatable scoring rubric.</div>
+            </div>
+          </div>
+
+          <div class="quote">
+            “We cut screening time by hours per role.”
+            <div class="quote-by">— Demo HR team</div>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    document.getElementById("registerForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const errorBox = document.getElementById("formError");
+      errorBox.style.display = "none";
+
+      if (form.password.value !== form.confirm_password.value) {
+        errorBox.style.display = "block";
+        errorBox.innerHTML = "Passwords do not match.";
+        return;
+      }
+
+      const payload = {
+        action: 'register-hr',
+        email: form.email.value,
+        password: form.password.value,
+        full_name: form.full_name.value,
+        company: form.company.value,
+        role_title: form.role.value
+      };
+
+      try {
+        const res = await fetch("/api/auth/register-hr/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          errorBox.style.display = "block";
+          errorBox.innerHTML = data.detail || data.message || "Registration failed.";
+          return;
+        }
+
+        // Auto login or redirect to login
+        alert("Registration successful! Please login.");
+        window.location.href = "login.html";
+      } catch (err) {
+        errorBox.style.display = "block";
+        errorBox.innerHTML = "Something went wrong. Please try again.";
+      }
+    });
+  </script>
+</body>
+</html>

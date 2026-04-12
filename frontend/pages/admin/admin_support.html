@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support Center | CVevo Admin</title>
+
+  <link rel="stylesheet" href="../../assets/css/styles.css" />
+  <link rel="stylesheet" href="../../assets/css/dashboard.css" />
+
+  <style>
+    .admin-dashboard-container { padding: 40px; }
+    .admin-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; }
+    .stats-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:20px; }
+    .mini-stat-card { background:#fff; padding:24px; border-radius:20px; border:1px solid #e2e8f0; box-shadow:0 4px 6px -1px rgba(0,0,0,0.05); }
+    .mini-stat-card span { display:block; font-size:0.85rem; font-weight:700; color:#64748b; text-transform:uppercase; }
+    .mini-stat-card strong { font-size:2rem; font-weight:800; color:#1e293b; display:block; margin-top:10px; }
+    .grid-card { background:#fff; padding:24px; border-radius:20px; border:1px solid #e2e8f0; box-shadow:0 4px 6px -1px rgba(0,0,0,0.05); }
+    .table-responsive { overflow-x:auto; margin-top:15px; }
+    .data-table { width:100%; border-collapse:collapse; text-align:left; }
+    .data-table th { padding:12px 15px; border-bottom:1px solid #f1f5f9; color:#64748b; font-size:0.8rem; text-transform:uppercase; font-weight:700; }
+    .data-table td { padding:16px 15px; border-bottom:1px solid #f8fafc; vertical-align:middle; }
+    .ticket-small { font-size:0.8rem; color:#64748b; margin-top:4px; line-height:1.4; }
+    .badge { padding:4px 10px; border-radius:20px; font-size:0.75rem; font-weight:700; }
+    .badge.resolved { background:#dcfce7; color:#15803d; }
+    .badge.pending { background:#fff7ed; color:#ea580c; }
+    .actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .action-btn { display:inline-flex; align-items:center; gap:6px; padding:7px 14px; border-radius:10px; font-size:0.8rem; font-weight:700; cursor:pointer; border:none; }
+    .action-btn.resolve { background:#dcfce7; color:#15803d; }
+    .action-btn.delete { background:#fee2e2; color:#b91c1c; }
+    .admin-btn { border:1px solid #e2e8f0; padding:10px 18px; border-radius:12px; display:flex; align-items:center; gap:8px; font-weight:700; color:#1e293b; text-decoration:none; font-size:0.9rem; }
+  </style>
+</head>
+<body class="app-body">
+  <div class="app">
+    <div id="sidebarMount"></div>
+    <div class="main">
+      <div id="topbarMount"></div>
+
+      <main class="content">
+        <div class="admin-dashboard-container">
+          <div class="admin-header">
+            <div>
+              <h1>Support Center</h1>
+              <p>Resolve user issues and track support ticket priority.</p>
+            </div>
+            <a href="./super_admin_dashboard.html" class="admin-btn">Dashboard</a>
+          </div>
+
+          <div id="statsRow" class="stats-row"></div>
+
+          <div class="grid-card" style="margin-top:30px;">
+            <h3>Support Tickets</h3>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Ticket</th>
+                    <th>Requester</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="ticketsTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="../../assets/js/app.js"></script>
+  <script src="../../assets/js/app-layout.js"></script>
+  <script>
+    initAppLayout({
+      pageKey: "admin_support",
+      title: "Support Center",
+      subtitle: "Support tickets and messages"
+    });
+
+    async function resolveTicket(id) {
+      try {
+        await fetch(`http://127.0.0.1:8000/api/admin/support/${id}/resolve/`, {
+          method: "POST",
+          credentials: "include"
+        });
+        loadSupport();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function deleteTicket(id) {
+      if (!confirm("Delete this ticket permanently?")) return;
+
+      try {
+        await fetch(`http://127.0.0.1:8000/api/admin/support/${id}/`, {
+          method: "DELETE",
+          credentials: "include"
+        });
+        loadSupport();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function loadSupport() {
+      try {
+        const res = await fetch("http://127.0.0.1:8000/api/admin/support/", {
+          credentials: "include"
+        });
+        const data = await res.json();
+
+        document.getElementById("statsRow").innerHTML = (data.show_stats || []).map(item => `
+          <div class="mini-stat-card">
+            <span>${item.label}</span>
+            <strong>${item.value}</strong>
+          </div>
+        `).join("");
+
+        document.getElementById("ticketsTableBody").innerHTML = (data.tickets || []).map(ticket => `
+          <tr>
+            <td>
+              <strong>${ticket.subject || ""}</strong>
+              <p class="ticket-small">${ticket.message || ""}</p>
+            </td>
+            <td>${ticket.user_name || ""}</td>
+            <td>
+              <span class="badge ${ticket.is_resolved ? "resolved" : "pending"}">
+                ${ticket.is_resolved ? "Resolved" : "Open"}
+              </span>
+            </td>
+            <td>${ticket.created_at || ""}</td>
+            <td class="actions">
+              ${ticket.is_resolved ? "" : `<button class="action-btn resolve" onclick="resolveTicket(${ticket.id})">Resolve</button>`}
+              <button class="action-btn delete" onclick="deleteTicket(${ticket.id})">Delete</button>
+            </td>
+          </tr>
+        `).join("");
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    loadSupport();
+  </script>
+</body>
+</html>

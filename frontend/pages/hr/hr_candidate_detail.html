@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Candidate Detail • CVevo</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../assets/css/styles.css">
+  <link rel="stylesheet" href="../../assets/css/dashboard.css">
+
+  <style>
+    .detail-card { margin-bottom: 2rem; }
+    .keyword-pill {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .matched-pill { background: #f0fdf4; color: #166534; border: 1px solid #bcf0da; }
+    .missing-pill { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .score-circle {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 8px solid #f1f5f9;
+    }
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .status-Applied { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+    .status-Shortlisted { background: #f0fdf4; color: #166534; border: 1px solid #bcf0da; }
+    .status-Interviewing { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+    .status-Rejected { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+  </style>
+</head>
+
+<body class="app-body">
+  <div class="app">
+    <div id="sidebarMount"></div>
+
+    <div class="main">
+      <div id="topbarMount"></div>
+
+      <main class="content">
+        <div class="dash-head" style="margin-bottom: 2rem;">
+          <div>
+            <h1 class="dash-welcome">Candidate Analysis</h1>
+            <p class="dash-sub">Detailed breakdown of the ATS evaluation for this resume.</p>
+          </div>
+          <div class="dash-actions">
+            <a id="backToRankingBtn" href="hr_candidate_ranking.html" class="btn btn-ghost" style="border-radius: 10px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              Back to Ranking
+            </a>
+          </div>
+        </div>
+
+        <div class="grid grid-2" style="grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;">
+          <section class="stack">
+            <article class="card pad-lg detail-card shadow-sm" style="border-radius: 20px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.4rem;">
+                    <h2 id="candidateName" style="margin: 0; font-size: 1.5rem;">Loading...</h2>
+                    <span id="candidateStatus" class="status-badge status-Applied">Applied</span>
+                  </div>
+                  <p class="muted" style="margin: 0;">Applying for: <strong id="jobTitleTop">Loading...</strong></p>
+                </div>
+                <div id="scoreCircle" class="score-circle">
+                  <span id="candidateScore" style="font-size: 1.5rem; font-weight: 900; color: #1e293b;">0%</span>
+                  <span style="font-size: 0.6rem; text-transform: uppercase; font-weight: 700; color: #64748b;">Match</span>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <div style="margin-top: 1.5rem;">
+                <h3 style="font-size: 1rem; margin-bottom: 0.75rem;">Analysis Feedback</h3>
+                <div id="feedbackBox" style="line-height: 1.8; color: #1e293b; font-size: 0.95rem; background: #f8fafc; padding: 1.5rem; border-radius: 12px; border: 1px solid #e2e8f0; white-space: pre-wrap;"></div>
+              </div>
+
+              <div class="grid grid-2" style="margin-top: 2rem; gap: 2rem;">
+                <div>
+                  <h4 style="font-size: 0.85rem; text-transform: uppercase; color: #166534; letter-spacing: 0.05em; margin-bottom: 1rem;">Matched Keywords</h4>
+                  <div id="matchedKeywords" style="display: flex; flex-wrap: wrap;"></div>
+                </div>
+                <div>
+                  <h4 style="font-size: 0.85rem; text-transform: uppercase; color: #991b1b; letter-spacing: 0.05em; margin-bottom: 1rem;">Missing Keywords</h4>
+                  <div id="missingKeywords" style="display: flex; flex-wrap: wrap;"></div>
+                </div>
+              </div>
+            </article>
+
+            <article class="card pad-lg shadow-sm" style="border-radius: 20px;">
+              <h3 style="font-size: 1rem; margin-bottom: 1rem;">Original Resume File</h3>
+              <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 1.5rem; border-radius: 12px; border: 1px solid #e2e8f0;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                  <div style="font-size: 2.5rem;">📄</div>
+                  <div>
+                    <div id="resumeFilename" style="font-weight: 700;"></div>
+                    <div id="resumeUploadedAt" style="font-size: 0.8rem; color: #64748b;"></div>
+                  </div>
+                </div>
+                <a id="resumeDownloadBtn" href="#" class="btn btn-primary" target="_blank" style="background: #1e293b; border: none; border-radius: 10px; padding: 10px 20px;">
+                  Download Resume
+                </a>
+              </div>
+            </article>
+          </section>
+
+          <aside class="stack">
+            <div class="card pad-lg shadow-sm" style="border-radius: 20px;">
+              <h3 style="font-size: 1.1rem; margin-bottom: 1.5rem;">Selection Status</h3>
+              <div class="stack" style="gap: 0.85rem;">
+                <button id="shortlistBtn" type="button" class="btn btn-primary" style="background: #10b981; border: none; width: 100%; border-radius: 12px; padding: 12px; font-weight: 700;">
+                  Shortlist Candidate
+                </button>
+
+                <button id="interviewBtn" type="button" class="btn btn-ghost" style="width: 100%; border-radius: 12px; padding: 12px; font-weight: 700; border: 1px solid #e2e8f0;">
+                  Request Interview
+                </button>
+
+                <button id="rejectBtn" type="button" class="btn" style="background: #fee2e2; color: #dc2626; border: none; width: 100%; border-radius: 12px; padding: 12px; font-weight: 700;">
+                  Reject Candidate
+                </button>
+              </div>
+            </div>
+
+            <div class="card pad-lg shadow-sm" style="margin-top: 2rem; border-radius: 20px;">
+              <h4 style="margin: 0 0 1rem 0; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b;">Job Context</h4>
+              <div style="font-size: 0.9rem; line-height: 1.6;">
+                <div id="jobTitleContext" style="font-weight: 700; margin-bottom: 0.25rem;"></div>
+                <div id="jobCompany" class="muted"></div>
+                <div class="divider" style="margin: 1rem 0;"></div>
+                <div style="font-weight: 700; margin-bottom: 0.5rem; font-size: 0.8rem; text-transform: uppercase;">Requirements</div>
+                <div id="jobRequirements" style="color: #64748b; font-size: 0.85rem;"></div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="../../assets/js/app.js"></script>
+  <script src="../../assets/js/app-layout.js"></script>
+  <script>
+    initAppLayout({
+      pageKey: "hr_candidate_detail",
+      title: "Candidate Analysis",
+      subtitle: "Detailed breakdown of the ATS evaluation for this resume."
+    });
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function getScoreColor(score) {
+      if (score >= 80) return "#10b981";
+      if (score >= 50) return "#f59e0b";
+      return "#ef4444";
+    }
+
+    function renderKeywordList(containerId, items, type) {
+      const container = document.getElementById(containerId);
+      if (!items || !items.length) {
+        container.innerHTML = `<p class="muted" style="font-size: 0.9rem;">${type === "matched" ? "No keywords matched." : "Excellent! No major keywords missing."}</p>`;
+        return;
+      }
+
+      container.innerHTML = items.map(item => `
+        <span class="keyword-pill ${type === "matched" ? "matched-pill" : "missing-pill"}">${escapeHtml(item)}</span>
+      `).join("");
+    }
+
+    async function updateStatus(resultId, action) {
+      if (action === "reject") {
+        appConfirm("Reject Candidate?", "Are you sure you want to reject this candidate? They will be notified of this decision.", async function(confirmed) {
+        if (!confirmed) return;
+        try {
+          const res = await fetch(`/api/hr/applications/${resultId}/update-status/`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ status: 'Rejected' }),
+            credentials: 'include'
+          });
+          if (res.ok) {
+            loadCandidateDetail();
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      });
+      return;
+      }
+
+      try {
+        const res = await fetch("/api/hr/update-status/", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ result_id: resultId, action })
+        });
+
+        if (res.ok) {
+          loadCandidateDetail();
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function loadCandidateDetail() {
+      const params = new URLSearchParams(window.location.search);
+      const resultId = params.get("result_id");
+      if (!resultId) return;
+
+      try {
+        const res = await fetch(`/api/hr/candidate-detail/?result_id=${resultId}`, {
+          credentials: "include"
+        });
+        const data = await res.json();
+        const result = data.result;
+
+        document.getElementById("candidateName").textContent = result.candidate_name || `Candidate #${result.id}`;
+        document.getElementById("candidateStatus").textContent = result.status;
+        document.getElementById("candidateStatus").className = `status-badge status-${result.status}`;
+        document.getElementById("jobTitleTop").textContent = result.job_post.title;
+        document.getElementById("feedbackBox").textContent = result.concise_feedback || "";
+
+        document.getElementById("candidateScore").textContent = `${Math.round(result.score)}%`;
+        document.getElementById("scoreCircle").style.borderColor = getScoreColor(result.score);
+
+        document.getElementById("resumeFilename").textContent = result.resume.filename;
+        document.getElementById("resumeUploadedAt").textContent = `Uploaded on ${result.resume.uploaded_at}`;
+        document.getElementById("resumeDownloadBtn").href = result.resume.file_url;
+
+        document.getElementById("jobTitleContext").textContent = result.job_post.title;
+        document.getElementById("jobCompany").textContent = result.job_post.company;
+        document.getElementById("jobRequirements").textContent = result.job_post.requirements || "";
+
+        document.getElementById("backToRankingBtn").href = `hr_candidate_ranking.html?job_id=${result.job_post.id}`;
+
+        renderKeywordList("matchedKeywords", result.matched_list || [], "matched");
+        renderKeywordList("missingKeywords", result.missing_list || [], "missing");
+
+        document.getElementById("shortlistBtn").onclick = () => updateStatus(result.id, "shortlist");
+        document.getElementById("interviewBtn").onclick = () => updateStatus(result.id, "interview");
+        document.getElementById("rejectBtn").onclick = () => updateStatus(result.id, "reject");
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    loadCandidateDetail();
+  </script>
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Templates Gallery • CVevo</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../assets/css/styles.css">
+  <link rel="stylesheet" href="../../assets/css/dashboard.css">
+
+  <style>
+    .dynamic-content { opacity: 0; transition: opacity 0.3s; }
+    .dynamic-content.loaded { opacity: 1; }
+    
+    .tg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2.5rem; }
+    
+    .tpl-card { 
+      background: #fff; 
+      border-radius: 20px; 
+      border: 1px solid #e2e8f0; 
+      overflow: hidden; 
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+      position: relative; 
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+    
+    .tpl-card:hover { 
+      transform: translateY(-8px); 
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); 
+      border-color: #2f8f7a; 
+    }
+    
+    .tpl-preview { 
+      background: #f1f5f9; 
+      height: 420px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      overflow: hidden; 
+      position: relative;
+    }
+    
+    .tpl-preview img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+    .tpl-card:hover .tpl-preview img { transform: scale(1.05); }
+
+    /* Hover Overlay */
+    .tpl-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(4px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 10;
+    }
+
+    .tpl-card:hover .tpl-overlay { opacity: 1; }
+
+    .tpl-overlay .btn {
+      width: 180px;
+      padding: 12px 0;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+
+    .btn-view { background: #fff; color: #1e293b; }
+    .btn-view:hover { background: #f8fafc; transform: scale(1.02); }
+
+    .btn-use { background: #2f8f7a; color: #fff; }
+    .btn-use:hover { background: #267a67; transform: scale(1.02); }
+
+    .tpl-info { padding: 1.5rem; border-top: 1px solid #f1f5f9; }
+    .tpl-name { font-weight: 800; color: #1e293b; font-size: 1.1rem; margin-bottom: 0.25rem; }
+    .tpl-tag { font-size: 0.75rem; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; }
+    
+    .active-badge { 
+      position: absolute; 
+      top: 1.25rem; 
+      left: 1.25rem; 
+      background: #2f8f7a; 
+      color: #fff; 
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      z-index: 5;
+      display: none;
+    }
+    .tpl-card.active .active-badge { display: block; }
+    .tpl-card.active { border: 2px solid #2f8f7a; }
+
+    /* Preview Modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .modal.open { display: flex; }
+    .modal-content {
+      background: #fff;
+      width: 100%;
+      max-width: 1000px;
+      height: 90vh;
+      border-radius: 20px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .modal-close {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      background: #fff;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border: none;
+      z-index: 10;
+    }
+    .modal-iframe {
+      width: 100%;
+      flex: 1;
+      border: none;
+    }
+  </style>
+</head>
+
+<body class="app-body">
+  <div class="app">
+    <div id="sidebarMount"></div>
+
+    <div class="main">
+      <div id="topbarMount"></div>
+
+      <main class="content dynamic-content" id="mainContent">
+        <div id="jobseekerStepperMount"></div>
+
+        <header class="tg-head" style="margin-bottom: 2.5rem;">
+          <h1 style="font-size: 32px; font-weight: 900; color: #1e293b; letter-spacing: -0.02em;">Templates Gallery</h1>
+          <p class="muted" style="font-size: 16px; margin-top: 8px;">Explore our collection of ATS-optimized resume templates.</p>
+        </header>
+
+        <div class="tg-grid" id="tplGrid">
+          <!-- skeleton loaders if needed -->
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Preview Modal -->
+  <div class="modal" id="previewModal">
+    <div class="modal-content" style="max-width: 800px; height: auto; max-height: 90vh;">
+      <button class="modal-close" onclick="closePreview()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1e293b" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+      <div style="padding: 1rem; overflow-y: auto; text-align: center; background: #fff;">
+        <img id="previewImg" src="" alt="Template Preview" style="width: 100%; height: auto; border-radius: 12px;">
+      </div>
+    </div>
+  </div>
+
+  <script src="../../assets/js/app.js"></script>
+  <script src="../../assets/js/app-layout.js"></script>
+  <script>
+    initAppLayout({
+      pageKey: "templates_gallery",
+      stepKey: "templates_gallery",
+      title: "Choose Template",
+      subtitle: "Select a professional design for your resume."
+    });
+
+    const grid = document.getElementById("tplGrid");
+    const modal = document.getElementById("previewModal");
+    const previewImg = document.getElementById("previewImg");
+
+    function renderTemplates(templates, selected) {
+      grid.innerHTML = templates.map(tpl => {
+        // Extract number from code like 't1_kelly' or 't14_wes'
+        const match = tpl.code.match(/t(\d+)/);
+        const num = match ? match[1] : null;
+        
+        let imgSrc = `../../assets/img/Template ${num}.png`;
+        
+        // If no number (unlikely) or special case, use fallback
+        if (!num) {
+            imgSrc = `https://placehold.co/400x600/f8fafc/2f8f7a?text=${encodeURIComponent(tpl.name)}`;
+        }
+
+        return `
+          <article class="tpl-card ${tpl.code === selected ? "active" : ""}" id="card-${tpl.code}">
+            <div class="active-badge">Current Choice</div>
+            
+            <div class="tpl-preview">
+              <img src="${imgSrc}" alt="${tpl.name}" onerror="this.src='https://placehold.co/400x600/f8fafc/2f8f7a?text=${encodeURIComponent(tpl.name)}'">
+              
+              <div class="tpl-overlay">
+                <button class="btn btn-view" onclick="viewTemplate('${imgSrc}')">View Template</button>
+                <button class="btn btn-use" onclick="useTemplate('${tpl.code}')">Use Template</button>
+              </div>
+            </div>
+
+            <div class="tpl-info">
+              <div class="tpl-name">${tpl.name}</div>
+              <div class="tpl-tag">${tpl.tagline || "Professional • ATS Optimized"}</div>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    async function loadTemplates() {
+      try {
+        const res = await fetch("/api/resume-builder/templates/", { credentials: "include" });
+        const data = await res.json();
+        renderTemplates(data.templates || [], data.selected_template);
+      } catch (e) {
+        grid.innerHTML = `<div style="padding: 2rem; color: #ef4444; font-weight: 600;">Failed to load templates. Please check your connection.</div>`;
+      }
+      document.getElementById('mainContent').classList.add('loaded');
+    }
+
+    function viewTemplate(imgSrc) {
+      previewImg.src = imgSrc;
+      modal.classList.add("open");
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closePreview() {
+      modal.classList.remove("open");
+      previewImg.src = "";
+      document.body.style.overflow = 'auto';
+    }
+
+    async function useTemplate(code) {
+      const card = document.getElementById(`card-${code}`);
+      const btn = card.querySelector('.btn-use');
+      const originalText = btn.innerText;
+      
+      btn.innerText = "Selecting...";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch("/api/resume-builder/templates/select/", {
+          method: 'POST',
+          credentials: "include",
+          headers: { 
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ template_code: code, action: 'select' })
+        });
+
+        if (res.ok) {
+          // Visual feedback
+          document.querySelectorAll('.tpl-card').forEach(c => c.classList.remove('active'));
+          card.classList.add('active');
+          
+          setTimeout(() => {
+            window.location.href = 'resume_builder.html';
+          }, 800);
+        } else {
+          const errData = await res.json().catch(() => ({}));
+          alert("Could not select template: " + (errData.error || errData.detail || res.statusText));
+        }
+      } catch (e) {
+        alert("An error occurred: " + e.message);
+      }
+
+      btn.innerText = originalText;
+      btn.disabled = false;
+    }
+
+    // Close modal on outside click
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closePreview();
+    });
+
+    loadTemplates();
+  </script>
+</body>
+</html>

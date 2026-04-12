@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume Management | CVevo Admin</title>
+
+  <link rel="stylesheet" href="../../assets/css/styles.css" />
+  <link rel="stylesheet" href="../../assets/css/dashboard.css" />
+
+  <style>
+    .admin-dashboard-container { padding: 40px; }
+    .admin-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; }
+    .analytics-row { display:grid; grid-template-columns:2fr 1fr; gap:24px; }
+    .grid-card { background:#fff; padding:24px; border-radius:20px; border:1px solid #e2e8f0; box-shadow:0 4px 6px -1px rgba(0,0,0,0.05); }
+    .main-chart { height:400px; }
+    .chart-container { height:320px; margin-top:20px; }
+    .stats-sidebar { display:flex; flex-direction:column; gap:15px; }
+    .mini-stat-card { background:#fff; padding:20px; border-radius:16px; border:1px solid #e2e8f0; }
+    .mini-stat-card span { display:block; font-size:0.8rem; font-weight:700; color:#64748b; text-transform:uppercase; }
+    .mini-stat-card strong { font-size:1.6rem; font-weight:800; color:#1e293b; display:block; margin-top:5px; }
+    .table-responsive { overflow-x:auto; margin-top:15px; }
+    .data-table { width:100%; border-collapse:collapse; text-align:left; }
+    .data-table th { padding:12px 15px; border-bottom:1px solid #f1f5f9; color:#64748b; font-size:0.8rem; text-transform:uppercase; font-weight:700; }
+    .data-table td { padding:16px 15px; border-bottom:1px solid #f8fafc; vertical-align:middle; }
+    .file-cell { display:flex; align-items:center; gap:8px; }
+    .file-icon { width:18px; color:#64748b; }
+    .source-tag { font-size:0.7rem; color:#64748b; font-weight:600; padding:2px 6px; background:#f1f5f9; border-radius:4px; }
+    .actions { display:flex; gap:8px; }
+    .btn-icon { width:32px; height:32px; border-radius:8px; display:grid; place-items:center; border:1px solid #e2e8f0; background:#fff; cursor:pointer; color:#64748b; }
+    .btn-icon svg { width:16px; height:16px; }
+    .admin-btn { border:1px solid #e2e8f0; padding:10px 18px; border-radius:12px; display:flex; align-items:center; gap:8px; font-weight:700; color:#1e293b; text-decoration:none; font-size:0.9rem; }
+  </style>
+</head>
+<body class="app-body">
+  <div class="app">
+    <div id="sidebarMount"></div>
+    <div class="main">
+      <div id="topbarMount"></div>
+
+      <main class="content">
+        <div class="admin-dashboard-container">
+          <div class="admin-header">
+            <div>
+              <h1>Resume Repository</h1>
+              <p>Manage all uploaded resumes and analyze source data.</p>
+            </div>
+            <a href="./super_admin_dashboard.html" class="admin-btn">Dashboard</a>
+          </div>
+
+          <div class="analytics-row">
+            <div class="grid-card main-chart">
+              <h3>Resume Sources</h3>
+              <div class="chart-container">
+                <canvas id="sourceChart"></canvas>
+              </div>
+            </div>
+
+            <div id="statsSidebar" class="stats-sidebar"></div>
+          </div>
+
+          <div class="grid-card" style="margin-top:30px;">
+            <h3>Uploaded Files</h3>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Filename</th>
+                    <th>Owner</th>
+                    <th>Source</th>
+                    <th>Uploaded</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="resumeTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="../../assets/js/app.js"></script>
+  <script src="../../assets/js/app-layout.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    initAppLayout({
+      pageKey: "admin_resumes",
+      title: "Resume Repository",
+      subtitle: "All uploaded resumes"
+    });
+
+    async function deleteResume(id, filename) {
+      if (!confirm(`Delete "${filename}"?`)) return;
+
+      try {
+        await fetch(`http://127.0.0.1:8000/api/admin/resumes/${id}/`, {
+          method: "DELETE",
+          credentials: "include"
+        });
+        loadResumes();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function loadResumes() {
+      try {
+        const res = await fetch("http://127.0.0.1:8000/api/admin/resumes/", {
+          credentials: "include"
+        });
+        const data = await res.json();
+
+        document.getElementById("statsSidebar").innerHTML = (data.show_stats || []).map(item => `
+          <div class="mini-stat-card">
+            <span>${item.label}</span>
+            <strong>${item.value}</strong>
+          </div>
+        `).join("");
+
+        document.getElementById("resumeTableBody").innerHTML = (data.resumes || []).map(r => `
+          <tr>
+            <td class="file-cell">
+              <svg viewBox="0 0 24 24" class="file-icon" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                <polyline points="13 2 13 9 20 9"></polyline>
+              </svg>
+              <span>${r.filename || ""}</span>
+            </td>
+            <td>${r.owner || "Bulk Upload"}</td>
+            <td><span class="source-tag">${r.source || ""}</span></td>
+            <td>${r.uploaded_at || ""}</td>
+            <td class="actions">
+              <a href="${r.file_url || "#"}" target="_blank" class="btn-icon" title="View">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </a>
+              <button class="btn-icon" title="Delete" onclick="deleteResume(${r.id}, '${r.filename}')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+              </button>
+            </td>
+          </tr>
+        `).join("");
+
+        new Chart(document.getElementById("sourceChart"), {
+          type: "bar",
+          data: {
+            labels: data.source_chart?.labels || [],
+            datasets: [{
+              label: "Resumes by Source",
+              data: data.source_chart?.data || [],
+              backgroundColor: ['#6366f1', '#f97316', '#22c55e', '#a855f7'],
+              borderRadius: 10,
+              barThickness: 60
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false
+          }
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    loadResumes();
+  </script>
+</body>
+</html>

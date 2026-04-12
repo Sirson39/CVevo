@@ -1,0 +1,66 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@400;700&display=swap');
+  .t9-wrap { font-family: 'Cardo', serif; background: #fff; padding: 3rem; color: #111; text-align: left; }
+  .t9-header { text-align: center; border-bottom: 3px solid #2c3e50; padding-bottom: 2rem; margin-bottom: 2rem; position: relative; }
+  .t9-header::after { content: ""; display: block; width: 100%; height: 1px; background: #2c3e50; margin-top: 5px; }
+  .t9-role-top { font-family: 'Montserrat', sans-serif; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: #666; letter-spacing: 2px; margin-bottom: 0.5rem; }
+  .t9-name { font-size: 2.8rem; font-weight: 700; color: #1a2a3a; margin: 0; text-transform: uppercase; letter-spacing: 2px; }
+  .t9-contact { margin-top: 1rem; font-size: 0.9rem; color: #444; word-spacing: 3px; }
+  
+  .t9-sect { display: grid; grid-template-columns: 140px 1fr; gap: 2rem; margin-bottom: 2rem; align-items: start; }
+  .t9-label { font-family: 'Montserrat', sans-serif; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; color: #2c3e50; border-right: none; }
+  .t9-p { font-size: 1rem; line-height: 1.5; text-align: justify; margin: 0; }
+  
+  .t9-skills-list { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 2rem; list-style: circle; padding-left: 1.2rem; }
+  
+  .t9-item { margin-bottom: 1.5rem; }
+  .t9-date-line { color: #888; text-transform: uppercase; font-size: 0.85rem; margin-bottom: 0.5rem; letter-spacing: 1px; font-weight: 600; }
+  .t9-item-title { font-size: 1.1rem; font-weight: 700; color: #000; margin-bottom: 0.2rem; }
+  .t9-item-title span { font-weight: 400; font-style: italic; color: #444; }
+  .t9-item-desc { font-size: 0.95rem; line-height: 1.5; padding-left: 1.2rem; margin: 0.5rem 0 0 0; }
+</style>
+
+<div class="t9-wrap">
+  <div class="t9-header">
+    <div class="t9-role-top" data-field="position">PROFESSIONAL TITLE</div>
+    <h1 class="t9-name" data-field="full_name">YOUR NAME</h1>
+    <div class="t9-contact">
+      <span data-field="location">City, Country</span> &bull; <span data-field="phone">+1 234 567 890</span> &bull; <span data-field="email">email@example.com</span>
+    </div>
+  </div>
+
+  <div class="t9-sect">
+    <div class="t9-label">Summary</div>
+    <p class="t9-p" data-field="summary">Your summary...</p>
+  </div>
+
+  <div class="t9-sect">
+    <div class="t9-label">Skills</div>
+    <ul class="t9-skills-list" data-list="skills">
+      <li data-tpl data-field="name">Skill</li>
+    </ul>
+  </div>
+
+  <div class="t9-sect">
+    <div class="t9-label">Experience</div>
+    <div data-list="experiences">
+      <div class="t9-item" data-tpl>
+        <div class="t9-date-line" data-field="date_range">Jan 2020 - Present</div>
+        <div class="t9-item-title"><span data-field="position">Position</span> <span>| <span data-field="company">Company</span></span></div>
+        <ul class="t9-item-desc">
+          <li data-field="description">Description...</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="t9-sect" style="margin-bottom: 0;">
+    <div class="t9-label">Education</div>
+    <div data-list="educations">
+      <div class="t9-item" data-tpl>
+        <div class="t9-date-line" data-field="date_range">2016 - 2020</div>
+        <div class="t9-item-title"><span data-field="degree">Degree</span> <span>| <span data-field="institution">Institution</span></span></div>
+      </div>
+    </div>
+  </div>
+</div>

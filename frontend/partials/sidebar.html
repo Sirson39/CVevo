@@ -1,0 +1,273 @@
+<aside class="sidebar" aria-label="Sidebar">
+  <!-- Top / Brand -->
+  <div class="side-top">
+    <a class="brand" id="sidebarBrandLink" href="../public/index.html">
+      <span class="brand-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M7 3h7l4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2"/>
+          <path d="M9 13h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M9 17h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span class="brand-text">
+        <span class="c">CV</span><span class="e">evo</span>
+      </span>
+    </a>
+  </div>
+
+  <!-- Scrollable menu area -->
+  <div class="side-scroll">
+    <!-- ADMIN SECTIONS -->
+    <div id="adminSections" style="display:none;">
+      <div class="side-section">
+        <div class="side-title">DASHBOARD</div>
+        <nav class="nav">
+          <a class="nav-item" data-page="super_admin_dashboard" href="../admin/super_admin_dashboard.html">
+            <span class="nav-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="nav-text">Command Center</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="side-section">
+        <div class="side-title">USER MANAGEMENT</div>
+        <nav class="nav">
+          <a class="nav-item" data-page="admin_users" href="../admin/admin_users.html">
+            <span class="nav-ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </span>
+            <span class="nav-text">All Users</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="side-section">
+        <div class="side-title">RESUME MANAGEMENT</div>
+        <nav class="nav">
+          <a class="nav-item" data-page="admin_resumes" href="../admin/admin_resumes.html">
+            <span class="nav-ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            </span>
+            <span class="nav-text">All Resumes</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="side-section">
+        <div class="side-title">ATS ANALYTICS</div>
+        <nav class="nav">
+          <a class="nav-item" data-page="admin_ats" href="../admin/admin_ats.html">
+            <span class="nav-ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            </span>
+            <span class="nav-text">ATS Results</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="side-section">
+        <div class="side-title">JOB MANAGEMENT</div>
+        <nav class="nav">
+          <a class="nav-item" data-page="admin_jobs" href="../admin/admin_jobs.html">
+            <span class="nav-ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            </span>
+            <span class="nav-text">Job Posts</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="side-section">
+        <div class="side-title">SUPPORT CENTER</div>
+        <nav class="nav">
+          <a class="nav-item" data-page="admin_support" href="../admin/admin_support.html">
+            <span class="nav-ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </span>
+            <span class="nav-text">Support Tickets</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="side-section">
+        <div class="side-title">DATABASE TOOLS</div>
+        <nav class="nav">
+          <a class="nav-item" href="/sysadmin/" target="_blank">
+            <span class="nav-ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            </span>
+            <span class="nav-text">DB Management</span>
+          </a>
+        </nav>
+      </div>
+    </div>
+
+    <!-- HR SECTIONS -->
+    <div id="hrSections" style="display:none;">
+      <div class="side-section">
+        <div class="side-title">RECRUITER</div>
+        <nav class="nav">
+          <a class="nav-item" data-page="hr_dashboard" href="../hr/hr_dashboard.html">
+            <span class="nav-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 4h7v7H4V4Z" stroke="currentColor" stroke-width="2" />
+                <path d="M13 4h7v5h-7V4Z" stroke="currentColor" stroke-width="2" />
+                <path d="M13 11h7v9h-7v-9Z" stroke="currentColor" stroke-width="2" />
+                <path d="M4 13h7v7H4v-7Z" stroke="currentColor" stroke-width="2" />
+              </svg>
+            </span>
+            <span class="nav-text">Dashboard</span>
+          </a>
+
+          <a class="nav-item" data-page="hr_create_job" href="../hr/hr_create_job.html">
+            <span class="nav-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="nav-text">Post New Job</span>
+          </a>
+
+          <a class="nav-item" data-page="hr_manage_jobs" href="../hr/hr_manage_jobs.html">
+            <span class="nav-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="nav-text">Manage Jobs</span>
+          </a>
+
+          <a class="nav-item" data-page="hr_resume_upload" href="../hr/hr_resume_upload.html">
+            <span class="nav-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 3v12M7 8l5-5 5 5M5 21h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="nav-text">Bulk Upload</span>
+          </a>
+
+          <a class="nav-item" data-page="hr_candidate_ranking" href="../hr/hr_candidate_ranking.html">
+            <span class="nav-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 20V10M18 20V4M6 20v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="nav-text">Ranking & Analysis</span>
+          </a>
+        </nav>
+      </div>
+    </div>
+
+    <!-- JOBSEEKER SECTIONS -->
+    <div id="jobseekerSections" style="display:none;">
+      <div class="side-section">
+        <div class="side-title">MAIN</div>
+        <nav class="nav">
+          <a class="nav-item" data-page="jobseeker_dashboard" href="../jobseeker/jobseeker_dashboard.html">
+            <span class="nav-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 4h7v7H4V4Z" stroke="currentColor" stroke-width="2" />
+                <path d="M13 4h7v5h-7V4Z" stroke="currentColor" stroke-width="2" />
+                <path d="M13 11h7v9h-7v-9Z" stroke="currentColor" stroke-width="2" />
+                <path d="M4 13h7v7H4v-7Z" stroke="currentColor" stroke-width="2" />
+              </svg>
+            </span>
+            <span class="nav-text">Dashboard</span>
+          </a>
+
+          <a class="nav-item" data-page="resume_upload" href="../jobseeker/resume_upload.html">
+            <span class="nav-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 3v12M7 8l5-5 5 5M5 21h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="nav-text">Resume Upload</span>
+          </a>
+
+          <a class="nav-item" data-page="analysis_results" href="../jobseeker/analysis_results.html">
+            <span class="nav-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 20V10M18 20V4M6 20v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="nav-text">Analysis Results</span>
+          </a>
+
+          <a class="nav-item" data-page="resume_builder" href="../jobseeker/resume_builder.html">
+            <span class="nav-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="nav-text">Resume Builder</span>
+          </a>
+
+          <a class="nav-item" data-page="templates_gallery" href="../jobseeker/templates_gallery.html">
+            <span class="nav-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 5h16M4 12h10M4 19h16M16 10h4v4h-4v-4Z" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </span>
+            <span class="nav-text">Templates Gallery</span>
+          </a>
+
+          <a class="nav-item" data-page="export_downloads" href="../jobseeker/export_downloads.html">
+            <span class="nav-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 3v10M8 10l4 4 4-4M5 21h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="nav-text">Export / Downloads</span>
+          </a>
+        </nav>
+      </div>
+    </div>
+
+    <!-- ACCOUNT (Common Sections) -->
+    <div class="side-section">
+      <div class="side-title">ACCOUNT</div>
+      <nav class="nav">
+        <a class="nav-item" id="sidebarProfileLink" data-page="profile_settings" href="../jobseeker/profile_settings.html">
+          <span class="nav-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20 21a8 8 0 0 0-16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </span>
+          <span class="nav-text">Profile &amp; Settings</span>
+        </a>
+
+        <div id="helpSection">
+          <a class="nav-item" id="sidebarHelpLink" data-page="help_support" href="../jobseeker/help_support.html">
+            <span class="nav-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 18h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                <path d="M9.5 9a2.5 2.5 0 1 1 4.2 1.8c-.9.7-1.7 1.2-1.7 2.7v.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </span>
+            <span class="nav-text">Help / Support</span>
+          </a>
+        </div>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Bottom / Logout -->
+  <div class="side-bottom">
+    <a class="logout" href="#" id="logoutBtn">
+      <span class="logout-ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 7V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-7a2 2 0 0 1-2-2v-1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M15 12H3m0 0 3-3m-3 3 3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span>Logout</span>
+    </a>
+  </div>
+</aside>

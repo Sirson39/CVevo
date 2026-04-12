@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Profile Settings • CVevo</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../assets/css/styles.css">
+  <link rel="stylesheet" href="../../assets/css/dashboard.css">
+</head>
+
+<body class="app-body">
+  <div class="app">
+    <div id="sidebarMount"></div>
+
+    <div class="main">
+      <div id="topbarMount"></div>
+
+      <main class="content">
+        <div class="ru-head" style="margin-bottom: 2rem;">
+          <div>
+            <h1 class="ru-title" style="font-size: 24px;">Profile Settings</h1>
+            <p class="ru-sub">Manage your personal information and account details.</p>
+          </div>
+        </div>
+
+        <section class="ru-page">
+          <div class="grid grid-2" style="grid-template-columns: 1.2fr 0.8fr; gap: 2rem;">
+            <div class="stack" style="gap: 1.5rem;">
+              <article class="card pad-lg">
+                <h3 style="margin-bottom: 1.5rem; font-size: 18px;">Personal Information</h3>
+                <form id="profileForm" class="stack" style="gap: 1.25rem;">
+                  <div class="field">
+                    <label class="label">Full Name</label>
+                    <input type="text" name="full_name" id="fullName" class="input" placeholder="Your Name" required>
+                  </div>
+
+                  <div class="field">
+                    <label class="label">Email Address</label>
+                    <input type="email" name="email" id="email" class="input" placeholder="you@example.com" readonly style="background: #f8fafc;">
+                  </div>
+
+                  <div class="field">
+                    <label class="label">Phone Number</label>
+                    <input type="tel" name="phone" id="phone" class="input" placeholder="+1234567890">
+                  </div>
+
+                  <div class="field">
+                    <label class="label">Professional Summary</label>
+                    <textarea name="summary" id="summary" class="input" rows="4" placeholder="Brief about your career goals and skills..."></textarea>
+                  </div>
+
+                  <div style="margin-top: 1rem;">
+                    <button type="submit" id="saveBtn" class="btn btn-primary" style="padding: 10px 24px;">Save Changes</button>
+                    <span id="saveMsg" style="margin-left: 1rem; font-size: 13px; font-weight: 600;"></span>
+                  </div>
+                </form>
+              </article>
+            </div>
+
+            <aside class="stack">
+              <article class="card pad-lg" style="background: #f8fafc; border-style: dashed;">
+                <h3 style="margin-bottom: 1rem; font-size: 16px;">Account Type</h3>
+                <div style="display: flex; align-items: center; gap: 10px; padding: 12px; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0;">
+                  <div style="width: 32px; height: 32px; border-radius: 50%; background: #dbeafe; color: #1d4ed8; display: grid; place-items: center;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  </div>
+                  <div style="font-weight: 700; color: #1e293b;">Jobseeker Account</div>
+                </div>
+              </article>
+            </aside>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="../../assets/js/app.js"></script>
+  <script src="../../assets/js/app-layout.js"></script>
+  <script>
+    initAppLayout({
+      pageKey: "profile_settings",
+      title: "Profile Settings",
+      subtitle: "Update your personal details"
+    });
+
+    async function loadProfile() {
+      try {
+        const res = await fetch("/api/jobseeker/profile/me/", {
+          credentials: "include"
+        });
+        const data = await res.json();
+
+        document.getElementById("fullName").value = data.full_name || "";
+        document.getElementById("email").value = data.user?.email || "";
+        document.getElementById("phone").value = data.phone || "";
+        document.getElementById("summary").value = data.summary || "";
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    document.getElementById("profileForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("saveBtn");
+      const msg = document.getElementById("saveMsg");
+      
+      btn.disabled = true;
+      btn.textContent = "Saving...";
+      msg.textContent = "";
+
+      const payload = {
+        full_name: document.getElementById("fullName").value,
+        phone: document.getElementById("phone").value,
+        summary: document.getElementById("summary").value
+      };
+
+      try {
+        const res = await fetch("/api/jobseeker/profile/me/", {
+          method: "PATCH",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          msg.textContent = "Settings updated successfully! ✅";
+          msg.style.color = "#10b981";
+          // Update localStorage
+          const userStr = localStorage.getItem("currentUser");
+          if (userStr) {
+            const user = JSON.parse(userStr);
+            user.full_name = payload.full_name;
+            localStorage.setItem("currentUser", JSON.stringify(user));
+            // Update UI
+            if (window.setUserUI) window.setUserUI();
+          }
+        } else {
+          msg.textContent = "Failed to update settings. ❌";
+          msg.style.color = "#ef4444";
+        }
+      } catch (err) {
+        msg.textContent = "An error occurred. ❌";
+        msg.style.color = "#ef4444";
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Save Changes";
+      }
+    });
+
+    loadProfile();
+  </script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+  .t6-wrap { font-family: 'IBM Plex Sans', sans-serif; display: flex; background: #fff; color: #1a1a1b; min-height: 850px; text-align: left; }
+  .t6-left { width: 35%; padding: 2rem; border-right: 1px solid #e2e8f0; }
+  .t6-right { width: 65%; padding: 2rem 2.5rem; }
+  
+  .t6-name { font-size: 2.2rem; font-weight: 700; margin: 0 0 0.5rem 0; text-transform: uppercase; letter-spacing: 1px; line-height: 1.1; }
+  .t6-job-title { font-size: 1rem; color: #4b5563; font-weight: 500; margin-bottom: 2rem; }
+  
+  .t6-sect { margin-bottom: 2rem; }
+  .t6-sect-title { font-size: 0.95rem; font-weight: 700; text-transform: uppercase; margin-bottom: 0.8rem; border-bottom: 2px solid #1a1a1b; padding-bottom: 0.3rem; display: inline-block; }
+  
+  .t6-label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: #4b5563; margin-bottom: 0.3rem; }
+  .t6-v { font-size: 0.85rem; margin-bottom: 1.2rem; }
+  
+  .t6-item { margin-bottom: 1.5rem; }
+  .t6-item-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.3rem; }
+  .t6-item-title { font-weight: 700; font-size: 0.95rem; }
+  .t6-item-date { font-weight: 600; font-size: 0.85rem; color: #4b5563; }
+  .t6-item-sub { font-weight: 600; font-size: 0.85rem; margin-bottom: 0.4rem; display: flex; justify-content: space-between; }
+  .t6-item-desc { font-size: 0.85rem; line-height: 1.6; margin: 0; padding-left: 1rem; }
+</style>
+
+<div class="t6-wrap">
+  <div class="t6-left">
+    <h1 class="t6-name" data-field="full_name">YOUR NAME</h1>
+    <div class="t6-job-title" data-field="position">PROFESSIONAL TITLE</div>
+    
+    <div class="t6-sect">
+        <div class="t6-sect-title">Details</div>
+        <div class="t6-label">Address</div>
+        <div class="t6-v" data-field="location">City, Country</div>
+        
+        <div class="t6-label">Phone</div>
+        <div class="t6-v" data-field="phone">+1 234 567 890</div>
+        
+        <div class="t6-label">Email</div>
+        <div class="t6-v" data-field="email">email@example.com</div>
+    </div>
+    
+    <div class="t6-sect">
+        <div class="t6-sect-title">Skills</div>
+        <div style="font-size: 0.85rem; line-height: 2;" data-list="skills">
+            <div data-tpl data-field="name">Skill Name</div>
+        </div>
+    </div>
+  </div>
+
+  <div class="t6-right">
+    <div class="t6-sect">
+        <div class="t6-sect-title">Summary</div>
+        <p style="font-size: 0.85rem; line-height: 1.7;" data-field="summary">Your summary...</p>
+    </div>
+
+    <div class="t6-sect">
+        <div class="t6-sect-title">Experience</div>
+        <div data-list="experiences">
+            <div class="t6-item" data-tpl>
+                <div class="t6-item-top">
+                    <span class="t6-item-title"><span data-field="position">Role</span>, <span data-field="company">Company</span></span>
+                    <span class="t6-item-date" data-field="date_range">Jan 2020 - Current</span>
+                </div>
+                <p class="t6-item-desc" data-field="description">Job description...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="t6-sect">
+        <div class="t6-sect-title">Education</div>
+        <div data-list="educations">
+            <div class="t6-item" data-tpl>
+                <div class="t6-item-top">
+                    <span class="t6-item-title"><span data-field="institution">Institution</span>, <span data-field="degree">Degree</span></span>
+                    <span class="t6-item-date" data-field="date_range">2016 - 2020</span>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+</div>

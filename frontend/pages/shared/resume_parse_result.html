@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Parsing Results • CVevo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/cvevo/css/styles.css">
+  <link rel="stylesheet" href="../assets/cvevo/css/dashboard.css">
+  <style>
+    .dynamic-content { opacity: 0; transition: opacity 0.3s; }
+    .dynamic-content.loaded { opacity: 1; }
+    .pr-card { background: #fff; border-radius: 20px; padding: 2.5rem; border: 1px solid #e2e8f0; max-width: 900px; margin: 0 auto; }
+    .pr-header { margin-bottom: 2rem; }
+    .pr-section { margin-bottom: 2rem; padding: 1.5rem; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; }
+    .pr-section h3 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 1rem; }
+    .pr-field { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
+    .pr-field label { font-weight: 700; color: #1e293b; font-size: 0.9rem; }
+    .pr-field input { padding: 0.75rem; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: 500; }
+    .pr-warning { background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; padding: 1rem; border-radius: 12px; margin-bottom: 2rem; font-size: 0.9rem; line-height: 1.5; }
+  </style>
+</head>
+<body class="app-body">
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-brand">CVevo</div>
+      <nav class="sidebar-nav">
+        <a href="jobseeker_dashboard.html">Dashboard</a>
+        <a href="resume_upload.html" class="active">Upload & Analyze</a>
+        <a href="resume_builder.html">Build Resume</a>
+        <a href="#" id="logoutBtn">Logout</a>
+      </nav>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">Parsing Engine</div>
+        <div id="userHeaderName">User</div>
+      </header>
+
+      <main class="content dynamic-content" id="mainContent">
+        <div class="pr-card">
+          <div class="pr-header">
+            <h1 style="font-size: 24px; font-weight: 800; color: #1e293b;">Review Extracted Information</h1>
+            <p class="muted">Check if we captured your details correctly from your uploaded file.</p>
+          </div>
+
+          <div id="parsingWarning" class="pr-warning" style="display:none;">
+            <strong>⚠️ Parsing Note:</strong> Some complex formatting was detected. Please review the details below to ensure accuracy.
+          </div>
+
+          <form id="parsingForm">
+            <div class="pr-section">
+              <h3>Personal Data</h3>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="pr-field">
+                  <label>Full Name</label>
+                  <input type="text" id="pName" placeholder="Extracted Name...">
+                </div>
+                <div class="pr-field">
+                  <label>Email Address</label>
+                  <input type="email" id="pEmail" placeholder="Extracted Email...">
+                </div>
+                <div class="pr-field">
+                  <label>Phone Number</label>
+                  <input type="text" id="pPhone" placeholder="Extracted Phone...">
+                </div>
+                <div class="pr-field">
+                  <label>Location</label>
+                  <input type="text" id="pLocation" placeholder="Extracted Location...">
+                </div>
+              </div>
+            </div>
+
+            <div class="pr-section">
+              <h3>Professional Summary</h3>
+              <div class="pr-field">
+                <textarea id="pSummary" style="width: 100%; min-height: 120px; padding: 0.75rem; border-radius: 8px; border: 1px solid #cbd5e1; font-family: inherit; resize: vertical;" placeholder="Extracted summary..."></textarea>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+              <button type="submit" class="btn btn-primary" style="flex: 1; padding: 1rem; background: #10b981; border: none; border-radius: 10px;">Confirm & Import to Profile</button>
+              <a href="resume_builder.html" class="btn btn-ghost" style="padding: 1rem; border: 2px solid #e2e8f0; border-radius: 10px; text-decoration: none; text-align: center;">Edit Manually Instead</a>
+            </div>
+          </form>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (!user.id) {
+        window.location.href = '../login.html';
+        return;
+      }
+      document.getElementById('userHeaderName').innerText = user.email;
+
+      // Mocking the data being passed from previous page via query OR fetch latest resume parse
+      // In a real app, you might fetch /api/latest-parse/
+      
+      const mockData = {
+          name: user.full_name || "John Doe",
+          email: user.email,
+          phone: "555-0199",
+          location: "New York, USA",
+          summary: "Experienced software engineer with a focus on building scalable web applications using modern JavaScript frameworks..."
+      };
+
+      // Populate
+      document.getElementById('pName').value = mockData.name;
+      document.getElementById('pEmail').value = mockData.email;
+      document.getElementById('pPhone').value = mockData.phone;
+      document.getElementById('pLocation').value = mockData.location;
+      document.getElementById('pSummary').value = mockData.summary;
+
+      document.getElementById('parsingForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const btn = e.target.querySelector('button');
+          btn.innerText = "Syncing Profile...";
+          btn.disabled = true;
+
+          const payload = {
+            full_name: document.getElementById('pName').value,
+            phone: document.getElementById('pPhone').value,
+            location: document.getElementById('pLocation').value,
+            summary: document.getElementById('pSummary').value
+          };
+
+          try {
+              const res = await fetch(`http://127.0.0.1:8000/api/users/${user.id}/`, {
+                  method: 'PATCH',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(payload)
+              });
+              if (res.ok) {
+                  alert("Parsed data successfully imported to your profile!");
+                  window.location.href = 'jobseeker_dashboard.html';
+              }
+          } catch(e) {}
+          btn.innerText = "Confirm & Import to Profile";
+          btn.disabled = false;
+      });
+
+      document.getElementById('logoutBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.removeItem('user');
+        window.location.href = '../login.html';
+      });
+
+      document.getElementById('mainContent').classList.add('loaded');
+    });
+  </script>
+</body>
+</html>

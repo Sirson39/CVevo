@@ -1,0 +1,95 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&display=swap');
+  .t18-wrap { font-family: 'Crimson Pro', serif; background: #fff; color: #1e293b; padding: 3rem; text-align: left; min-height: 850px; }
+  .t18-top-line { border-top: 8px solid #0f172a; margin-top: -3rem; margin-left: -3rem; margin-right: -3rem; padding-top: 3rem; }
+  .t18-head { display: grid; grid-template-columns: 1fr 200px; gap: 4rem; margin-bottom: 3rem; padding: 0 3rem; }
+  
+  .t18-name { font-size: 3rem; font-weight: 700; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 2px; }
+  .t18-role { font-size: 1.2rem; font-weight: 600; color: #475569; margin-top: 0.5rem; }
+  
+  .t18-img-sidebar { width: 180px; height: 180px; border: 1px solid #e2e8f0; overflow: hidden; margin-top: -1rem; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 4rem; color: #fff; font-weight: 700; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
+  
+  .t18-main { display: grid; grid-template-columns: 1fr 200px; gap: 4rem; padding: 0 3rem; }
+  
+  .t18-sect { margin-bottom: 2.5rem; }
+  .t18-sect-title { font-size: 1.1rem; font-weight: 700; text-transform: uppercase; border-bottom: 1px solid #0f172a; padding-bottom: 0.3rem; margin-bottom: 1.2rem; color: #0f172a; display: flex; align-items: center; justify-content: space-between; }
+  .t18-line { height: 1px; background: #e2e8f0; flex: 1; margin-left: 1rem; }
+  
+  .t18-p { font-size: 1.1rem; line-height: 1.5; color: #334155; margin-bottom: 2rem; }
+  
+  .t18-item { margin-bottom: 2rem; }
+  .t18-item-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem; }
+  .t18-item-title { font-weight: 700; font-size: 1.2rem; color: #0f172a; }
+  .t18-item-sub { font-weight: 600; font-size: 1rem; color: #475569; }
+  .t18-item-date { font-weight: 600; font-size: 0.95rem; color: #64748b; }
+  .t18-desc { font-size: 1.05rem; line-height: 1.6; color: #334155; padding-left: 1.2rem; margin-top: 0.5rem; }
+  
+  .t18-side-sect { margin-bottom: 2.5rem; }
+  .t18-side-title { font-size: 1rem; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; color: #0f172a; }
+  .t18-side-item { font-size: 1rem; margin-bottom: 0.8rem; line-height: 1.4; color: #334155; }
+</style>
+
+<div class="t18-wrap">
+  <div class="t18-top-line"></div>
+  <div class="t18-head">
+    <div>
+      <h1 class="t18-name" data-field="full_name">YOUR NAME</h1>
+      <div class="t18-role" data-field="position">PROFESSIONAL TITLE</div>
+    </div>
+    <div class="t18-img-sidebar" data-field="full_name">U</div>
+  </div>
+
+  <div class="t18-main">
+    <div class="t18-content">
+      <div class="t18-sect">
+        <div class="t18-sect-title">Summary <div class="t18-line"></div></div>
+        <p class="t18-p" data-field="summary">Your summary...</p>
+      </div>
+
+      <div class="t18-sect">
+        <div class="t18-sect-title">Experience <div class="t18-line"></div></div>
+        <div data-list="experiences">
+          <div class="t18-item" data-tpl>
+            <div class="t18-item-head">
+              <span class="t18-item-title" data-field="company">Company</span>
+              <span class="t18-item-date" data-field="date_range">Jan 2020 — Current</span>
+            </div>
+            <div class="t18-item-sub" data-field="position">Position</div>
+            <ul class="t18-desc">
+              <li data-field="description">Description...</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="t18-sect">
+        <div class="t18-sect-title">Education <div class="t18-line"></div></div>
+        <div data-list="educations">
+          <div class="t18-item" data-tpl>
+            <div class="t18-item-head">
+              <span class="t18-item-title" data-field="institution">Institution</span>
+              <span class="t18-item-date" data-field="date_range">2016 — 2020</span>
+            </div>
+            <div class="t18-item-sub" data-field="degree">Degree</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t18-sidebar">
+      <div class="t18-side-sect">
+        <div class="t18-side-title">Contact</div>
+        <div class="t18-side-item">✉ <span data-field="email">email@example.com</span></div>
+        <div class="t18-side-item">📍 <span data-field="location">City, Country</span></div>
+        <div class="t18-side-item">📞 <span data-field="phone">+1 234 567 890</span></div>
+      </div>
+
+      <div class="t18-side-sect">
+        <div class="t18-side-title">Skills</div>
+        <div data-list="skills">
+          <div class="t18-side-item" data-tpl>• <span data-field="name">Skill</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

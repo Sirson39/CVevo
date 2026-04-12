@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Quick Analysis • CVevo</title>
+  <link rel="stylesheet" href="../../assets/css/styles.css">
+  <link rel="stylesheet" href="../../assets/css/dashboard.css">
+</head>
+
+<body class="app-body">
+  <div class="app">
+    <div id="sidebarMount"></div>
+    <div class="main">
+      <div id="topbarMount"></div>
+      <main class="content">
+        <div class="ru-head"
+          style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: start;">
+          <div>
+            <h1 class="ru-title" style="font-size: 24px;">Quick ATS Analysis</h1>
+            <p class="ru-sub" style="font-size: 13px; color: #64748b;">Scan your resume against any job description
+              instantly.</p>
+          </div>
+          <a class="btn btn-ghost" href="jobseeker_dashboard.html">Back</a>
+        </div>
+
+        <form id="quickAnalysisForm">
+          <div class="grid grid-2" style="gap: 2rem; align-items: start; grid-template-columns: 1.2fr 0.8fr;">
+            <!-- Left: Job Description -->
+            <div class="card" style="padding: 24px; border-radius: 12px;">
+              <h3 style="margin: 0 0 1rem 0; font-size: 18px; font-weight: 700;">Job Information</h3>
+              <div class="stack" style="gap: 1.5rem;">
+                <div class="rb-field">
+                  <span style="display:block; font-weight:600; font-size:12px; margin-bottom:6px;">Job Title
+                    (Optional)</span>
+                  <input type="text" name="job_title" placeholder="e.g. Senior Frontend Developer"
+                    style="width: 100%; border-radius: 8px; border: 1px solid #e2e8f0; padding:10px;">
+                </div>
+                <div class="rb-field">
+                  <span style="display:block; font-weight:600; font-size:12px; margin-bottom:6px;">Job
+                    Description</span>
+                  <textarea name="job_description" rows="12" required placeholder="Paste the job description here..."
+                    style="width: 100%; border-radius: 8px; border: 1px solid #e2e8f0; padding:12px;"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Resume Picker -->
+            <div class="stack" style="gap: 1.5rem;">
+              <div class="card" style="padding: 24px; border-radius: 12px;">
+                <h3 style="margin: 0 0 1rem 0; font-size: 16px; font-weight: 700;">Select Resume</h3>
+                <div id="resumeList" class="stack" style="gap: 10px;">
+                  <div class="muted">Loading resumes...</div>
+                </div>
+                <button type="submit" id="analyzeBtn" class="btn btn-primary"
+                  style="width: 100%; padding: 12px; background: #10b981; margin-top: 1.5rem; font-weight: 700;">Analyze
+                  Match Score</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </main>
+    </div>
+  </div>
+
+  <script src="../../assets/js/app.js"></script>
+  <script src="../../assets/js/app-layout.js"></script>
+  <script>
+    initAppLayout({ pageKey: "analysis_results" });
+
+    async function loadResumes() {
+      try {
+        const res = await fetch('/api/resumes/');
+        const resumes = await res.json();
+        const container = document.getElementById("resumeList");
+
+        if (resumes.length === 0) {
+          container.innerHTML = '<div class="muted">No resumes found. Please upload one first.</div>';
+          document.getElementById("analyzeBtn").disabled = true;
+          return;
+        }
+
+        container.innerHTML = resumes.map((r, i) => `
+          <label style="display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid #f1f5f9; border-radius: 8px; cursor: pointer;">
+            <input type="radio" name="resume_id" value="${r.id}" ${i === 0 ? 'checked' : ''}>
+            <div>
+              <div style="font-weight: 600; font-size: 13px;">${r.filename}</div>
+              <div style="font-size: 11px; color: #64748b;">Uploaded ${new Date(r.uploaded_at).toLocaleDateString()}</div>
+            </div>
+          </label>
+        `).join('');
+      } catch (e) { }
+    }
+
+    document.getElementById("quickAnalysisForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("analyzeBtn");
+      btn.innerText = "Analyzing...";
+      btn.disabled = true;
+
+      const payload = {
+        resume_id: e.target.resume_id.value,
+        job_description: e.target.job_description.value,
+        job_title: e.target.job_title.value
+      };
+
+      try {
+        const res = await fetch('/api/analysis/quick/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          },
+          credentials: 'include',
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+        if (res.ok) {
+          window.location.href = `analysis_results.html?result_id=${result.id}`;
+        } else {
+          alert("Analysis failed: " + (result.error || "Please check inputs."));
+          btn.innerText = "Analyze Match Score";
+          btn.disabled = false;
+        }
+      } catch (e) {
+        alert("Server error.");
+      }
+    });
+
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    loadResumes();
+  </script>
+</body>
+
+</html>

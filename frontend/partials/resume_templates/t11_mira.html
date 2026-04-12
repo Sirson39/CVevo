@@ -1,0 +1,67 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  .t11-wrap { font-family: 'Inter', sans-serif; background: #fff; color: #1e293b; text-align: left; padding-bottom: 3rem; }
+  .t11-header { background-color: #f8fafc; padding: 3rem 2rem; text-align: center; border-bottom: 2px solid #e2e8f0; margin-bottom: 2.5rem; }
+  .t11-name { font-size: 2.5rem; font-weight: 500; text-transform: uppercase; letter-spacing: 2px; color: #0f172a; margin: 0 0 0.5rem 0; }
+  .t11-role { font-size: 0.95rem; font-weight: 600; text-transform: uppercase; color: #475569; letter-spacing: 1px; }
+  
+  .t11-main { display: grid; grid-template-columns: 240px 1fr; gap: 3rem; padding: 0 2.5rem; }
+  .t11-sidebar { border-right: none; }
+  .t11-contact { list-style: none; padding: 0; margin: 0 0 2rem 0; font-size: 0.9rem; line-height: 1.8; color: #334155; }
+  
+  .t11-sect-title { font-size: 1.1rem; font-weight: 700; text-transform: uppercase; color: #0f172a; margin-bottom: 1.2rem; border-bottom: 2px solid #0f172a; display: inline-block; padding-bottom: 0.2rem; }
+  .t11-p { font-size: 0.95rem; line-height: 1.6; margin-bottom: 2.5rem; text-align: justify; }
+  
+  .t11-item { margin-bottom: 1.8rem; }
+  .t11-item-title { font-weight: 700; font-size: 1.05rem; color: #1e293b; }
+  .t11-item-date { font-weight: 700; font-size: 0.9rem; color: #0f172a; margin: 0.3rem 0; }
+  .t11-item-desc { font-size: 0.9rem; line-height: 1.6; padding-left: 1.2rem; margin-top: 0.5rem; color: #334155; }
+  
+  .t11-skills { list-style: none; padding: 0; font-size: 0.95rem; line-height: 2; color: #334155; }
+</style>
+
+<div class="t11-wrap">
+  <div class="t11-header">
+    <h1 class="t11-name" data-field="full_name">YOUR NAME</h1>
+    <div class="t11-role" data-field="position">PROFESSIONAL TITLE</div>
+  </div>
+
+  <div class="t11-main">
+    <div class="t11-sidebar">
+      <ul class="t11-contact">
+        <li data-field="phone">+1 234 567 890</li>
+        <li style="margin-top:0.4rem;" data-field="email">email@example.com</li>
+        <li style="margin-top:0.4rem;" data-field="location">City, Country</li>
+      </ul>
+
+      <div class="t11-sect-title">Skills</div>
+      <ul class="t11-skills" data-list="skills">
+        <li data-tpl data-field="name">Skill Name</li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="t11-sect-title">Summary</div>
+      <p class="t11-p" data-field="summary">Your summary...</p>
+
+      <div class="t11-sect-title">Experience</div>
+      <div data-list="experiences">
+        <div class="t11-item" data-tpl>
+          <div class="t11-item-title"><span data-field="position">Position</span>, <span data-field="company">Company</span></div>
+          <div class="t11-item-date" data-field="date_range">Jan 2020 — Present</div>
+          <ul class="t11-item-desc">
+            <li data-field="description">Description...</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="t11-sect-title">Education</div>
+      <div data-list="educations">
+        <div class="t11-item" data-tpl>
+          <div class="t11-item-title"><span data-field="institution">Institution</span>, <span data-field="degree">Degree</span></div>
+          <div class="t11-item-date" data-field="date_range">2016 — 2020</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

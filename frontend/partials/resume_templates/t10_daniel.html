@@ -1,0 +1,82 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap');
+  .t10-wrap { font-family: 'Space Grotesk', sans-serif; background: #f0fcd4; color: #111; padding: 3rem; text-align: left; min-height: 850px; }
+  .t10-head { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; margin-bottom: 3rem; align-items: start; }
+  .t10-name { font-size: 3.5rem; font-weight: 700; line-height: 0.9; margin: 0; letter-spacing: -2px; }
+  .t10-role-wrap { margin-top: 1rem; display: flex; align-items: center; gap: 1rem; }
+  .t10-arrow { width: 30px; height: 30px; border: 1px solid #111; border-radius: 50%; display: flex; align-items: center; justify-content: center; transform: rotate(45deg); }
+  .t10-role { font-size: 1.1rem; font-weight: 400; }
+  
+  .t10-details-box { border-top: 1px solid #111; padding-top: 1rem; }
+  .t10-detail-row { display: grid; grid-template-columns: 80px 1fr; font-size: 0.9rem; margin-bottom: 0.8rem; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 0.5rem; }
+  .t10-detail-row strong { color: #000; }
+  
+  .t10-section { margin-top: 3rem; }
+  .t10-sect-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #111; padding-bottom: 0.5rem; margin-bottom: 1rem; }
+  .t10-sect-title { font-size: 1.4rem; font-weight: 700; }
+  .t10-icon { font-size: 1.5rem; }
+  
+  .t10-p { font-size: 0.95rem; line-height: 1.5; color: #333; }
+  
+  .t10-item { margin-bottom: 1.5rem; }
+  .t10-item-date { font-size: 0.85rem; color: #555; margin-bottom: 0.3rem; }
+  .t10-item-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.2rem; }
+  .t10-item-desc { padding-left: 1.2rem; margin-top: 0.5rem; font-size: 0.95rem; line-height: 1.5; }
+  
+  .t10-skills { display: grid; grid-template-columns: 1fr; gap: 0.5rem; }
+  .t10-skill { display: flex; align-items: center; gap: 1rem; }
+  .t10-skill::before { content: "•"; font-size: 1.5rem; }
+</style>
+
+<div class="t10-wrap">
+  <div class="t10-head">
+    <div>
+        <h1 class="t10-name" data-field="full_name">YOUR NAME</h1>
+        <div class="t10-role-wrap">
+            <div class="t10-arrow">→</div>
+            <div class="t10-role" data-field="position">PROFESSIONAL TITLE</div>
+        </div>
+    </div>
+    <div class="t10-details-box">
+        <div style="font-weight: 700; margin-bottom: 1rem; font-size: 1.1rem;">Details</div>
+        <div class="t10-detail-row"><strong>Phone</strong> <span data-field="phone">+1 234 567 890</span></div>
+        <div class="t10-detail-row"><strong>Email</strong> <span data-field="email">email@example.com</span></div>
+        <div class="t10-detail-row"><strong>Location</strong> <span data-field="location">City, Country</span></div>
+    </div>
+  </div>
+
+  <section class="t10-section">
+    <div class="t10-sect-header">
+        <div class="t10-sect-title">Summary</div>
+        <div class="t10-icon">✦</div>
+    </div>
+    <p class="t10-p" data-field="summary">Your summary...</p>
+  </section>
+
+  <section class="t10-section">
+    <div class="t10-sect-header">
+        <div class="t10-sect-title">Experience</div>
+        <div class="t10-icon">✦</div>
+    </div>
+    <div data-list="experiences">
+      <div class="t10-item" data-tpl>
+          <div class="t10-item-date" data-field="date_range">Jan 2020 - Present</div>
+          <div class="t10-item-title" data-field="company">Company Name</div>
+          <div style="font-style: italic;" data-field="position">Position Name</div>
+          <ul class="t10-item-desc">
+              <li data-field="description">Description...</li>
+          </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="t10-section">
+    <div class="t10-sect-header">
+        <div class="t10-sect-title">Skills</div>
+        <div class="t10-icon">✦</div>
+    </div>
+    <div class="t10-skills" data-list="skills">
+        <div class="t10-skill" data-tpl data-field="name">Skill</div>
+    </div>
+  </section>
+</div>

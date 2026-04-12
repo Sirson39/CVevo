@@ -1,0 +1,58 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Garamond:ital,wght@0,400;0,700;1,400&family=Playfair+Display:wght@700&display=swap');
+  .t7-wrap { font-family: 'Garamond', serif; color: #2c3e50; background: #fff; padding: 3rem; text-align: left; }
+  .t7-header { text-align: center; border-bottom: 2px solid #34495e; padding-bottom: 1rem; margin-bottom: 2rem; }
+  .t7-name { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: #2980b9; margin: 0; }
+  .t7-role { font-size: 1.1rem; font-weight: 700; text-transform: uppercase; margin-top: 0.5rem; color: #34495e; }
+  .t7-contact { margin-top: 1rem; font-size: 0.9rem; color: #7f8c8d; }
+  
+  .t7-sect-title { font-weight: 700; color: #2980b9; border-bottom: 1px solid #bdc3c7; margin-bottom: 1rem; padding-bottom: 0.2rem; margin-top: 1.5rem; font-size: 1.05rem; }
+  .t7-p { font-size: 0.95rem; line-height: 1.5; margin-bottom: 1rem; text-align: justify; }
+  
+  .t7-item { margin-bottom: 1.2rem; }
+  .t7-item-head { display: flex; justify-content: space-between; font-weight: 700; font-size: 1rem; margin-bottom: 0.2rem; }
+  .t7-item-sub { font-style: italic; color: #34495e; margin-bottom: 0.4rem; }
+  .t7-desc { padding-left: 1.5rem; margin: 0; font-size: 0.95rem; line-height: 1.4; }
+  
+  .t7-skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 2rem; padding-left: 1rem; list-style: disc; }
+</style>
+
+<div class="t7-wrap">
+  <div class="t7-header">
+    <h1 class="t7-name" data-field="full_name">YOUR NAME</h1>
+    <div class="t7-role" data-field="position">PROFESSIONAL TITLE</div>
+    <div class="t7-contact">
+      <span data-field="location">City, Country</span> &bull; <span data-field="phone">+1 234 567 890</span> &bull; <span data-field="email">email@example.com</span>
+    </div>
+  </div>
+
+  <div class="t7-sect-title">Summary</div>
+  <p class="t7-p" data-field="summary">Your summary...</p>
+
+  <div class="t7-sect-title">Experience</div>
+  <div data-list="experiences">
+    <div class="t7-item" data-tpl>
+      <div class="t7-item-head">
+        <span data-field="position">Position</span>
+        <span data-field="date_range">01/2020 - Current</span>
+      </div>
+      <div class="t7-item-sub" data-field="company">Company Name</div>
+      <ul class="t7-desc">
+        <li data-field="description">Job description...</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="t7-sect-title">Education</div>
+  <div data-list="educations">
+    <div class="t7-item" data-tpl style="display: flex; justify-content: space-between; font-weight: 700;">
+      <span><span data-field="degree">Degree</span>, <span data-field="institution">Institution</span></span>
+      <span data-field="date_range">2016 - 2020</span>
+    </div>
+  </div>
+
+  <div class="t7-sect-title">Skills</div>
+  <ul class="t7-skills-grid" data-list="skills">
+    <li data-tpl data-field="name">Skill Name</li>
+  </ul>
+</div>

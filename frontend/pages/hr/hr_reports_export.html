@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CVevo • Reports & Exports</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../assets/css/styles.css">
+  <link rel="stylesheet" href="../../assets/css/dashboard.css">
+</head>
+
+<body class="app-body">
+  <div class="app">
+    <div id="sidebarMount"></div>
+
+    <div class="main">
+      <div id="topbarMount"></div>
+
+      <main class="content" id="pageContent">
+        <section class="rp-head">
+          <div>
+            <h2 class="h2x">Reports & Exports</h2>
+            <p class="muted">Export candidate rankings, view summaries, and share with your team.</p>
+          </div>
+
+          <div class="rp-actions" id="topExportAction"></div>
+        </section>
+
+        <!-- Filters -->
+        <section class="rp-filters mt-18">
+          <div class="rp-search">
+            <span class="rp-ico" style="display: flex; align-items: center; justify-content: center; width: 18px; color: #64748b;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+            </span>
+            <input type="text" id="reportSearch" placeholder="Search job / candidate / keyword..." />
+          </div>
+
+          <form id="jobFilterForm" class="rp-controls">
+            <select id="jobSelect" name="job_id" class="rp-select">
+              <option value="">-- Select Job Post --</option>
+            </select>
+
+            <button class="btnx btnx-ghost" type="submit">Apply</button>
+          </form>
+        </section>
+
+        <!-- Report cards -->
+        <section class="rp-grid mt-18">
+          <article class="panel rp-card">
+            <div class="panel-head">
+              <h3 class="panel-title">Top Candidates</h3>
+              <span class="tag tag-green">Summary</span>
+            </div>
+
+            <div class="rp-kpis">
+              <div class="rp-kpi">
+                <div class="muted">Highest ATS</div>
+                <div class="rp-num" id="highestAts">0</div>
+              </div>
+              <div class="rp-kpi">
+                <div class="muted">Avg ATS</div>
+                <div class="rp-num" id="avgAts">0</div>
+              </div>
+              <div class="rp-kpi">
+                <div class="muted">Shortlisted</div>
+                <div class="rp-num" id="shortlistedCount">0</div>
+              </div>
+            </div>
+
+            <div class="rp-list" id="topCandidatesList">
+              <p class="muted" style="padding:1rem;">No candidates analyzed yet.</p>
+            </div>
+
+            <div class="rp-card-actions mt-14" id="cardExportAction"></div>
+          </article>
+
+          <article class="panel rp-card">
+            <div class="panel-head">
+              <h3 class="panel-title">Skills Gap</h3>
+              <span class="tag">Insights</span>
+            </div>
+
+            <div class="rp-chart" id="skillsGapChart">
+              <div class="muted" style="padding:1rem;">No skills gap data available.</div>
+            </div>
+
+            <div class="note-box mt-14" id="skillsSuggestion">
+              <strong>Suggestion:</strong> Add more structured skills to improve filtering.
+            </div>
+
+            <div class="rp-card-actions mt-14">
+              <button class="btnx btnx-ghost sm" type="button">Export Skills</button>
+              <button class="btnx btnx-primary sm" type="button" onclick="goToCandidates()">View Candidates</button>
+            </div>
+          </article>
+
+          <article class="panel rp-card">
+            <div class="panel-head">
+              <h3 class="panel-title">Hiring Pipeline</h3>
+              <span class="tag">Stages</span>
+            </div>
+
+            <div class="rp-pipe">
+              <div class="pipe-item">
+                <div class="pipe-top">
+                  <strong>Applied</strong>
+                  <span class="tag" id="pipeAppliedNum">0</span>
+                </div>
+                <div class="pipe-bar"><div id="pipeAppliedBar" style="width:0%"></div></div>
+              </div>
+
+              <div class="pipe-item">
+                <div class="pipe-top">
+                  <strong>Screening</strong>
+                  <span class="tag" id="pipeScreeningNum">0</span>
+                </div>
+                <div class="pipe-bar"><div id="pipeScreeningBar" style="width:0%"></div></div>
+              </div>
+
+              <div class="pipe-item">
+                <div class="pipe-top">
+                  <strong>Interview</strong>
+                  <span class="tag" id="pipeInterviewNum">0</span>
+                </div>
+                <div class="pipe-bar"><div id="pipeInterviewBar" style="width:0%"></div></div>
+              </div>
+
+              <div class="pipe-item">
+                <div class="pipe-top">
+                  <strong>Offer</strong>
+                  <span class="tag" id="pipeOfferNum">0</span>
+                </div>
+                <div class="pipe-bar"><div id="pipeOfferBar" style="width:0%"></div></div>
+              </div>
+            </div>
+
+            <div class="rp-card-actions mt-14">
+              <button class="btnx btnx-ghost sm" type="button">Download Summary</button>
+              <button class="btnx btnx-primary sm" type="button">Share</button>
+            </div>
+          </article>
+        </section>
+
+        <!-- Detailed export table -->
+        <section class="panel mt-18">
+          <div class="panel-head">
+            <h3 class="panel-title" id="exportPreviewTitle">Export Preview</h3>
+            <div class="table-actions" id="tableExportAction"></div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Candidate</th>
+                  <th>ATS</th>
+                  <th>Match Skills</th>
+                  <th style="text-align:right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="exportPreviewBody">
+                <tr>
+                  <td colspan="5" style="text-align:center; padding: 2rem;" class="muted">Select a job post to see candidates.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="appConfirmModal">
+      <div class="confirm-box">
+        <div class="confirm-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3 class="confirm-h3">Are you sure?</h3>
+        <p class="confirm-p">This action cannot be undone. Please confirm to proceed.</p>
+        <div class="confirm-btns">
+          <button type="button" class="c-btn c-btn-cancel">Cancel</button>
+          <button type="button" class="c-btn c-btn-confirm">Yes, Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../assets/js/app.js"></script>
+  <script src="../../assets/js/app-layout.js"></script>
+
+  <script>
+    initAppLayout({
+      pageKey: "hr_reports_export",
+      title: "Reports & Exports",
+      subtitle: "Export candidate rankings, view summaries, and share with your team."
+    });
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function getQueryParam(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name) || "";
+    }
+
+    function goToCandidates() {
+      const jobId = getQueryParam("job_id");
+      if (jobId) {
+        window.location.href = `hr_candidate_ranking.html?job_id=${jobId}`;
+      }
+    }
+
+    function buildCsvLink(jobId) {
+      return `http://127.0.0.1:8000/api/hr/export-csv/?job_id=${jobId}`;
+    }
+
+    function renderExportButtons(jobId) {
+      const buttonHtml = jobId
+        ? `<a href="${buildCsvLink(jobId)}" class="btnx btnx-primary" style="text-decoration:none;">Download Ranking CSV</a>`
+        : "";
+
+      document.getElementById("topExportAction").innerHTML = buttonHtml;
+      document.getElementById("cardExportAction").innerHTML = buttonHtml;
+      document.getElementById("tableExportAction").innerHTML = buttonHtml;
+    }
+
+    function renderTopCandidates(results) {
+      const container = document.getElementById("topCandidatesList");
+
+      if (!results.length) {
+        container.innerHTML = `<p class="muted" style="padding:1rem;">No candidates analyzed yet.</p>`;
+        return;
+      }
+
+      container.innerHTML = results.slice(0, 5).map(res => `
+        <div class="rp-row">
+          <div>
+            <strong>${escapeHtml(res.candidate_name || `Candidate ${res.resume_id}`)}</strong>
+            <div class="muted">${escapeHtml(res.job_title || "")}</div>
+          </div>
+          <span class="tag ${res.score >= 80 ? "tag-green" : ""}">${Math.round(res.score)}</span>
+        </div>
+      `).join("");
+    }
+
+    function renderSkillsGap(skillsGap) {
+      const container = document.getElementById("skillsGapChart");
+
+      if (!skillsGap || !skillsGap.length) {
+        container.innerHTML = `<div class="muted" style="padding:1rem;">No skills gap data available.</div>`;
+        return;
+      }
+
+      container.innerHTML = skillsGap.map(skill => `
+        <div class="bar">
+          <span style="width:${skill.percent}%"></span>
+          <label>${escapeHtml(skill.name)}</label>
+          <em>${skill.percent}%</em>
+        </div>
+      `).join("");
+    }
+
+    function renderPipeline(pipeline) {
+      document.getElementById("pipeAppliedNum").textContent = pipeline.applied_count ?? 0;
+      document.getElementById("pipeScreeningNum").textContent = pipeline.screening_count ?? 0;
+      document.getElementById("pipeInterviewNum").textContent = pipeline.interview_count ?? 0;
+      document.getElementById("pipeOfferNum").textContent = pipeline.offer_count ?? 0;
+
+      document.getElementById("pipeAppliedBar").style.width = `${pipeline.applied_percent ?? 0}%`;
+      document.getElementById("pipeScreeningBar").style.width = `${pipeline.screening_percent ?? 0}%`;
+      document.getElementById("pipeInterviewBar").style.width = `${pipeline.interview_percent ?? 0}%`;
+      document.getElementById("pipeOfferBar").style.width = `${pipeline.offer_percent ?? 0}%`;
+    }
+
+    function renderPreviewTable(results) {
+      const body = document.getElementById("exportPreviewBody");
+
+      if (!results.length) {
+        body.innerHTML = `
+          <tr>
+            <td colspan="5" style="text-align:center; padding: 2rem;" class="muted">Select a job post to see candidates.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      body.innerHTML = results.map((res, index) => `
+        <tr>
+          <td><span class="rank">${index + 1}</span></td>
+          <td>
+            <div class="t-main">${escapeHtml(res.candidate_name || `Candidate ${res.resume_id}`)}</div>
+            <div class="muted t-sub">${escapeHtml(res.resume_filename || "")}</div>
+          </td>
+          <td><span class="score">${Math.round(res.score)}</span></td>
+          <td><span class="tag tag-green">${escapeHtml((res.matched_keywords_preview || ""))}</span></td>
+          <td style="text-align:right;">
+            <a href="hr_candidate_detail.html?result_id=${res.id}" class="btnx btnx-ghost sm">View Detail</a>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    async function loadReportData() {
+      const selectedJobId = getQueryParam("job_id");
+      const search = document.getElementById("reportSearch").value.trim();
+
+      try {
+        const res = await fetch(`http://127.0.0.1:8000/api/hr/reports-export/?job_id=${selectedJobId}&q=${encodeURIComponent(search)}`, {
+          credentials: "include"
+        });
+
+        const data = await res.json();
+
+        const jobSelect = document.getElementById("jobSelect");
+        const selectedId = selectedJobId || "";
+
+        jobSelect.innerHTML = `<option value="">-- Select Job Post --</option>` +
+          (data.job_posts || []).map(job => `
+            <option value="${job.id}" ${String(job.id) === String(selectedId) ? "selected" : ""}>${escapeHtml(job.title)}</option>
+          `).join("");
+
+        renderExportButtons(selectedId);
+
+        const selectedJob = data.selected_job || null;
+        document.getElementById("exportPreviewTitle").textContent =
+          selectedJob ? `Export Preview (${selectedJob.title})` : "Export Preview";
+
+        const summary = data.summary || {};
+        document.getElementById("highestAts").textContent = summary.highest_ats ?? 0;
+        document.getElementById("avgAts").textContent = summary.avg_ats ?? 0;
+        document.getElementById("shortlistedCount").textContent = summary.shortlisted ?? 0;
+
+        renderTopCandidates(data.results || []);
+        renderSkillsGap(data.skills_gap || []);
+        renderPipeline(data.pipeline || {
+          applied_count: 0,
+          screening_count: 0,
+          interview_count: 0,
+          offer_count: 0,
+          applied_percent: 0,
+          screening_percent: 0,
+          interview_percent: 0,
+          offer_percent: 0
+        });
+
+        document.getElementById("skillsSuggestion").innerHTML =
+          `<strong>Suggestion:</strong> ${escapeHtml(data.skills_suggestion || "Add more structured skills to improve filtering.")}`;
+
+        renderPreviewTable(data.results || []);
+      } catch (err) {
+        console.error("Failed to load reports export data:", err);
+      }
+    }
+
+    document.getElementById("jobFilterForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const jobId = document.getElementById("jobSelect").value;
+      const url = jobId ? `hr_reports_export.html?job_id=${jobId}` : "hr_reports_export.html";
+      window.location.href = url;
+    });
+
+    document.getElementById("reportSearch").addEventListener("input", function() {
+      clearTimeout(window.__reportSearchTimer);
+      window.__reportSearchTimer = setTimeout(loadReportData, 400);
+    });
+
+    loadReportData();
+  </script>
+</body>
+</html>

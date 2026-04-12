@@ -1,0 +1,78 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Source+Sans+Pro:wght@400;600&display=swap');
+  .t3-wrap { font-family: 'Source Sans Pro', sans-serif; background: #fff; color: #1e293b; text-align: left; padding-bottom: 2rem; }
+  .t3-top { background-color: #d1bba8; padding: 2rem; display: flex; gap: 2rem; align-items: center; }
+  .t3-avatar { width: 120px; height: 120px; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 3rem; font-family: 'Playfair Display', serif; color: #d1bba8; margin-right: 1rem; }
+  .t3-header-text h1 { font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 500; margin: 0 0 0.5rem 0; color: #1e293b; letter-spacing: 0.5px; }
+  .t3-header-text .role { font-weight: 600; font-size: 1rem; margin-bottom: 1rem; }
+  .t3-header-text .contact { font-size: 0.8rem; line-height: 1.6; }
+  
+  .t3-main { display: flex; padding: 2rem; gap: 2rem; }
+  .t3-sidebar { width: 35%; border-right: 1px solid #e2e8f0; padding-right: 1.5rem; }
+  .t3-content { width: 65%; }
+  
+  .t3-sect-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; border-bottom: 2px solid #1e293b; display: inline-block; padding-bottom: 0.2rem; }
+  .t3-p { font-size: 0.85rem; line-height: 1.6; margin-bottom: 2rem; text-align: justify; }
+  
+  .t3-skills { list-style: none; padding: 0; margin: 0 0 2rem 0; font-size: 0.85rem; line-height: 1.8; }
+  .t3-skills li::before { content: "-"; margin-right: 0.5rem; }
+  
+  .t3-item { margin-bottom: 1.5rem; }
+  .t3-item-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.3rem; }
+  .t3-item-title { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 600; font-style: italic; }
+  .t3-item-date { font-family: 'Playfair Display', serif; font-size: 0.85rem; font-weight: 600; font-style: italic; }
+  .t3-item-company { font-size: 0.85rem; margin-bottom: 0.5rem; }
+  .t3-item-desc { font-size: 0.85rem; line-height: 1.6; margin: 0; padding-left: 0.8rem; }
+</style>
+
+<div class="t3-wrap">
+  <div class="t3-top">
+    <div class="t3-avatar" data-field="full_name">U</div>
+    <div class="t3-header-text">
+      <h1 data-field="full_name">YOUR NAME</h1>
+      <div class="role" data-field="position">PROFESSIONAL TITLE</div>
+      <div class="contact">
+        <span data-field="location">City, Country</span><br>
+        <span data-field="email">email@example.com</span><br>
+        <span data-field="phone">+1 234 567 890</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="t3-main">
+    <div class="t3-sidebar">
+      <div class="t3-sect-title">Summary</div>
+      <p class="t3-p" data-field="summary">Your summary goes here...</p>
+      
+      <div class="t3-sect-title">Skills</div>
+      <ul class="t3-skills" data-list="skills">
+        <li data-tpl data-field="name">Skill Item</li>
+      </ul>
+    </div>
+    
+    <div class="t3-content">
+      <div class="t3-sect-title">Experience</div>
+      <div data-list="experiences">
+        <div class="t3-item" data-tpl>
+          <div class="t3-item-header">
+            <div class="t3-item-title" data-field="position">Position</div>
+            <div class="t3-item-date" data-field="date_range">Jan 2020 — Present</div>
+          </div>
+          <div class="t3-item-company" style="font-weight: 600;" data-field="company">Company Name</div>
+          <p class="t3-item-desc" data-field="description">Description of your work...</p>
+        </div>
+      </div>
+      
+      <div class="t3-sect-title" style="margin-top: 2rem;">Education</div>
+      <div data-list="educations">
+        <div class="t3-item" data-tpl>
+          <div class="t3-item-header">
+            <div class="t3-item-title" data-field="institution">Institution</div>
+            <div class="t3-item-date" data-field="date_range">2016 — 2020</div>
+          </div>
+          <div class="t3-item-company" data-field="degree">Degree Name</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

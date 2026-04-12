@@ -1,0 +1,83 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&display=swap');
+  .t19-wrap { font-family: 'Roboto Slab', serif; background: #fff; color: #1a1a1b; min-height: 850px; text-align: left; }
+  .t19-header { background-color: #333; color: #fff; padding: 2rem 3rem; display: flex; align-items: center; gap: 2rem; }
+  
+  .t19-img-mini { width: 80px; height: 80px; border-radius: 4px; border: 2px solid rgba(255,255,255,0.2); overflow: hidden; background: #444; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 700; color: #fff; }
+  
+  .t19-title-box h1 { font-size: 2.22rem; font-weight: 700; margin: 0; letter-spacing: 0.5px; }
+  .t19-role { font-size: 1rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 2px; margin-top: 0.4rem; }
+  
+  .t19-contact-strip { background-color: #1a1a1b; color: #fff; padding: 0.8rem 3rem; display: flex; gap: 1.5rem; font-size: 0.8rem; }
+  .t19-contact-item { display: flex; align-items: center; gap: 0.5rem; opacity: 0.9; }
+  
+  .t19-content { padding: 3rem; }
+  .t19-sect { margin-bottom: 2.5rem; }
+  .t19-sect-title { font-size: 1.2rem; font-weight: 700; border-bottom: 1.5px solid #1a1a1b; padding-bottom: 0.5rem; margin-bottom: 1.2rem; text-transform: uppercase; color: #1a1a1b; }
+  
+  .t19-p { font-size: 0.95rem; line-height: 1.6; color: #333; }
+  
+  .t19-item { margin-bottom: 1.5rem; }
+  .t19-item-title { font-weight: 700; font-size: 1rem; margin-bottom: 0.2rem; }
+  .t19-item-date { font-size: 0.85rem; color: #666; font-style: italic; margin-bottom: 0.6rem; }
+  .t19-desc { font-size: 0.9rem; line-height: 1.6; padding-left: 1.2rem; }
+  
+  .t19-skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .t19-skill { font-size: 0.95rem; color: #333; }
+</style>
+
+<div class="t19-wrap">
+  <div class="t19-header">
+    <div class="t19-img-mini" data-field="full_name">U</div>
+    <div class="t19-title-box">
+      <h1 data-field="full_name">YOUR NAME</h1>
+      <div class="t19-role" data-field="position">PROFESSIONAL TITLE</div>
+    </div>
+  </div>
+
+  <div class="t19-contact-strip">
+    <div class="t19-contact-item">✉ <span data-field="email">email@example.com</span></div>
+    <div class="t19-contact-item">📍 <span data-field="location">City, Country</span></div>
+    <div class="t19-contact-item">📞 <span data-field="phone">+1 234 567 890</span></div>
+  </div>
+
+  <div class="t19-content">
+    <div class="t19-sect">
+      <div class="t19-sect-title">Summary</div>
+      <p class="t19-p" data-field="summary">Your summary content...</p>
+    </div>
+
+    <div class="t19-sect">
+      <div class="t19-sect-title">Experience</div>
+      <div data-list="experiences">
+        <div class="t19-item" data-tpl>
+          <div class="t19-item-title"><span data-field="position">Role</span>, <span data-field="company">Company</span></div>
+          <div class="t19-item-date" data-field="date_range">Jan 2020 — Current</div>
+          <ul class="t19-desc">
+            <li data-field="description">Description of your work...</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3.33rem;">
+        <div class="t19-sect">
+          <div class="t19-sect-title">Education</div>
+          <div data-list="educations">
+            <div class="t19-item" data-tpl>
+              <div class="t19-item-title" data-field="degree">Degree</div>
+              <div class="t19-item-date" data-field="date_range">2016 — 2020</div>
+              <div style="font-size: 0.9rem;" data-field="institution">Institution</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="t19-sect">
+          <div class="t19-sect-title">Skills</div>
+          <div class="t19-skills-grid" data-list="skills">
+            <div class="t19-skill" data-tpl>• <span data-field="name">Skill</span></div>
+          </div>
+        </div>
+    </div>
+  </div>
+</div>

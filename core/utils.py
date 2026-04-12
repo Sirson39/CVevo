@@ -98,16 +98,25 @@ def calculate_ats_score(resume_text, job_requirements, **kwargs):
         parsed_data = parse_resume(resume_text)
         result = new_ats_score(parsed_data, jd_text=job_requirements, jd_fields=jd_fields)
         # Extract the fields expected by the caller as a tuple
-        score_val = result.get("final_score", 0)
-        matched_val = result.get("matched_skills", [])
-        missing_val = result.get("missing_skills", [])
-        feedback_val = result.get("feedback", "")
-        pillars_val = result.get("pillars", {})
-        return score_val, matched_val, missing_val, feedback_val, pillars_val
+        return {
+            "ats_score": result.get("final_score", 0),
+            "matched_keywords": result.get("matched_skills", []),
+            "missing_skills": result.get("missing_skills", []),
+            "feedback": result.get("feedback", ""),
+            "pillars": result.get("pillars", {}),
+            "suggestions": result.get("suggestions", [])
+        }
 
     # Basic logic as fallback
     if not job_requirements:
-        return 0, [], [], "No requirements provided for comparison.", {}
+        return {
+            "ats_score": 0,
+            "matched_keywords": [],
+            "missing_skills": [],
+            "feedback": "No requirements provided for comparison.",
+            "pillars": {},
+            "suggestions": []
+        }
 
     req_keywords = [k.strip().lower() for k in job_requirements.split(',') if k.strip()]
     resume_text_lower = resume_text.lower()
@@ -131,7 +140,14 @@ def calculate_ats_score(resume_text, job_requirements, **kwargs):
     else:
         feedback += " Excellent match with all requirements!"
 
-    return round(score, 2), matched, missing, feedback, {}
+    return {
+        "ats_score": round(score, 2),
+        "matched_keywords": matched,
+        "missing_skills": missing,
+        "feedback": feedback,
+        "pillars": {},
+        "suggestions": []
+    }
 
 
 def calculate_general_score(resume_text, file_size, extension):
@@ -143,6 +159,43 @@ def calculate_general_score(resume_text, file_size, extension):
     
     text_lower = resume_text.lower()
     recommendations = []
+    
+    # Massive Technical & Professional Skill Library
+    tech_library = [
+        # Programming & Web
+        "python", "java", "javascript", "react", "django", "nodejs", "git", "sql", "aws", "docker",
+        "kubernetes", "html", "css", "mongodb", "postgresql", "rest api", "azure", "typescript",
+        "angular", "vue", "php", "laravel", "c++", "c#", "flutter", "dart", "ruby", "rails", "go",
+        "rust", "swift", "ios", "android", "kotlin", "spring", "flask", "webpack", "babel",
+        # Data & AI
+        "machine learning", "data science", "nlp", "tensorflow", "pytorch", "pandas", "numpy", 
+        "tableau", "power bi", "big data", "hadoop", "spark", "r", "sas", "deep learning",
+        # Cyber & DevOps
+        "cybersecurity", "network", "security", "linux", "unix", "bash", "jenkins", "terraform",
+        "ansible", "cloud", "firebase", "mysql", "sqlite", "oracle", "grafana", "prometheus",
+        # Design & Soft Skills
+        "figma", "ui", "ux", "adobe", "photoshop", "illustrator", "sketch", "management", 
+        "leadership", "communication", "agile", "scrum", "devops", "marketing", "sales", 
+        "finance", "accounting", "hr", "operations", "project management", "quality assurance",
+        "testing", "automated testing", "selenium", "cypress", "api", "backend", "frontend",
+        "fullstack", "mobile development", "seo", "content writing", "copywriting",
+        # High-Value Buzzwords
+        "problem solving", "critical thinking", "collaboration", "teamwork", "analytical",
+        "deadline oriented", "results driven", "innovation", "creativity"
+    ]
+    
+    found_keywords = []
+    for skill in tech_library:
+        if re.search(rf'\b{re.escape(skill)}\b', text_lower):
+            found_keywords.append(skill.capitalize())
+    
+    # Identify popular missing ones if found count is low
+    missing_keywords = []
+    if len(found_keywords) < 8:
+        for skill in tech_library:
+            if skill.capitalize() not in found_keywords:
+                missing_keywords.append(skill.capitalize())
+                if len(missing_keywords) >= 8: break
     
     # -------------------------
     # 1. Contact Information (15 pts)
@@ -337,7 +390,9 @@ def calculate_general_score(resume_text, file_size, extension):
         },
         "strengths": [d for d in contact_details + summary_details + section_details + formatting_details if "detected" in d.lower() or "found" in d.lower() or "optimal" in d.lower() or "effective" in d.lower() or "strong" in d.lower()],
         "issues_found": [d for d in contact_details + summary_details + section_details if "missing" in d.lower() or "unclear" in d.lower()],
-        "recommendations": recommendations
+        "recommendations": recommendations,
+        "found_keywords": found_keywords,
+        "missing_keywords": missing_keywords
     }
 
     return result

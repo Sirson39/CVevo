@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Start Analysis • CVevo</title>
+  <link rel="stylesheet" href="../../assets/css/styles.css">
+  <link rel="stylesheet" href="../../assets/css/dashboard.css">
+</head>
+<body class="app-body">
+  <div class="app">
+    <div id="sidebarMount"></div>
+    <div class="main">
+      <div id="topbarMount"></div>
+      <main class="content">
+        <div id="jobseekerStepperMount"></div>
+
+        <section class="ru-page">
+          <div class="ru-head" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <h1 class="ru-title" style="font-size: 24px;">Start ATS Analysis</h1>
+              <p class="ru-sub" style="font-size: 13px; color: #64748b;">Select a job position to analyze your resume against.</p>
+            </div>
+            <a class="btn btn-ghost" href="resume_upload.html">Back</a>
+          </div>
+
+          <div class="grid grid-2" style="gap: 2rem; align-items: start;">
+            <!-- Left: Job Selection -->
+            <div class="card" style="padding: 2rem; border-radius: 12px;">
+              <h3 style="margin: 0 0 1.5rem 0; font-size: 18px;">Pick a Job Description</h3>
+              
+              <div id="jobList" class="stack" style="gap: 1rem;">
+                <div class="muted" style="padding: 2rem; text-align: center;">Loading job posts...</div>
+              </div>
+
+              <div style="margin: 2rem 0; border-top: 1px solid #e2e8f0;"></div>
+              
+              <div class="stack" style="gap: 1rem;">
+                <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 6px;">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="color: #f59e0b;"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                  Quality Scan (Free Analysis)
+                </h3>
+                <p class="muted" style="font-size: 12px; margin: -0.5rem 0 0.5rem 0;">Get structural feedback on your resume's professional formatting and readability.</p>
+                <button id="qualityBtn" class="btn btn-primary" style="background:#3b82f6; width:100%; padding:10px;">Run General Quality Scan</button>
+              </div>
+            </div>
+
+            <!-- Right: Resume Info -->
+            <div class="stack" style="gap: 1.5rem;">
+              <div id="resumeInfoCard" class="card" style="background: #f8fafc; padding: 1.5rem; border-radius: 12px;">
+                <h3 style="margin: 0 0 1rem 0; font-size: 16px;">Selected Resume</h3>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                  <div style="width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: #fff; border: 1px solid #e2e8f0; color: #64748b;">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                  </div>
+                  <div>
+                    <div id="resumeName" style="font-weight: 700;">Loading...</div>
+                    <div id="resumeSize" style="font-size: 12px; color: #64748b;">-- KB</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="../../assets/js/app.js"></script>
+  <script src="../../assets/js/app-layout.js"></script>
+  <script>
+    initAppLayout({ pageKey: "analysis_results", stepKey: "analysis_results" });
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const resumeId = urlParams.get('resume_id');
+
+    async function loadData() {
+      if (!resumeId) { window.location.href = "resume_upload.html"; return; }
+
+      // Load Resume details
+      try {
+        const resRes = await fetch(`/api/resumes/${resumeId}/`);
+        const resume = await resRes.json();
+        document.getElementById("resumeName").textContent = resume.filename;
+        document.getElementById("resumeSize").textContent = (resume.file_size / 1024).toFixed(1) + " KB";
+      } catch(e) {}
+
+      // Load Job Posts
+      try {
+        const jobsRes = await fetch('/api/job-posts/');
+        const data = await jobsRes.json();
+        const jobs = data.jobs || [];
+        const container = document.getElementById("jobList");
+        
+        if (jobs.length === 0) {
+          container.innerHTML = '<div class="muted">No jobs available to analyze against.</div>';
+          return;
+        }
+
+        container.innerHTML = `
+          <form id="analysisForm">
+            ${jobs.map((job, index) => `
+              <label class="card" style="padding: 1.25rem; border: 1px solid #e2e8f0; cursor: pointer; display: block; border-radius: 12px; margin-bottom: 0.8rem;">
+                <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                  <input type="radio" name="job_id" value="${job.id}" ${index === 0 ? 'checked' : ''}>
+                  <div>
+                    <div style="font-weight: 700; font-size: 15px;">${job.title}</div>
+                    <div style="font-size: 13px; color: #64748b;">${job.company_name || 'Company'}</div>
+                  </div>
+                </div>
+              </label>
+            `).join('')}
+            <button type="submit" class="btn btn-primary" style="width: 100%; background: #10b981; padding: 12px; font-weight: 600;">Run Analysis</button>
+          </form>
+        `;
+
+        document.getElementById("analysisForm").addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const jobId = e.target.job_id.value;
+          const btn = e.target.querySelector('button[type="submit"]');
+          
+          btn.innerText = "Analyzing Resume...";
+          btn.disabled = true;
+
+          try {
+            // Get CSRF helper
+            const getCookie = (name) => {
+              let cookieValue = null;
+              if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                  const cookie = cookies[i].trim();
+                  if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                  }
+                }
+              }
+              return cookieValue;
+            };
+
+            const res = await fetch('/api/analysis/quick/', {
+              method: 'POST',
+              headers: { 
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+              },
+              body: JSON.stringify({ resume_id: resumeId, job_description: 'FETCH_FROM_JOB', job_id: jobId }) 
+            });
+            
+            if (res.ok) {
+              window.location.href = `analysis_results.html`;
+            } else {
+              const data = await res.json();
+              alert("Analysis failed: " + (data.error || 'Server error'));
+              btn.innerText = "Run Analysis";
+              btn.disabled = false;
+            }
+          } catch(err) {
+            console.error(err);
+            alert("Connection error occurred.");
+            btn.innerText = "Run Analysis";
+            btn.disabled = false;
+          }
+        });
+      } catch(e) {}
+    }
+
+    document.getElementById("qualityBtn").addEventListener("click", () => {
+       window.location.href = `general_analysis.html?resume_id=${resumeId}`;
+    });
+
+    loadData();
+  </script>
+</body>
+</html>

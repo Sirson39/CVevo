@@ -1,0 +1,76 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Open+Sans:wght@400;600&display=swap');
+  .t4-wrap { font-family: 'Open Sans', sans-serif; background: #fff; padding: 3rem; color: #1e293b; text-align: left; }
+  .t4-header { text-align: center; margin-bottom: 2rem; }
+  .t4-name { font-family: 'Libre Baskerville', serif; font-size: 2.5rem; font-weight: 400; margin: 0 0 0.5rem 0; color: #1e293b; }
+  .t4-job-title { font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px; color: #475569; margin-bottom: 1rem; }
+  .t4-contact { font-size: 0.85rem; color: #64748b; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 0.8rem 0; display: flex; justify-content: center; gap: 1.5rem; }
+  
+  .t4-section { margin-top: 2.5rem; }
+  .t4-sect-title { font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid #1e293b; padding-bottom: 0.3rem; margin-bottom: 1.2rem; }
+  
+  .t4-item { margin-bottom: 1.5rem; }
+  .t4-item-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.2rem; }
+  .t4-item-name { font-weight: 700; font-size: 1rem; color: #1e293b; }
+  .t4-item-date { font-weight: 600; font-size: 0.85rem; color: #475569; }
+  .t4-item-sub { font-style: italic; font-size: 0.9rem; color: #64748b; margin-bottom: 0.5rem; }
+  .t4-item-desc { font-size: 0.85rem; line-height: 1.6; margin: 0; padding-left: 1.2rem; }
+  
+  .t4-skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 2rem; font-size: 0.85rem; }
+</style>
+
+<div class="t4-wrap">
+  <div class="t4-header">
+    <div class="t4-job-title" data-field="position">PROFESSIONAL TITLE</div>
+    <h1 class="t4-name" data-field="full_name">YOUR NAME</h1>
+    <div class="t4-contact">
+      <span data-field="location">City, Country</span>
+      <span data-field="email">email@example.com</span>
+      <span data-field="phone">+1 234 567 890</span>
+    </div>
+  </div>
+
+  <section class="t4-section">
+    <div class="t4-sect-title">Summary</div>
+    <p style="font-size: 0.9rem; line-height: 1.7; color: #334155;" data-field="summary">Your summary...</p>
+  </section>
+
+  <section class="t4-section">
+    <div class="t4-sect-title">Experience</div>
+    <div data-list="experiences">
+      <div class="t4-item" data-tpl>
+        <div class="t4-item-head">
+          <div class="t4-item-name" style="text-transform: uppercase;" data-field="position">ROLE</div>
+          <div class="t4-item-date" data-field="date_range">Jan 2020 — Present</div>
+        </div>
+        <div class="t4-item-sub" data-field="company">Company Name</div>
+        <ul class="t4-item-desc">
+          <li data-field="description">Job description...</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="t4-section">
+    <div class="t4-sect-title">Education</div>
+    <div data-list="educations">
+      <div class="t4-item" data-tpl>
+        <div class="t4-item-head">
+          <div class="t4-item-name" style="text-transform: uppercase;" data-field="degree">DEGREE</div>
+          <div class="t4-item-date" data-field="date_range">2016 — 2020</div>
+        </div>
+        <div class="t4-item-sub" data-field="institution">Institution Name</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="t4-section">
+    <div class="t4-sect-title">Skills</div>
+    <div class="t4-skills-grid" data-list="skills">
+      <div data-tpl style="display: flex; align-items: center; gap: 0.5rem;">
+        <span style="font-size: 1.2rem; line-height: 1;">•</span>
+        <span data-field="name">Skill Name</span>
+      </div>
+    </div>
+  </section>
+</div>

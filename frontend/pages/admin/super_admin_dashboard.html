@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Internal Command Center | CVevo</title>
+
+  <link rel="stylesheet" href="../../assets/css/styles.css" />
+  <link rel="stylesheet" href="../../assets/css/dashboard.css" />
+  <style>
+    :root {
+      --bg-soft: #fbfbfd;
+      --card-shadow: 0 10px 30px -10px rgba(0,0,0,0.04);
+      --primary-green: #2f8f7a;
+      --accent-orange: #ea8e5c;
+      --text-dark: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #f1f5f9;
+      --font-main: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    }
+
+    .admin-dashboard-container {
+      padding: 40px;
+      background: var(--bg-soft);
+      min-height: 100vh;
+      font-family: var(--font-main);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .summary-card {
+      background: #fff;
+      padding: 24px;
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--card-shadow);
+      display: flex;
+      gap: 16px;
+    }
+
+    .card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: #f1f5f9;
+      color: var(--primary-green);
+    }
+
+    .card-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .card-data .label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .card-data .value {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text-dark);
+      margin: 2px 0;
+    }
+
+    .card-data .trend {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .grid-card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 30px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--card-shadow);
+    }
+
+    .grid-card.wide {
+      grid-column: span 2;
+    }
+
+    .grid-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
+    .grid-card-header h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin: 0;
+    }
+
+    .chart-wrapper {
+      height: 300px;
+      position: relative;
+    }
+
+    .chart-mini {
+      height: 180px;
+      margin-top: 20px;
+    }
+
+    .insight-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #f8fafc;
+    }
+
+    .activity-feed,
+    .mini-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .activity-item,
+    .ml-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: #f8fafc;
+      border-radius: 12px;
+      border: 1px solid #f1f5f9;
+    }
+
+    .activity-text strong,
+    .ml-info strong {
+      display: block;
+      font-size: 0.9rem;
+      color: var(--text-dark);
+    }
+
+    .activity-text p,
+    .ml-info p {
+      margin: 0;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .ml-count {
+      background: #fff;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--primary-green);
+      border: 1px solid #e2e8f0;
+    }
+
+    @media (max-width: 1400px) {
+      .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+      .grid-card.wide { grid-column: span 2; }
+    }
+
+    @media (max-width: 800px) {
+      .dashboard-grid { grid-template-columns: 1fr; }
+      .grid-card.wide { grid-column: span 1; }
+      .admin-dashboard-container { padding: 20px; }
+    }
+  </style>
+</head>
+<body class="app-body">
+  <div class="app">
+    <div id="sidebarMount"></div>
+
+    <div class="main">
+      <div id="topbarMount"></div>
+
+      <main class="content">
+        <div class="admin-dashboard-container">
+          <div id="summaryGrid" class="summary-grid"></div>
+
+          <div class="dashboard-grid">
+            <div class="grid-card wide">
+              <div class="grid-card-header">
+                <h3>Platform Growth Trends</h3>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="growthChart"></canvas>
+              </div>
+            </div>
+
+            <div class="grid-card">
+              <div class="grid-card-header">
+                <h3>ATS Engine Insights</h3>
+              </div>
+              <div id="insightsBox"></div>
+              <div class="chart-mini">
+                <canvas id="scoreDistChart"></canvas>
+              </div>
+            </div>
+
+            <div class="grid-card wide">
+              <div class="grid-card-header">
+                <h3>System Activity</h3>
+              </div>
+              <div id="activityList" class="activity-feed"></div>
+            </div>
+
+            <div class="grid-card">
+              <div class="grid-card-header">
+                <h3>Live Postings</h3>
+              </div>
+              <div id="jobsMiniList" class="mini-list"></div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="../../assets/js/app.js"></script>
+  <script src="../../assets/js/app-layout.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    initAppLayout({
+      pageKey: "super_admin_dashboard",
+      title: "Command Center",
+      subtitle: "Admin overview"
+    });
+
+    function iconSVG(path) {
+      return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${path}</svg>`;
+    }
+
+    async function loadDashboard() {
+      try {
+        const res = await fetch("http://127.0.0.1:8000/api/admin/dashboard/", {
+          credentials: "include"
+        });
+        const data = await res.json();
+
+        const stats = data.stats || {};
+        const summaryGrid = document.getElementById("summaryGrid");
+
+        summaryGrid.innerHTML = `
+          <div class="summary-card"><div class="card-icon">${iconSVG('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>')}</div><div class="card-data"><span class="label">Total Users</span><span class="value">${stats.total_users || 0}</span><span class="trend">+${stats.new_users_30d || 0} recently</span></div></div>
+          <div class="summary-card"><div class="card-icon">${iconSVG('<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>')}</div><div class="card-data"><span class="label">Jobseekers</span><span class="value">${stats.jobseekers || 0}</span><span class="trend">Registered profiles</span></div></div>
+          <div class="summary-card"><div class="card-icon">${iconSVG('<rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>')}</div><div class="card-data"><span class="label">HR Teams</span><span class="value">${stats.hr || 0}</span><span class="trend">Active organizations</span></div></div>
+          <div class="summary-card"><div class="card-icon">${iconSVG('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>')}</div><div class="card-data"><span class="label">Resumes</span><span class="value">${stats.total_resumes || 0}</span><span class="trend">Uploaded files</span></div></div>
+          <div class="summary-card"><div class="card-icon">${iconSVG('<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>')}</div><div class="card-data"><span class="label">ATS Scans</span><span class="value">${stats.total_scans || 0}</span><span class="trend">${stats.scans_30d || 0} last 30d</span></div></div>
+          <div class="summary-card"><div class="card-icon">${iconSVG('<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>')}</div><div class="card-data"><span class="label">Active Jobs</span><span class="value">${stats.active_jobs || 0}</span><span class="trend">${stats.total_jobs || 0} total posts</span></div></div>
+          <div class="summary-card"><div class="card-icon">${iconSVG('<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>')}</div><div class="card-data"><span class="label">Support</span><span class="value">${stats.pending_support || 0}</span><span class="trend">Pending messages</span></div></div>
+          <div class="summary-card"><div class="card-icon">${iconSVG('<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>')}</div><div class="card-data"><span class="label">Avg ATS Score</span><span class="value">${stats.avg_score || 0}%</span><span class="trend">System average</span></div></div>
+        `;
+
+        document.getElementById("insightsBox").innerHTML = `
+          <div class="insight-row"><span>Peak Optimization</span><strong>${stats.max_score || 0}%</strong></div>
+          <div class="insight-row"><span>Lowest Match</span><strong>${stats.min_score || 0}%</strong></div>
+        `;
+
+        const activityList = document.getElementById("activityList");
+        activityList.innerHTML = (data.recent_scans || []).map(scan => `
+          <div class="activity-item">
+            <div class="activity-text">
+              <strong>ATS Scan completed</strong>
+              <p>${scan.filename || "Resume"} • ${scan.score || 0}%</p>
+              <small>${scan.time_ago || ""}</small>
+            </div>
+          </div>
+        `).join("") || `<div class="activity-item"><div class="activity-text"><strong>No recent activity</strong></div></div>`;
+
+        const jobsMiniList = document.getElementById("jobsMiniList");
+        jobsMiniList.innerHTML = (data.jobs || []).map(job => `
+          <div class="ml-item">
+            <div class="ml-info">
+              <strong>${job.title || ""}</strong>
+              <p>${job.company || ""}</p>
+            </div>
+            <div class="ml-count">${job.num_applicants || 0} apps</div>
+          </div>
+        `).join("") || `<div class="ml-item"><div class="ml-info"><strong>No jobs posted</strong></div></div>`;
+
+        new Chart(document.getElementById("growthChart"), {
+          type: "line",
+          data: {
+            labels: data.growth_chart?.labels || [],
+            datasets: [
+              {
+                label: "Jobseekers",
+                data: data.growth_chart?.jobseekers || [],
+                borderColor: "#6366f1",
+                backgroundColor: "rgba(99, 102, 241, 0.1)",
+                tension: 0.4,
+                fill: true
+              },
+              {
+                label: "HR Users",
+                data: data.growth_chart?.hr || [],
+                borderColor: "#f43f5e",
+                backgroundColor: "rgba(244, 63, 94, 0.1)",
+                tension: 0.4,
+                fill: true
+              },
+              {
+                label: "Scans",
+                data: data.growth_chart?.scans || [],
+                borderColor: "#ea8e5c",
+                backgroundColor: "rgba(234, 142, 92, 0.1)",
+                tension: 0.4,
+                fill: true
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false
+          }
+        });
+
+        new Chart(document.getElementById("scoreDistChart"), {
+          type: "doughnut",
+          data: {
+            labels: data.score_distribution?.labels || [],
+            datasets: [{
+              data: data.score_distribution?.data || [],
+              backgroundColor: ["#ef4444", "#f59e0b", "#10b981"],
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: "70%"
+          }
+        });
+
+      } catch (err) {
+        console.error("Dashboard load failed:", err);
+      }
+    }
+
+    loadDashboard();
+  </script>
+</body>
+</html>

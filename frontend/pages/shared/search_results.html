@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Search Results • CVevo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/cvevo/css/styles.css">
+  <link rel="stylesheet" href="../assets/cvevo/css/dashboard.css">
+  <style>
+    .dynamic-content { opacity: 0; transition: opacity 0.3s; }
+    .dynamic-content.loaded { opacity: 1; }
+    .job-card { background: #fff; border-radius: 16px; padding: 1.5rem; border: 1px solid #e2e8f0; border-left: 5px solid #10b981; transition: transform 0.2s, box-shadow 0.2s; }
+    .job-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+    .job-title { font-size: 1.25rem; font-weight: 800; color: #1e293b; margin-bottom: 0.5rem; }
+    .job-meta { display: flex; gap: 1rem; color: #64748b; font-size: 0.85rem; margin-bottom: 1rem; }
+    .skill-tag { background: #f1f5f9; color: #475569; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+  </style>
+</head>
+<body class="app-body">
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-brand">CVevo</div>
+      <nav class="sidebar-nav">
+        <a href="jobseeker_dashboard.html">Dashboard</a>
+        <a href="resume_upload.html">Upload & Analyze</a>
+        <a href="#" class="active">Search Jobs</a>
+        <a href="#" id="logoutBtn">Logout</a>
+      </nav>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">Marketplace Search</div>
+        <div id="userHeaderName">User</div>
+      </header>
+
+      <main class="content dynamic-content" id="mainContent">
+        <header class="ru-head" style="margin-bottom: 2rem;">
+          <div>
+            <h1 class="ru-title">Search Results</h1>
+            <p id="searchMeta" class="ru-sub">Searching for matches...</p>
+          </div>
+        </header>
+
+        <div id="resultsList" class="grid grid-1" style="gap: 1.5rem;">
+          <p class="muted text-center" style="padding: 5rem;">Loading results...</p>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (!user.id) {
+        window.location.href = '../login.html';
+        return;
+      }
+      document.getElementById('userHeaderName').innerText = user.email;
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const query = urlParams.get('q') || '';
+      document.getElementById('searchMeta').innerText = query ? `Found matches for "${query}"` : "Showing all active jobs";
+
+      try {
+        const res = await fetch('http://127.0.0.1:8000/api/job-posts/');
+        if (res.ok) {
+          allJobs = await res.json();
+          let filtered = allJobs;
+          if (query) {
+            const q = query.toLowerCase();
+            filtered = allJobs.filter(j => 
+              j.title.toLowerCase().includes(q) || 
+              (j.description && j.description.toLowerCase().includes(q)) ||
+              (j.required_skills && j.required_skills.toLowerCase().includes(q))
+            );
+          }
+
+          document.getElementById('searchMeta').innerText = `Found ${filtered.length} matches for "${query || 'all jobs'}"`;
+          const container = document.getElementById('resultsList');
+          
+          if (filtered.length === 0) {
+            container.innerHTML = '<p class="muted text-center" style="padding: 5rem;">No jobs found matching your criteria.</p>';
+          } else {
+            container.innerHTML = filtered.map(j => `
+              <article class="job-card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                  <div style="flex: 1;">
+                    <h3 class="job-title">${j.title}</h3>
+                    <div class="job-meta">
+                      <span>Status: <strong style="color: #10b981;">${j.status}</strong></span>
+                      <span>Owner: ${j.hr_profile || 'System'}</span>
+                    </div>
+                    <p style="font-size: 0.95rem; color: #475569; margin-bottom: 1.5rem; line-height: 1.6; max-width: 800px;">
+                      ${j.description ? j.description.substring(0, 200) + '...' : 'No description provided.'}
+                    </p>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                      ${(j.required_skills || '').split(',').filter(s => s.trim()).map(s => `<span class="skill-tag">${s.trim()}</span>`).join('')}
+                    </div>
+                  </div>
+                  <a href="analyze_resume.html?job_id=${j.id}" class="btn btn-primary" style="background: #1e293b; border: none; white-space: nowrap;">Apply with AI</a>
+                </div>
+              </article>
+            `).join('');
+          }
+        }
+      } catch(e) {
+        document.getElementById('resultsList').innerHTML = '<p class="muted text-center" style="padding: 5rem;">Error fetching search results.</p>';
+      }
+
+      document.getElementById('logoutBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.removeItem('user');
+        window.location.href = '../login.html';
+      });
+
+      document.getElementById('mainContent').classList.add('loaded');
+    });
+  </script>
+</body>
+</html>

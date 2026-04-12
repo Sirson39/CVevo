@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Choose account • CVevo</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../assets/css/styles.css">
+  <link rel="stylesheet" href="../../assets/css/auth.css">
+  <style>
+    .pick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px; }
+    .pick { 
+      border-radius: 22px; 
+      border: 1px solid rgba(15,23,42,.10); 
+      background: rgba(255,255,255,.72);
+      padding: 24px; 
+      box-shadow: 0 18px 55px rgba(15,23,42,.10); 
+      transition: transform 0.2s;
+    }
+    .pick:hover { transform: translateY(-4px); }
+    .pick h3 { margin: 0 0 10px; font-weight: 800; font-size: 1.25rem; }
+    .pick p { margin: 0 0 20px; color: rgba(100,116,139,.95); line-height: 1.6; font-size: 0.95rem; }
+    @media (max-width: 720px) { .pick-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="index.html">
+        <span class="brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7 3h7l4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" />
+            <path d="M9 13h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <path d="M9 17h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </span>
+        <span class="brand-text"><span class="c">CV</span><span class="e">evo</span></span>
+      </a>
+
+      <nav class="nav-links" id="navLinks">
+        <a href="index.html#templates">Templates</a>
+        <a href="index.html#features">Features</a>
+        <a href="index.html#how">How It Works</a>
+        <a href="organization.html">For Organizations</a>
+        <a href="index.html#resources">Resources</a>
+        <a href="index.html#contact">Contact</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a class="link" href="login.html">Sign In</a>
+        <a class="btn btn-green" href="auth-register-choose.html">Get Started</a>
+
+        <button class="burger" id="burgerBtn" aria-label="Open menu" aria-controls="navLinks" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="auth">
+    <section class="auth-shell" style="grid-template-columns: 1fr; max-width: 1140px; margin: 0 auto;">
+      <div class="auth-left">
+        <h1 class="auth-h1">Choose your account</h1>
+        <p class="auth-p">Pick what you want to do in CVevo. You can always create the other account later.</p>
+
+        <div class="pick-grid">
+          <div class="pick">
+            <h3>Jobseeker</h3>
+            <p>Build ATS-friendly resumes, check keywords, and export clean templates.</p>
+            <a class="btn primary w100" href="auth-register-jobseeker.html">Continue as Jobseeker →</a>
+          </div>
+
+          <div class="pick">
+            <h3>HR / Recruiter</h3>
+            <p>Score candidates consistently, shortlist faster, and export reports.</p>
+            <a class="btn primary w100" href="auth-register-hr.html">Continue as HR →</a>
+          </div>
+        </div>
+
+        <p class="small center" style="margin-top: 2rem;">
+          Already have an account? <a class="link strong" href="login.html">Login</a>
+        </p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
+</body>
+</html>

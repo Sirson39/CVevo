@@ -1,0 +1,104 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lora:ital,wght@0,400;0,500;1,400&display=swap');
+  .t2-wrap { font-family: 'Lora', serif; color: #111; padding: 2.5rem; background: #fff; text-align: left; }
+  .t2-header { text-align: center; margin-bottom: 2rem; }
+  .t2-name { font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin: 0 0 0.5rem 0; }
+  .t2-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
+  .t2-contact { font-size: 0.85rem; color: #333; margin-top: 0.5rem; word-spacing: 5px; }
+  
+  .t2-sect-head { background-color: #dbeafe; padding: 0.4rem 0; text-align: center; font-family: 'Playfair Display', serif; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; font-size: 0.95rem; margin: 1.5rem 0 1rem 0; border: 1px solid #bfdbfe; }
+  .t2-p { font-size: 0.85rem; line-height: 1.7; margin-bottom: 1rem; color: #333; text-align: justify; }
+  
+  .t2-item { margin-bottom: 1.25rem; font-size: 0.85rem; }
+  .t2-item-top { display: flex; align-items: baseline; justify-content: space-between; font-weight: 600; margin-bottom: 0.2rem; }
+  .t2-bullet { display: inline-block; margin-right: 0.4rem; font-size: 0.9rem; }
+  .t2-dotted { flex-grow: 1; border-bottom: 1px dotted #94a3b8; margin: 0 1rem; position: relative; top: -4px; opacity: 0.5; }
+  .t2-sub { text-align: right; font-size: 0.8rem; font-style: italic; color: #475569; margin-bottom: 0.5rem; }
+  .t2-desc { padding-left: 1.2rem; line-height: 1.6; margin: 0; color: #333; }
+  .t2-desc li { margin-bottom: 0.3rem; }
+  
+  .t2-skills-wrap { display: flex; font-size: 0.85rem; line-height: 1.6; gap: 2rem; justify-content: space-between; }
+  .t2-skill-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.4rem; }
+  .t2-skill-dots { flex-grow: 1; border-bottom: 1px dotted #ccc; margin: 0 0.5rem; }
+</style>
+
+<div class="t2-wrap">
+  <div class="t2-header">
+    <h1 class="t2-name" data-field="full_name">YOUR NAME</h1>
+    <div class="t2-title" data-field="position">PROFESSIONAL TITLE</div>
+    <div class="t2-contact"><span data-field="location">City, Country</span></div>
+    <div class="t2-contact"><span data-field="email">email@example.com</span> | <span data-field="phone">+1 234 567 890</span></div>
+  </div>
+
+  <div class="t2-sect-head">Summary</div>
+  <p class="t2-p" data-field="summary">Your professional summary goes here...</p>
+  
+  <div class="t2-sect-head">Experience</div>
+  <div data-list="experiences">
+    <div class="t2-item" data-tpl>
+      <div class="t2-item-top">
+        <div><span class="t2-bullet">❖</span><span data-field="position">Role</span>, <span data-field="company">Company</span></div>
+        <div class="t2-dotted"></div>
+        <div data-field="date_range">Jan 2020 — Current</div>
+      </div>
+      <ul class="t2-desc">
+        <li data-field="description">Job description...</li>
+      </ul>
+    </div>
+  </div>
+  
+  <div class="t2-sect-head">Education</div>
+  <div data-list="educations">
+    <div class="t2-item" data-tpl>
+      <div class="t2-item-top">
+        <div><span class="t2-bullet">❖</span><span data-field="institution">Institution</span></div>
+        <div class="t2-dotted"></div>
+        <div data-field="date_range">2016 — 2020</div>
+      </div>
+      <div class="t2-sub" style="text-align: left; padding-left: 1.2rem;" data-field="degree">Degree Name</div>
+    </div>
+  </div>
+  
+  <div class="t2-sect-head">Technical Skills</div>
+  <div class="t2-skills-wrap">
+    <div style="width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 2rem;" data-list="skills">
+      <div class="t2-skill-row" data-tpl>
+        <span data-field="name">Skill Name</span>
+        <div class="t2-skill-dots"></div>
+        <span style="font-size: 0.75rem; color: #666;" data-field="level">Advanced</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="t2-sect-head">Projects</div>
+  <div data-list="projects">
+    <div class="t2-item" data-tpl>
+      <div class="t2-item-top">
+        <div><span class="t2-bullet">❖</span><span data-field="title">Project Title</span></div>
+        <div class="t2-dotted"></div>
+      </div>
+      <p class="t2-desc" data-field="description">Project description...</p>
+    </div>
+  </div>
+
+  <div class="t2-sect-head">Certificates</div>
+  <div data-list="certificates">
+    <div class="t2-item" data-tpl>
+      <div class="t2-item-top">
+        <div><span class="t2-bullet">❖</span><span data-field="name">Certificate Name</span></div>
+        <div class="t2-dotted"></div>
+        <div data-field="date_obtained">Jan 2020</div>
+      </div>
+      <div class="t2-sub" style="text-align: left; padding-left: 1.2rem;" data-field="issuer">Issuer Name</div>
+    </div>
+  </div>
+
+  <div class="t2-sect-head">References</div>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;" data-list="references">
+    <div class="t2-item" data-tpl>
+      <div style="font-weight: 600;" data-field="name">Reference Name</div>
+      <div style="font-size: 0.75rem;"><span data-field="relationship">Relationship</span> at <span data-field="company">Company</span></div>
+      <div style="font-size: 0.7rem; color: #475569;"><span data-field="email">Email</span> | <span data-field="phone">Phone</span></div>
+    </div>
+  </div>
+</div>

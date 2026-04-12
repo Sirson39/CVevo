@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Moderate Job Post | CVevo Admin</title>
+
+  <link rel="stylesheet" href="../../assets/css/styles.css" />
+  <link rel="stylesheet" href="../../assets/css/dashboard.css" />
+
+  <style>
+    .admin-dashboard-container { padding: 40px; max-width: 900px; margin: 0 auto; }
+    .admin-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; }
+    .grid-card { background:#fff; padding:24px; border-radius:20px; border:1px solid #e2e8f0; }
+    .admin-form { display:flex; flex-direction:column; gap:30px; }
+    .form-section.row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:24px; }
+    .form-group { display:flex; flex-direction:column; gap:8px; }
+    .form-group label { font-size:0.85rem; font-weight:700; color:#475569; }
+    .form-group input, .form-group select, .form-group textarea {
+      padding:12px 16px; border-radius:12px; border:1px solid #e2e8f0; background:#f8fafc; font-size:0.95rem;
+    }
+    .static-value { padding:12px 16px; background:#f1f5f9; border-radius:12px; color:#1e293b; font-weight:600; border:1px solid #e2e8f0; }
+    .form-footer-actions { margin-top:20px; border-top:1px solid #f1f5f9; padding-top:30px; display:flex; justify-content:space-between; }
+    .left-actions, .right-actions { display:flex; gap:12px; }
+    .admin-btn { padding:12px 24px; border-radius:12px; font-weight:700; cursor:pointer; border:none; text-decoration:none; }
+    .admin-btn.outline { background:#fff; border:1px solid #e2e8f0; color:#475569; }
+    .admin-btn.primary { background:#1e293b; color:white; }
+    .admin-btn.warning { background:#f59e0b; color:white; }
+    .admin-btn.danger { background:#ef4444; color:white; }
+  </style>
+</head>
+<body class="app-body">
+  <div class="app">
+    <div id="sidebarMount"></div>
+    <div class="main">
+      <div id="topbarMount"></div>
+
+      <main class="content">
+        <div class="admin-dashboard-container">
+          <div class="admin-header">
+            <div>
+              <h1>Moderate Job Post</h1>
+              <p>Control job listing status and administrative notes.</p>
+            </div>
+            <a href="./admin_jobs.html" class="admin-btn outline">Cancel</a>
+          </div>
+
+          <div class="grid-card">
+            <form id="jobEditForm" class="admin-form">
+              <div class="form-section">
+                <div class="form-group">
+                  <label>Company / Posted By</label>
+                  <div id="companyInfo" class="static-value">Loading...</div>
+                </div>
+
+                <div class="form-group">
+                  <label>Job Title</label>
+                  <input type="text" id="title" required />
+                </div>
+              </div>
+
+              <div class="form-section row">
+                <div class="form-group">
+                  <label>Job Status</label>
+                  <select id="status">
+                    <option value="Open">Open</option>
+                    <option value="Closed">Closed</option>
+                    <option value="Disabled">Disabled</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Applicants Count</label>
+                  <div id="applicantsCount" class="static-value">0</div>
+                </div>
+
+                <div class="form-group">
+                  <label>Posted Date</label>
+                  <div id="postedDate" class="static-value">-</div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Reason / Admin Note</label>
+                <textarea id="admin_note" rows="4" placeholder="Add administrative notes or reason for status change..."></textarea>
+              </div>
+
+              <div class="form-footer-actions">
+                <div class="left-actions">
+                  <button type="submit" class="admin-btn primary">Save Changes</button>
+                  <button type="button" class="admin-btn warning" onclick="disableJobQuick()">Disable Job</button>
+                </div>
+                <div class="right-actions">
+                  <button type="button" class="admin-btn danger" onclick="deleteJobNow()">Delete Job</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="../../assets/js/app.js"></script>
+  <script src="../../assets/js/app-layout.js"></script>
+  <script>
+    initAppLayout({
+      pageKey: "admin_jobs",
+      title: "Edit Job",
+      subtitle: "Moderate job posting"
+    });
+
+    const params = new URLSearchParams(window.location.search);
+    const jobId = params.get("id");
+
+    async function loadJob() {
+      try {
+        const res = await fetch(`http://127.0.0.1:8000/api/admin/jobs/${jobId}/`, {
+          credentials: "include"
+        });
+        const job = await res.json();
+
+        document.getElementById("companyInfo").textContent = `${job.company || ""} (${job.hr_name || ""})`;
+        document.getElementById("title").value = job.title || "";
+        document.getElementById("status").value = job.status || "Open";
+        document.getElementById("applicantsCount").textContent = job.applicants_count || 0;
+        document.getElementById("postedDate").textContent = job.created_at || "-";
+        document.getElementById("admin_note").value = job.admin_note || "";
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    document.getElementById("jobEditForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const payload = {
+        title: document.getElementById("title").value.trim(),
+        status: document.getElementById("status").value,
+        admin_note: document.getElementById("admin_note").value.trim()
+      };
+
+      try {
+        await fetch(`http://127.0.0.1:8000/api/admin/jobs/${jobId}/`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(payload)
+        });
+
+        window.location.href = "./admin_jobs.html";
+      } catch (err) {
+        console.error(err);
+      }
+    });
+
+    function disableJobQuick() {
+      document.getElementById("status").value = "Disabled";
+      document.getElementById("jobEditForm").requestSubmit();
+    }
+
+    async function deleteJobNow() {
+      if (!confirm("Delete this job permanently?")) return;
+
+      try {
+        await fetch(`http://127.0.0.1:8000/api/admin/jobs/${jobId}/`, {
+          method: "DELETE",
+          credentials: "include"
+        });
+        window.location.href = "./admin_jobs.html";
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    loadJob();
+  </script>
+</body>
+</html>
