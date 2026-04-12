@@ -93,7 +93,7 @@
 
     async function loadATSPage() {
       try {
-        const res = await fetch("http://127.0.0.1:8000/api/admin/ats/", {
+        const res = await fetch("/api/admin/ats/", {
           credentials: "include"
         });
         const data = await res.json();

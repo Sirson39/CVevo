@@ -1,12 +1,300 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Start Analysis • CVevo</title>
+  <title>Analysis Results • CVevo</title>
   <link rel="stylesheet" href="../../assets/css/styles.css">
   <link rel="stylesheet" href="../../assets/css/dashboard.css">
+  <style>
+    .results-layout {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    .history-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 1.5rem 1.75rem;
+      margin-bottom: 1.25rem;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.5rem;
+    }
+
+    .job-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0 0 4px;
+    }
+
+    .job-meta {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    .scan-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    .badge-ats {
+      background: #eff6ff;
+      color: #3b82f6;
+    }
+
+    .badge-quick {
+      background: #fffbeb;
+      color: #f59e0b;
+    }
+
+    .score-box {
+      text-align: right;
+    }
+
+    .score-val {
+      font-size: 32px;
+      font-weight: 900;
+      line-height: 1;
+      display: block;
+      color: var(--score-color);
+    }
+
+    .score-label {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #94a3b8;
+      margin-top: 4px;
+      display: block;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #1e293b;
+      margin: 1.25rem 0 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    /* Keyword Containers */
+    .keyword-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .keyword-box {
+      padding: 1.25rem;
+      border-radius: 12px;
+      min-height: auto;
+    }
+
+    .box-matched {
+      background: #f0fdf4;
+      border: 1px solid #dcfce7;
+    }
+
+    .box-missing {
+      background: #fff1f2;
+      border: 1px solid #ffe4e6;
+    }
+
+    .box-title {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.75rem;
+    }
+
+    .box-title.matched {
+      color: #166534;
+    }
+
+    .box-title.missing {
+      color: #991b1b;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      margin: 0 4px 4px 0;
+      background: #fff;
+      border: 1px solid transparent;
+    }
+
+    .tag-matched {
+      color: #166534;
+      border-color: #dcfce7;
+    }
+
+    .tag-missing {
+      color: #991b1b;
+      border-color: #fecaca;
+    }
+
+    /* Pillars (High Fidelity Boxes) */
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .pillar-card {
+      background: #fff;
+      border: 1px solid #eef2f6;
+      padding: 8px 12px;
+      border-radius: 10px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 46px;
+      transition: transform 0.2s;
+    }
+
+    .pillar-card:hover {
+      transform: translateY(-2px);
+      border-color: #d1d5db;
+    }
+
+    .pillar-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .pillar-label {
+      font-size: 11px;
+      font-weight: 800;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .pillar-score {
+      font-size: 14px;
+      font-weight: 800;
+      color: #10b981;
+    }
+
+    .pillar-progress-bg {
+      height: 4px;
+      background: #f1f5f9;
+      border-radius: 2px;
+      width: 100%;
+    }
+
+    .pillar-progress-fill {
+      height: 100%;
+      background: #10b981;
+      border-radius: 2px;
+      transition: width 0.8s ease-out;
+    }
+
+    .pillar-score.low {
+      color: #f59e0b;
+    }
+
+    .pillar-progress-fill.low {
+      background: #f59e0b;
+    }
+
+    .info-card {
+      background: #0f172a;
+      color: #fff;
+      border-radius: 20px;
+      padding: 2rem;
+      position: sticky;
+      top: 2rem;
+    }
+
+    .info-h3 {
+      font-size: 18px;
+      font-weight: 800;
+      margin: 0 0 1rem;
+    }
+
+    .info-p {
+      font-size: 13px;
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .info-btn {
+      display: block;
+      width: 100%;
+      background: #fff;
+      color: #0f172a;
+      text-align: center;
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 13px;
+      margin-top: 1.5rem;
+    }
+
+    .btn-delete {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      padding: 6px;
+      margin-left: 8px;
+    }
+
+    .btn-delete:hover {
+      color: #ef4444;
+    }
+
+    .suggestions-list {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 1.25rem;
+      margin-top: 1rem;
+    }
+
+    .suggestion-item {
+      display: flex;
+      gap: 10px;
+      font-size: 13px;
+      color: #475569;
+      margin-bottom: 6px;
+    }
+  </style>
 </head>
+
 <body class="app-body">
   <div class="app">
     <div id="sidebarMount"></div>
@@ -16,50 +304,30 @@
         <div id="jobseekerStepperMount"></div>
 
         <section class="ru-page">
-          <div class="ru-head" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+          <div class="ru-head"
+            style="margin-bottom: 2.5rem; display: flex; justify-content: space-between; align-items: center;">
             <div>
-              <h1 class="ru-title" style="font-size: 24px;">Start ATS Analysis</h1>
-              <p class="ru-sub" style="font-size: 13px; color: #64748b;">Select a job position to analyze your resume against.</p>
+              <h1 class="ru-title" style="font-size: 26px;">Analysis Results</h1>
+              <p class="ru-sub" style="font-size: 14px; color: #64748b;">Compare your resume performance against
+                specific job requirements.</p>
             </div>
-            <a class="btn btn-ghost" href="resume_upload.html">Back</a>
+            <a class="btn btn-ghost" href="jobseeker_dashboard.html">Back to Dashboard</a>
           </div>
 
-          <div class="grid grid-2" style="gap: 2rem; align-items: start;">
-            <!-- Left: Job Selection -->
-            <div class="card" style="padding: 2rem; border-radius: 12px;">
-              <h3 style="margin: 0 0 1.5rem 0; font-size: 18px;">Pick a Job Description</h3>
-              
-              <div id="jobList" class="stack" style="gap: 1rem;">
-                <div class="muted" style="padding: 2rem; text-align: center;">Loading job posts...</div>
-              </div>
-
-              <div style="margin: 2rem 0; border-top: 1px solid #e2e8f0;"></div>
-              
-              <div class="stack" style="gap: 1rem;">
-                <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 6px;">
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="color: #f59e0b;"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
-                  Quality Scan (Free Analysis)
-                </h3>
-                <p class="muted" style="font-size: 12px; margin: -0.5rem 0 0.5rem 0;">Get structural feedback on your resume's professional formatting and readability.</p>
-                <button id="qualityBtn" class="btn btn-primary" style="background:#3b82f6; width:100%; padding:10px;">Run General Quality Scan</button>
+          <div class="results-layout">
+            <div id="historyContainer">
+              <div style="padding: 4rem; text-align: center;">
+                <div class="muted">Loading results...</div>
               </div>
             </div>
 
-            <!-- Right: Resume Info -->
-            <div class="stack" style="gap: 1.5rem;">
-              <div id="resumeInfoCard" class="card" style="background: #f8fafc; padding: 1.5rem; border-radius: 12px;">
-                <h3 style="margin: 0 0 1rem 0; font-size: 16px;">Selected Resume</h3>
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                  <div style="width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: #fff; border: 1px solid #e2e8f0; color: #64748b;">
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-                  </div>
-                  <div>
-                    <div id="resumeName" style="font-weight: 700;">Loading...</div>
-                    <div id="resumeSize" style="font-size: 12px; color: #64748b;">-- KB</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <aside class="info-card">
+              <h3 class="info-h3">How we calculate scores</h3>
+              <p class="info-p">Our ATS engine scans your resume for specific technical skills, tools, and industry
+                keywords defined in the job post.</p>
+              <p class="info-p">A higher score indicates better alignment with the recruiter's automated filters.</p>
+              <a href="#" class="info-btn">Learn More</a>
+            </aside>
           </div>
         </section>
       </main>
@@ -71,106 +339,178 @@
   <script>
     initAppLayout({ pageKey: "analysis_results", stepKey: "analysis_results" });
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const resumeId = urlParams.get('resume_id');
+    async function loadHistory() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const highlightId = urlParams.get('result_id');
+      const container = document.getElementById("historyContainer");
 
-    async function loadData() {
-      if (!resumeId) { window.location.href = "resume_upload.html"; return; }
-
-      // Load Resume details
       try {
-        const resRes = await fetch(`/api/resumes/${resumeId}/`);
-        const resume = await resRes.json();
-        document.getElementById("resumeName").textContent = resume.filename;
-        document.getElementById("resumeSize").textContent = (resume.file_size / 1024).toFixed(1) + " KB";
-      } catch(e) {}
+        const res = await fetch('/api/ats-results/', { credentials: 'include' });
+        const results = await res.json();
 
-      // Load Job Posts
-      try {
-        const jobsRes = await fetch('/api/job-posts/');
-        const data = await jobsRes.json();
-        const jobs = data.jobs || [];
-        const container = document.getElementById("jobList");
-        
-        if (jobs.length === 0) {
-          container.innerHTML = '<div class="muted">No jobs available to analyze against.</div>';
+        console.log("DEBUG: ATS Results Data ->", results);
+
+        if (results.length === 0) {
+          container.innerHTML = `<div class="history-card" style="text-align:center;">No results found.</div>`;
           return;
         }
 
-        container.innerHTML = `
-          <form id="analysisForm">
-            ${jobs.map((job, index) => `
-              <label style="padding: 0.75rem 1rem; border: 1px solid #e2e8f0; background: #fff; cursor: pointer; display: block; border-radius: 10px; margin-bottom: 0.6rem; transition: all 0.2s; min-height: auto !important; height: auto !important;">
-                <div style="display: flex; align-items: center; gap: 0.75rem; min-height: auto !important;">
-                  <input type="radio" name="job_id" value="${job.id}" ${index === 0 ? 'checked' : ''} style="margin: 0;">
-                  <div style="min-height: auto !important;">
-                    <div style="font-weight: 700; font-size: 14px; color: #0f172a; line-height: 1.2;">${job.title}</div>
-                    <div style="font-size: 12px; color: #64748b; margin-top: 1px;">${job.company_name || 'Company'}</div>
+        container.innerHTML = results.map(item => {
+          const score = Math.round(item.score);
+          const scoreColor = score > 70 ? '#10b981' : (score > 40 ? '#f59e0b' : '#ef4444');
+          const isQuick = !item.job_post;
+
+          return `
+            <div class="history-card" id="result-${item.id}" style="${highlightId == item.id ? 'border-color: #10b981; border-width: 2px;' : ''}">
+              <div class="card-header">
+                <div>
+                  <span class="scan-badge ${isQuick ? 'badge-quick' : 'badge-ats'}">
+                    ${isQuick ? '⚡ QUICK SCAN' : '🔹 ATS SCAN'}
+                  </span>
+                  <h3 class="job-title">${item.custom_job_title || 'General Analysis'}</h3>
+                  <div class="job-meta">
+                    ${item.job_post ? `${item.job_post.company_name} • ` : ''}Analyzed on ${item.formatted_date}
                   </div>
                 </div>
-              </label>
-            `).join('')}
-            <button type="submit" class="btn btn-primary" style="width: 100%; background: #10b981; padding: 12px; font-weight: 600;">Run Analysis</button>
-          </form>
-        `;
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                  <div class="score-box">
+                    <span class="score-val" style="color: ${item.score >= 80 ? '#10b981' : item.score >= 60 ? '#3b82f6' : '#f59e0b'}">${item.score}%</span>
+                    <span class="score-label">${isQuick ? 'QUALITY SCORE' : 'ATS MATCH SCORE'}</span>
+                  </div>
+                  <button class="btn-delete" onclick="deleteHistory(${item.id})" title="Delete entry">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                  </button>
+                </div>
+              </div>
 
-        document.getElementById("analysisForm").addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const jobId = e.target.job_id.value;
-          const btn = e.target.querySelector('button[type="submit"]');
-          
-          btn.innerText = "Analyzing Resume...";
-          btn.disabled = true;
+              <div class="section-title">Feedback & Suggestions</div>
+              <p class="feedback-p" style="font-size: 14px; color: #64748b; margin-bottom: 1.5rem;">${item.feedback}</p>
 
-          try {
-            // Get CSRF helper
-            const getCookie = (name) => {
-              let cookieValue = null;
-              if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                  const cookie = cookies[i].trim();
-                  if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                  }
-                }
-              }
-              return cookieValue;
-            };
+              <!-- Keyword Result Boxes (ONLY for ATS SCAN / Job Post Match) -->
+              ${!isQuick ? `
+              <div class="keyword-layout">
+                <div class="keyword-box box-matched">
+                  <div class="box-title matched">Matched Keywords</div>
+                  <div class="keyword-container">
+                    ${(() => {
+                const list = item.matched_list && item.matched_list.length > 0
+                  ? item.matched_list
+                  : (item.matched_keywords ? item.matched_keywords.split(',') : []);
+                return list.length > 0
+                  ? list.map(k => `<span class="tag tag-matched">${k.trim()}</span>`).join('')
+                  : '<div class="muted" style="font-size:12px;">No specific matches found.</div>';
+              })()}
+                  </div>
+                </div>
+                <div class="keyword-box box-missing">
+                  <div class="box-title missing">Missing Keywords</div>
+                  <div class="keyword-container">
+                    ${(() => {
+                const list = item.missing_list && item.missing_list.length > 0
+                  ? item.missing_list
+                  : (item.missing_keywords ? item.missing_keywords.split(',') : []);
+                return list.length > 0
+                  ? list.map(k => `<span class="tag tag-missing">${k.trim()}</span>`).join('')
+                  : '<div class="muted" style="font-size:12px;">Excellent! No critical missing keywords.</div>';
+              })()}
+                  </div>
+                </div>
+              </div>` : ''}
 
-            const res = await fetch('/api/analysis/quick/', {
-              method: 'POST',
-              headers: { 
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-              },
-              body: JSON.stringify({ resume_id: resumeId, job_description: 'FETCH_FROM_JOB', job_id: jobId }) 
-            });
-            
-            if (res.ok) {
-              window.location.href = `analysis_results.html`;
-            } else {
-              const data = await res.json();
-              alert("Analysis failed: " + (data.error || 'Server error'));
-              btn.innerText = "Run Analysis";
-              btn.disabled = false;
-            }
-          } catch(err) {
-            console.error(err);
-            alert("Connection error occurred.");
-            btn.innerText = "Run Analysis";
-            btn.disabled = false;
-          }
-        });
-      } catch(e) {}
+              <!-- Pillars (ONLY for Quality/Quick Scan) -->
+              ${isQuick ? `
+                <div class="section-title">Score Breakdown</div>
+                <div class="pillars-grid">
+                  ${Object.entries(item.pillars || {}).map(([key, val]) => {
+                const score = typeof val === 'object' ? val.score : val;
+                const max = typeof val === 'object' ? val.max_score : 100;
+                const percentage = (score / max * 100);
+                const isLow = percentage < 70;
+                return `
+                    <div class="pillar-card">
+                      <div class="pillar-info">
+                        <span class="pillar-label">${key.replace(/_/g, ' ').replace(/information/g, 'info')}</span>
+                        <span class="pillar-score ${isLow ? 'low' : ''}">${score}${typeof val === 'object' ? `/${max}` : ''}</span>
+                      </div>
+                      <div class="pillar-progress-bg">
+                        <div class="pillar-progress-fill ${isLow ? 'low' : ''}" style="width: ${percentage}%"></div>
+                      </div>
+                    </div>`;
+              }).join('')}
+                </div>
+              ` : ''}
+
+              ${item.suggestions && item.suggestions.length > 0 ? `
+                <div class="suggestions-list">
+                  ${item.suggestions.map(s => `
+                    <div class="suggestion-item">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" style="margin-top:2px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      <span>${s}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              ` : ''}
+            </div>
+          `;
+        }).join('');
+
+        if (highlightId) {
+          const target = document.getElementById(`result-${highlightId}`);
+          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+      } catch (err) {
+        container.innerHTML = '<div class="no-data history-card">Failed to load history.</div>';
+      }
     }
 
-    document.getElementById("qualityBtn").addEventListener("click", () => {
-       window.location.href = `general_analysis.html?resume_id=${resumeId}`;
-    });
+    async function deleteHistory(id) {
+      if (typeof appConfirm !== 'function') {
+        if (!confirm("Delete this analysis?")) return;
+        proceedDelete(id);
+        return;
+      }
+      const ok = await appConfirm("Delete Result?", "Are you sure you want to delete this analysis result? This action cannot be undone.");
+      if (ok) proceedDelete(id);
+    }
 
-    loadData();
+    async function proceedDelete(id) {
+      try {
+        const res = await fetch(`/api/ats-results/${id}/`, {
+          method: 'DELETE',
+          credentials: 'include',
+          headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        });
+        if (res.ok) {
+          const el = document.getElementById(`result-${id}`);
+          if (el) {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(10px)';
+            setTimeout(() => el.remove(), 300);
+          }
+        }
+      } catch (e) {
+        alert("Failed to delete entry.");
+      }
+    }
+
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    loadHistory();
   </script>
 </body>
+
 </html>

@@ -82,7 +82,7 @@
 
     async function resolveTicket(id) {
       try {
-        await fetch(`http://127.0.0.1:8000/api/admin/support/${id}/resolve/`, {
+        await fetch(`/api/admin/support/${id}/resolve/`, {
           method: "POST",
           credentials: "include"
         });
@@ -96,7 +96,7 @@
       if (!confirm("Delete this ticket permanently?")) return;
 
       try {
-        await fetch(`http://127.0.0.1:8000/api/admin/support/${id}/`, {
+        await fetch(`/api/admin/support/${id}/`, {
           method: "DELETE",
           credentials: "include"
         });
@@ -108,7 +108,7 @@
 
     async function loadSupport() {
       try {
-        const res = await fetch("http://127.0.0.1:8000/api/admin/support/", {
+        const res = await fetch("/api/admin/support/", {
           credentials: "include"
         });
         const data = await res.json();

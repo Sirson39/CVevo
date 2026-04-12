@@ -280,9 +280,10 @@ class Notification(models.Model):
         return f'[{self.type}] {self.user.email}: {self.message[:60]}'
 
     @classmethod
-    def push(cls, user, message, icon='??', notif_type='info'):
+    def push(cls, user, message, icon='🔔', notif_type='info'):
         cls.objects.create(user=user, message=message, icon=icon, type=notif_type)
-        keep_ids = list(cls.objects.filter(user=user).values_list('id', flat=True)[:4])
+        # Keep a slightly longer history for the dropdown (FIFO) but limited
+        keep_ids = list(cls.objects.filter(user=user).values_list('id', flat=True)[:15])
         cls.objects.filter(user=user).exclude(id__in=keep_ids).delete()
 
 class ContactMessage(models.Model):

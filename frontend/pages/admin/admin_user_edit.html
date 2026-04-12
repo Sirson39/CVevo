@@ -109,7 +109,7 @@
 
     async function loadUser() {
       try {
-        const res = await fetch(`http://127.0.0.1:8000/api/admin/users/${userId}/`, {
+        const res = await fetch(`/api/admin/users/${userId}/`, {
           credentials: "include"
         });
         const user = await res.json();
@@ -137,7 +137,7 @@
       };
 
       try {
-        await fetch(`http://127.0.0.1:8000/api/admin/users/${userId}/`, {
+        await fetch(`/api/admin/users/${userId}/`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           credentials: "include",

@@ -167,7 +167,7 @@
 
     async function deleteUser(id) {
       try {
-        await fetch(`http://127.0.0.1:8000/api/admin/users/${id}/`, {
+        await fetch(`/api/admin/users/${id}/`, {
           method: "DELETE",
           credentials: "include"
         });
@@ -179,7 +179,7 @@
 
     async function loadUsersPage() {
       try {
-        const res = await fetch("http://127.0.0.1:8000/api/admin/users/", {
+        const res = await fetch("/api/admin/users/", {
           credentials: "include"
         });
         const data = await res.json();

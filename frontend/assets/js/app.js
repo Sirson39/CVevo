@@ -214,93 +214,12 @@
     els.forEach((el) => io.observe(el));
   }
 
-  function setupConfirmModal() {
-    window.appConfirm = (title, message, callback, isDestructive = true, confirmText = "Yes, Delete") => {
-      const modal = document.getElementById("appConfirmModal");
-
-      if (!modal) {
-        const ok = window.confirm(message || "Are you sure?");
-        if (callback) callback(ok);
-        return;
-      }
-
-      const h3 = modal.querySelector(".confirm-h3");
-      const p = modal.querySelector(".confirm-p");
-      const confirmBtn = modal.querySelector(".c-btn-confirm");
-      const cancelBtn = modal.querySelector(".c-btn-cancel");
-      const icoBox = modal.querySelector(".confirm-ico");
-
-      if (!h3 || !p || !confirmBtn || !cancelBtn || !icoBox) {
-        const ok = window.confirm(message || "Are you sure?");
-        if (callback) callback(ok);
-        return;
-      }
-
-      h3.textContent = title || "Are you sure?";
-      p.textContent = message || "This action cannot be undone.";
-      confirmBtn.textContent = confirmText;
-
-      if (isDestructive) {
-        modal.classList.remove("is-success");
-        icoBox.innerHTML = `
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        `;
-      } else {
-        modal.classList.add("is-success");
-        icoBox.innerHTML = `
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke-linecap="round" stroke-linejoin="round"></path>
-            <polyline points="22 4 12 14.01 9 11.01" stroke-linecap="round" stroke-linejoin="round"></polyline>
-          </svg>
-        `;
-      }
-
-      modal.style.display = "flex";
-      setTimeout(() => modal.classList.add("is-active"), 10);
-
-      const closeModal = () => {
-        modal.classList.remove("is-active");
-        setTimeout(() => {
-          if (!modal.classList.contains("is-active")) {
-            modal.style.display = "none";
-          }
-        }, 300);
-      };
-
-      const newConfirm = confirmBtn.cloneNode(true);
-      const newCancel = cancelBtn.cloneNode(true);
-
-      confirmBtn.parentNode.replaceChild(newConfirm, confirmBtn);
-      cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
-
-      newConfirm.addEventListener("click", () => {
-        closeModal();
-        if (callback) callback(true);
-      });
-
-      newCancel.addEventListener("click", () => {
-        closeModal();
-        if (callback) callback(false);
-      });
-
-      modal.onclick = (e) => {
-        if (e.target === modal) {
-          closeModal();
-          if (callback) callback(false);
-        }
-      };
-    };
-  }
-
   function init() {
     setupBurgerMenu();
     setupHeaderScroll();
     setupResourcesDropdown();
     setupTemplateCarousel();
     setupRevealAnimations();
-    setupConfirmModal();
   }
 
   document.addEventListener("DOMContentLoaded", init);

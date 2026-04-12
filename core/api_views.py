@@ -134,6 +134,26 @@ class UserMeView(APIView):
             data['company'] = user.hr_profile.company
         return Response(data)
 
+    def patch(self, request):
+        user = request.user
+        full_name = request.data.get('full_name')
+        password = request.data.get('password')
+
+        if full_name:
+            user.full_name = full_name
+        if password:
+            user.set_password(password)
+        
+        user.save()
+        
+        # Notify about profile change
+        Notification.push(user, "Profile updated successfully.", icon="👤", notif_type="success")
+        if password:
+            Notification.push(user, "Security alert: Your password was changed.", icon="🔒", notif_type="warning")
+        
+        # Re-fetch data for response
+        return self.get(request)
+
 # ==========================
 # PROFILE & DASHBOARD
 # ==========================
@@ -301,9 +321,9 @@ class JobPostViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response({'jobs': serializer.data})
 
-    def perform_create(self, serializer):
         if hasattr(self.request.user, 'hr_profile'):
             serializer.save(hr=self.request.user.hr_profile)
+            Notification.push(self.request.user, f"Job Post '{serializer.validated_data.get('title')}' is now live.", icon="💼", notif_type="success")
         else:
             raise serializer.ValidationError({"error": "Only HR users can post jobs."})
 
@@ -340,6 +360,14 @@ class ResumeViewSet(viewsets.ModelViewSet):
                 ParsedResumeData.objects.create(resume=resume, extracted_text=text, **parsed)
         except Exception as e:
             print("Auto-parse error:", e)
+        
+        Notification.push(self.request.user, f"Resume '{resume.filename}' uploaded and parsed.", icon="📄", notif_type="success")
+
+    def perform_destroy(self, instance):
+        filename = instance.filename
+        user = self.request.user
+        instance.delete()
+        Notification.push(user, f"Resume '{filename}' has been deleted.", icon="🗑️", notif_type="warning")
 
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
@@ -394,6 +422,9 @@ class QuickAnalysisView(APIView):
             
             resume = get_object_or_404(Resume, id=resume_id, jobseeker__user=request.user)
             
+            # Notify Analysis Start
+            Notification.push(request.user, "ATS Analysis started. Scanning your resume... 🔍", icon="🕵️", notif_type="info")
+
             # 1. Get Resume Text
             parsed_data = getattr(resume, 'parsed_data', None)
             text = parsed_data.extracted_text if parsed_data else ""
@@ -415,7 +446,6 @@ class QuickAnalysisView(APIView):
             
             print(f"DEBUG: ATS Match -> {analysis.get('matched_keywords')}")
             print(f"DEBUG: ATS Missing -> {analysis.get('missing_skills')}")
-            
             result = ATSResult.objects.create(
                 resume=resume,
                 job_post=JobPost.objects.filter(id=job_id).first() if job_id else None,
@@ -423,10 +453,15 @@ class QuickAnalysisView(APIView):
                 score=analysis.get('ats_score', 0),
                 feedback=analysis.get('feedback', ""),
                 matched_keywords=",".join(analysis.get('matched_keywords', [])),
-                missing_keywords=",".join(analysis.get('missing_skills', [])), # Using skills as missing keywords
+                missing_keywords=",".join(analysis.get('missing_skills', [])),
                 score_breakdown=json.dumps(full_breakdown)
             )
             print(f"DEBUG: Result ID {result.id} Saved with Match KWs: {result.matched_keywords}")
+            
+            # Notify User
+            job_name = job_title_input or (result.job_post.title if result.job_post else "Quick Scan")
+            Notification.push(request.user, f"ATS Analysis complete for '{job_name}'. Score: {result.score}%", icon="📊", notif_type="success")
+            
             return Response(ATSResultSerializer(result).data)
         except Exception as e:
             return Response({'error': str(e)}, status=500)
@@ -438,6 +473,9 @@ class GeneralAnalysisView(APIView):
     def get(self, request, resume_id):
         resume = get_object_or_404(Resume, id=resume_id, jobseeker__user=request.user)
         
+        # Notify Analysis Start
+        Notification.push(request.user, "General Quality Scan initiated. ✨", icon="📈", notif_type="info")
+
         # 1. Get Text
         parsed_data = getattr(resume, 'parsed_data', None)
         text = parsed_data.extracted_text if parsed_data else ""
@@ -449,8 +487,6 @@ class GeneralAnalysisView(APIView):
             return Response({'error': 'No text found'}, status=400)
 
         # 2. Run Real General Quality Scan
-        # We wrap this to match calculate_ats_score style for keyword support if possible
-        # For now, let's use the scan result but create a result record
         scan = calculate_general_score(text, resume.file.size, resume.filename.split('.')[-1])
         
         # Save to history so it appears in dashboard
@@ -459,9 +495,6 @@ class GeneralAnalysisView(APIView):
             'suggestions': scan.get('suggestions', [])
         }
         
-        print(f"DEBUG: Found KWs -> {scan.get('found_keywords')}")
-        print(f"DEBUG: Missing KWs -> {scan.get('missing_keywords')}")
-
         result = ATSResult.objects.create(
             resume=resume,
             custom_job_title="General Quality Scan",
@@ -471,8 +504,10 @@ class GeneralAnalysisView(APIView):
             missing_keywords=",".join(scan.get('missing_keywords', [])),
             score_breakdown=json.dumps(full_breakdown)
         )
-        print(f"DEBUG: Quality Result ID {result.id} Saved with Match KWs: {result.matched_keywords}")
         
+        # Notify User
+        Notification.push(request.user, f"General Quality Scan complete. Quality Score: {result.score}%", icon="✨", notif_type="info")
+
         return Response(ATSResultSerializer(result).data)
 
 @method_decorator(csrf_exempt, name='dispatch')

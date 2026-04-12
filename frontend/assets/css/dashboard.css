@@ -2961,3 +2961,12 @@ select {
 .c-btn-cancel:hover { background: #e2e8f0; }
 .c-btn-confirm { background: #f43f5e; color: #fff; box-shadow: 0 4px 12px rgba(244, 63, 94, 0.25); transition: 0.2s; }
 .c-btn-confirm:hover { background: #e11d48; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(244, 63, 94, 0.35); }
+/* --- TOAST SYSTEM --- */
+@keyframes toastSlideIn {
+  from { transform: translateX(120%) scale(0.9); opacity: 0; }
+  to { transform: translateX(0) scale(1); opacity: 1; }
+}
+@keyframes toastSlideOut {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(120%); opacity: 0; }
+}

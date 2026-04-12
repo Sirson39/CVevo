@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>HR Profile Settings • CVevo</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../assets/css/styles.css">
+  <link rel="stylesheet" href="../../assets/css/dashboard.css">
+  <style>
+    .settings-grid { display: grid; grid-template-columns: 1fr 360px; gap: 2rem; align-items: start; }
+    @media (max-width: 1100px) { .settings-grid { grid-template-columns: 1fr; } }
+    
+    .status-badge { display: flex; align-items: center; gap: 15px; padding: 1.5rem; background: #f0fdf4; border-radius: 20px; border: 1px solid #dcfce7; margin-bottom: 1.5rem; }
+    .status-icon { width: 44px; height: 44px; border-radius: 14px; background: white; color: #16a34a; display: grid; place-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+
+    .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; }
+    .toggle { width: 42px; height: 22px; background: #e2e8f0; border-radius: 11px; position: relative; cursor: pointer; transition: 0.3s; }
+    .toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; background: white; border-radius: 50%; transition: 0.3s; }
+    .toggle.active { background: #10b981; }
+    .toggle.active::after { left: 22px; }
+  </style>
+</head>
+
+<body class="app-body">
+  <div class="app">
+    <div id="sidebarMount"></div>
+
+    <div class="main">
+      <div id="topbarMount"></div>
+
+      <main class="content">
+        <header class="ru-head" style="margin-bottom: 3rem;">
+          <div>
+            <h1 class="ru-title" style="font-size: 28px; font-weight: 900; letter-spacing: -0.02em;">Recruiter Settings</h1>
+            <p class="ru-sub" style="font-size: 15px;">Manage your recruitment identity and company preferences.</p>
+          </div>
+        </header>
+
+        <div class="settings-grid">
+          <div class="stack" style="gap: 2.5rem;">
+            <!-- HR Info Card -->
+            <article class="card pad-lg" style="border-radius: 24px;">
+              <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 2rem;">
+                <div style="width: 36px; height: 36px; border-radius: 10px; background: #eff6ff; color: #1d4ed8; display: grid; place-items: center;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <h3 style="margin: 0; font-size: 20px; font-weight: 800;">Recruiter Identity</h3>
+              </div>
+
+              <form id="hrProfileForm" class="stack" style="gap: 1.75rem;">
+                <div class="grid grid-2" style="gap: 1.5rem;">
+                  <div class="field">
+                    <label class="label" style="font-size: 12px; color: #64748b;">FULL NAME</label>
+                    <input type="text" id="fullName" class="input" required style="padding: 14px 18px; border-radius: 12px;">
+                  </div>
+                  <div class="field">
+                    <label class="label" style="font-size: 12px; color: #64748b;">COMPANY NAME</label>
+                    <input type="text" id="company" class="input" required style="padding: 14px 18px; border-radius: 12px;">
+                  </div>
+                </div>
+
+                <div class="grid grid-2" style="gap: 1.5rem;">
+                  <div class="field">
+                    <label class="label" style="font-size: 12px; color: #64748b;">OFFICIAL ROLE</label>
+                    <input type="text" id="role" class="input" required style="padding: 14px 18px; border-radius: 12px;">
+                  </div>
+                  <div class="field">
+                    <label class="label" style="font-size: 12px; color: #64748b;">LOGIN EMAIL</label>
+                    <input type="email" id="email" class="input" readonly style="background: #f8fafc; color: #94a3b8; padding: 14px 18px; border-radius: 12px;">
+                  </div>
+                </div>
+
+                <div style="padding-top: 1.5rem; border-top: 1px solid #f1f5f9;">
+                  <button type="submit" id="saveBtn" class="btn btn-primary" style="background: #10b981; border: none; padding: 14px 40px; border-radius: 12px; font-weight: 800; font-size: 15px;">Save Changes</button>
+                </div>
+              </form>
+            </article>
+
+            <!-- Communication Card -->
+            <article class="card pad-lg" style="border-radius: 24px;">
+              <h3 style="margin: 0 0 1.5rem 0; font-size: 20px; font-weight: 800;">Email Notifications</h3>
+              <div class="toggle-row">
+                <div>
+                  <div style="font-weight: 700; color: #1e293b; font-size: 15px;">Enable Platform Notifications</div>
+                  <div style="font-size: 13px; color: #64748b; margin-top: 2px;">Notifications for candidate applications and matching updates.</div>
+                </div>
+                <div class="toggle active" onclick="this.classList.toggle('active')"></div>
+              </div>
+            </article>
+
+            <!-- Password Card -->
+            <article class="card pad-lg" style="border-radius: 24px;">
+              <h3 style="margin: 0 0 2rem 0; font-size: 20px; font-weight: 800;">Security Update</h3>
+              <form id="passwordForm" class="stack" style="gap: 1.5rem;">
+                <div class="grid grid-2" style="gap: 1.5rem;">
+                  <div class="field">
+                    <label class="label" style="font-size: 12px; color: #64748b;">NEW PASSWORD</label>
+                    <input type="password" id="newPassword" class="input" style="padding: 12px 16px; border-radius: 12px;">
+                  </div>
+                  <div class="field">
+                    <label class="label" style="font-size: 12px; color: #64748b;">CONFIRM NEW PASSWORD</label>
+                    <input type="password" id="confirmPassword" class="input" style="padding: 12px 16px; border-radius: 12px;">
+                  </div>
+                </div>
+                <div style="padding-top: 1rem;">
+                  <button type="submit" id="pwdBtn" class="btn" style="background: #1e293b; color: white; padding: 12px 32px; border-radius: 12px; font-weight: 700; border: none;">Update Security</button>
+                </div>
+              </form>
+            </article>
+          </div>
+
+          <aside class="stack" style="gap: 1.5rem;">
+            <!-- Status -->
+            <div class="status-badge">
+              <div class="status-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <div>
+                <span id="accountTypeDisplay" style="font-size: 11px; text-transform: uppercase; color: #16a34a; font-weight: 900; letter-spacing: 0.05em;">Recruiter</span>
+                <div style="font-size: 16px; font-weight: 900; color: #1e293b; margin-top: 2px;">Verified Member</div>
+              </div>
+            </div>
+
+            <!-- Company Card -->
+            <article class="card pad-lg" style="border-radius: 24px; background: #f8fafc; border: 1px solid #e2e8f0;">
+              <h4 style="margin: 0 0 0.5rem 0; font-size: 15px; font-weight: 800;">Active Presence</h4>
+              <p style="font-size: 12px; color: #64748b; line-height: 1.6;">Your company information is visible to all candidates applying to your jobs.</p>
+              <div style="margin-top: 1rem; padding: 12px; background: white; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 8px;">
+                <div style="width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></div>
+                <span style="font-size: 11px; font-weight: 700; color: #1e293b;">Public Profile: ONLINE</span>
+              </div>
+            </article>
+          </aside>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="../../assets/js/app.js"></script>
+  <script src="../../assets/js/app-layout.js"></script>
+  <script>
+    initAppLayout({
+      pageKey: "hr_profile_settings",
+      title: "Recruiter Settings",
+      subtitle: "Enterprise Account Management"
+    });
+
+    async function loadHrProfile() {
+      try {
+        const res = await fetch("/api/hr-profiles/me/", { credentials: "include" });
+        const data = await res.json();
+        document.getElementById("fullName").value = data.full_name || "";
+        document.getElementById("email").value = data.user?.email || "";
+        document.getElementById("company").value = data.company || "";
+        document.getElementById("role").value = data.role || "";
+      } catch (err) { console.error(err); }
+    }
+
+    document.getElementById("hrProfileForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("saveBtn");
+      btn.disabled = true;
+      const payload = {
+        full_name: document.getElementById("fullName").value,
+        company: document.getElementById("company").value,
+        role: document.getElementById("role").value
+      };
+      try {
+        const resProfile = await fetch("/api/hr-profiles/me/", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const resUser = await fetch("/api/users/me/", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ full_name: payload.full_name })
+        });
+        if (resProfile.ok && resUser.ok) {
+          showToast("HR Profile synced! ✅");
+          localStorage.setItem("currentUser", JSON.stringify(await resUser.json()));
+          if (window.setUserUI) window.setUserUI();
+        }
+      } catch (err) { showToast("Sync failed.", "error"); }
+      finally { btn.disabled = false; }
+    });
+
+    document.getElementById("passwordForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const p1 = document.getElementById("newPassword").value;
+      const p2 = document.getElementById("confirmPassword").value;
+      if (p1 !== p2) { showToast("Passwords mismatch!", "error"); return; }
+      const btn = document.getElementById("pwdBtn");
+      btn.disabled = true;
+      try {
+        const res = await fetch("/api/users/me/", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password: p1 })
+        });
+        if (res.ok) {
+          showToast("Password updated! 🔒");
+          document.getElementById("passwordForm").reset();
+        }
+      } catch (err) { showToast("Update failed.", "error"); }
+      finally { btn.disabled = false; }
+    });
+
+    loadHrProfile();
+  </script>
+</body>
+</html>

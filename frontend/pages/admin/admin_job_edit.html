@@ -115,7 +115,7 @@
 
     async function loadJob() {
       try {
-        const res = await fetch(`http://127.0.0.1:8000/api/admin/jobs/${jobId}/`, {
+        const res = await fetch(`/api/admin/jobs/${jobId}/`, {
           credentials: "include"
         });
         const job = await res.json();
@@ -141,7 +141,7 @@
       };
 
       try {
-        await fetch(`http://127.0.0.1:8000/api/admin/jobs/${jobId}/`, {
+        await fetch(`/api/admin/jobs/${jobId}/`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -163,7 +163,7 @@
       if (!confirm("Delete this job permanently?")) return;
 
       try {
-        await fetch(`http://127.0.0.1:8000/api/admin/jobs/${jobId}/`, {
+        await fetch(`/api/admin/jobs/${jobId}/`, {
           method: "DELETE",
           credentials: "include"
         });

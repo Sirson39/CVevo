@@ -172,10 +172,8 @@
 
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      const user = getCurrentUser();
       const q = input.value.trim();
-      const base = (user && user.role === "hr") ? "../hr/hr_dashboard.html" : "../jobseeker/jobseeker_dashboard.html";
-      const target = q ? `${base}?q=${encodeURIComponent(q)}` : base;
+      const target = `../shared/search_results.html?q=${encodeURIComponent(q)}`;
       window.location.href = target;
     });
   }
@@ -281,7 +279,8 @@
     }
   }
 
-  document.addEventListener("DOMContentLoaded", function () {
+  function initTopbar() {
+    console.log("[CVevo] Initializing Topbar UI...");
     setTopbarUser();
     setupRoleSearch();
     setupNotificationDropdown();
@@ -290,6 +289,12 @@
     setTimeout(() => {
       maybePlayLatestNotificationSound();
     }, 800);
-  });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initTopbar);
+  } else {
+    initTopbar();
+  }
 })();
 </script>

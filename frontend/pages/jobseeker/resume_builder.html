@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -7,7 +8,9 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+    rel="stylesheet">
 
   <link rel="stylesheet" href="../../assets/css/styles.css">
   <link rel="stylesheet" href="../../assets/css/dashboard.css">
@@ -19,16 +22,19 @@
       grid-template-columns: 1fr 1fr;
       gap: 1rem;
     }
+
     .rb-field {
       display: flex;
       flex-direction: column;
       gap: 0.25rem;
     }
+
     .rb-field span {
       font-size: 0.85rem;
       font-weight: 600;
       color: var(--muted);
     }
+
     .rb-field input,
     .rb-field textarea,
     .rb-field select {
@@ -37,6 +43,7 @@
       border-radius: 8px;
       font-size: 0.9rem;
     }
+
     .entry-card {
       border: 1px solid var(--border);
       padding: 1rem;
@@ -44,8 +51,11 @@
       margin-bottom: 1rem;
       position: relative;
     }
-    .rb-field input[type="file"] { display: none; }
-    
+
+    .rb-field input[type="file"] {
+      display: none;
+    }
+
     .avatar-upload {
       width: 100px;
       height: 100px;
@@ -62,12 +72,12 @@
       transition: all 0.3s;
       margin-top: 0.5rem;
     }
-    
+
     .avatar-upload:hover {
       border-color: #2f8f7a;
       background: #f1f5f9;
     }
-    
+
     .avatar-upload img {
       width: 100%;
       height: 100%;
@@ -76,35 +86,37 @@
       inset: 0;
       display: none;
     }
-    
+
     .avatar-upload i {
       font-size: 24px;
       color: #94a3b8;
       margin-bottom: 4px;
     }
-    
+
     .avatar-upload span {
       font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
       color: #64748b;
     }
-    
+
     .avatar-upload.has-image {
       border: 3px solid #2f8f7a;
     }
-    
-    .avatar-upload.has-image i, .avatar-upload.has-image span {
+
+    .avatar-upload.has-image i,
+    .avatar-upload.has-image span {
       opacity: 0;
     }
-    
-    .avatar-upload.has-image:hover i, .avatar-upload.has-image:hover span {
+
+    .avatar-upload.has-image:hover i,
+    .avatar-upload.has-image:hover span {
       opacity: 1;
       position: relative;
       z-index: 10;
       color: #fff;
     }
-    
+
     .avatar-upload.has-image:hover::after {
       content: '';
       position: absolute;
@@ -112,6 +124,7 @@
       background: rgba(15, 23, 42, 0.4);
       z-index: 5;
     }
+
     .entry-delete {
       position: absolute;
       top: 0.5rem;
@@ -121,18 +134,30 @@
       border: none;
       background: none;
     }
+
     .rb-grid.focus-mode {
       grid-template-columns: 1fr !important;
     }
+
     .focus-mode .rb-left {
       display: none;
     }
+
     .focus-mode .rb-right {
       max-width: 850px;
       margin: 0 auto;
       width: 100%;
     }
-    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
   </style>
 </head>
 
@@ -146,7 +171,8 @@
       <main class="content">
         <div id="jobseekerStepperMount"></div>
 
-        <header class="rb-head" style="display:flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+        <header class="rb-head"
+          style="display:flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
           <div>
             <h1 class="rb-h1" style="font-size: 24px;">Resume Builder</h1>
             <p class="rb-sub" style="font-size: 13px; color: #64748b;">Create and edit your professional profile</p>
@@ -154,7 +180,7 @@
 
           <div class="rb-actions">
             <a class="btn btn-ghost" href="templates_gallery.html">
-              Select Templates
+              Select Template
             </a>
             <button class="btn btn-primary" id="saveProfileBtn">
               Save Profile Info
@@ -172,7 +198,8 @@
           <button class="rb-tab" data-tab="references" type="button">References</button>
         </nav>
 
-        <div id="builder-container" class="rb-grid" style="display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 2rem; align-items: start;">
+        <div id="builder-container" class="rb-grid"
+          style="display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 2rem; align-items: start;">
           <section class="rb-left">
             <article class="card rb-panel is-active" data-panel="contact" style="padding: 1.5rem;">
               <h2 class="rb-title" style="margin-bottom: 1.5rem;">Basic Information</h2>
@@ -203,14 +230,22 @@
                     <input type="url" name="linkedin">
                   </label>
                   <div class="rb-field" id="profile-pic-section" style="grid-column: span 2; display: none;">
-                    <span style="display:block; margin-bottom: 0.5rem; font-size: 0.85rem; font-weight: 700; color: #475569;">Profile Picture</span>
+                    <span
+                      style="display:block; margin-bottom: 0.5rem; font-size: 0.85rem; font-weight: 700; color: #475569;">Profile
+                      Picture</span>
                     <label class="avatar-upload" id="avatarUploadLabel">
                       <img id="formAvatarPreview" src="" alt="Preview">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                        <circle cx="12" cy="13" r="4" />
+                      </svg>
                       <span>Upload Photo</span>
                       <input type="file" name="profile_picture" accept="image/*" id="profilePicInput">
                     </label>
-                    <button type="button" id="removeAvatarBtn" onclick="removeAvatar()" style="margin-top: 0.5rem; font-size: 11px; color: #ef4444; border: none; background: none; cursor: pointer; text-decoration: underline; display: none;">Remove Photo</button>
+                    <button type="button" id="removeAvatarBtn" onclick="removeAvatar()"
+                      style="margin-top: 0.5rem; font-size: 11px; color: #ef4444; border: none; background: none; cursor: pointer; text-decoration: underline; display: none;">Remove
+                      Photo</button>
                   </div>
                 </div>
                 <div class="rb-field" style="margin-top: 1.5rem;">
@@ -224,10 +259,12 @@
               <h2 class="rb-title" style="margin-bottom: 1.5rem;">Skills</h2>
 
               <h3 style="font-size: 1rem; margin-bottom: 1rem; color: var(--primary);">Technical Skills</h3>
-              <div id="technicalSkillsList" class="rb-skill-chips" style="display:flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem;"></div>
+              <div id="technicalSkillsList" class="rb-skill-chips"
+                style="display:flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem;"></div>
 
               <h3 style="font-size: 1rem; margin-bottom: 1rem; color: var(--primary);">Soft Skills</h3>
-              <div id="softSkillsList" class="rb-skill-chips" style="display:flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem;"></div>
+              <div id="softSkillsList" class="rb-skill-chips"
+                style="display:flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem;"></div>
 
               <hr style="margin: 1.5rem 0; opacity: 0.1;">
 
@@ -251,7 +288,8 @@
                     <option value="Advanced">Advanced</option>
                   </select>
                 </label>
-                <button class="btn btn-primary" type="submit" style="grid-column: span 2; margin-top: 1rem;">Add Skill</button>
+                <button class="btn btn-primary" type="submit" style="grid-column: span 2; margin-top: 1rem;">Add
+                  Skill</button>
               </form>
             </article>
 
@@ -282,7 +320,8 @@
                   <span>Description</span>
                   <textarea name="description" rows="3" required></textarea>
                 </div>
-                <button class="btn btn-primary" type="submit" style="margin-top: 1rem; width: 100%;">Add Experience</button>
+                <button class="btn btn-primary" type="submit" style="margin-top: 1rem; width: 100%;">Add
+                  Experience</button>
               </form>
             </article>
 
@@ -309,7 +348,8 @@
                     <input type="date" name="end_date">
                   </label>
                 </div>
-                <button class="btn btn-primary" type="submit" style="margin-top: 1rem; width: 100%;">Add Education</button>
+                <button class="btn btn-primary" type="submit" style="margin-top: 1rem; width: 100%;">Add
+                  Education</button>
               </form>
             </article>
 
@@ -332,7 +372,8 @@
                   <span>Description</span>
                   <textarea name="description" rows="3" required></textarea>
                 </div>
-                <button class="btn btn-primary" type="submit" style="margin-top: 1rem; width: 100%;">Add Project</button>
+                <button class="btn btn-primary" type="submit" style="margin-top: 1rem; width: 100%;">Add
+                  Project</button>
               </form>
             </article>
 
@@ -363,7 +404,8 @@
                   <span>Description (Optional)</span>
                   <textarea name="description" rows="2"></textarea>
                 </div>
-                <button class="btn btn-primary" type="submit" style="margin-top: 1rem; width: 100%;">Add Certificate</button>
+                <button class="btn btn-primary" type="submit" style="margin-top: 1rem; width: 100%;">Add
+                  Certificate</button>
               </form>
             </article>
 
@@ -394,16 +436,23 @@
                     <input type="text" name="phone">
                   </label>
                 </div>
-                <button class="btn btn-primary" type="submit" style="margin-top: 1rem; width: 100%;">Add Reference</button>
+                <button class="btn btn-primary" type="submit" style="margin-top: 1rem; width: 100%;">Add
+                  Reference</button>
               </form>
             </article>
           </section>
 
           <aside class="rb-right">
-            <div class="rb-preview-head" style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div class="rb-preview-head"
+              style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
               <h2 class="card-title">Live Preview</h2>
-              <button class="btn btn-ghost btn-sm" onclick="toggleFocusMode()" id="focus-btn" style="display: flex; align-items: center; gap: 6px;">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <button class="btn btn-ghost btn-sm" onclick="toggleFocusMode()" id="focus-btn"
+                style="display: flex; align-items: center; gap: 6px;">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
                 <span>Focus View</span>
               </button>
             </div>
@@ -411,7 +460,8 @@
             <div id="resume-preview-container" style="background: white; transform-origin: top center;">
               <!-- JavaScript will dynamically inject the selected template here -->
               <div style="padding: 2rem; text-align: center; color: #94a3b8;">
-                <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1" style="margin-bottom: 1rem; opacity: 0.5;">
+                <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1"
+                  style="margin-bottom: 1rem; opacity: 0.5;">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                   <polyline points="14 2 14 8 20 8"></polyline>
                 </svg>
@@ -420,8 +470,16 @@
             </div>
 
             <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
-              <button class="btn btn-primary wide" id="exportPdfBtn" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+              <button class="btn btn-primary wide" id="exportPdfBtn"
+                style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
                 <span>Export as PDF</span>
               </button>
             </div>
@@ -486,25 +544,25 @@
     const templateCache = {};
 
     function toggleProfilePicSection() {
-        const section = document.getElementById('profile-pic-section');
-        const templateCode = state.selected_template || 't1_kelly';
-        if (section) {
-            // Only show for T3 and T8
-            if (templateCode.includes('t3') || templateCode.includes('t8')) {
-                section.style.display = 'block';
-            } else {
-                section.style.display = 'none';
-            }
+      const section = document.getElementById('profile-pic-section');
+      const templateCode = state.selected_template || 't1_kelly';
+      if (section) {
+        // Only show for T3 and T8
+        if (templateCode.includes('t3') || templateCode.includes('t8')) {
+          section.style.display = 'block';
+        } else {
+          section.style.display = 'none';
         }
+      }
     }
 
     async function renderResume() {
       toggleProfilePicSection();
       const container = document.getElementById("resume-preview-container");
       if (!container) return;
-      
+
       const templateCode = state.selected_template || 't1_kelly';
-      
+
       try {
         let html = templateCache[templateCode];
         if (!html) {
@@ -516,11 +574,11 @@
 
         const tempDiv = document.createElement("div");
         tempDiv.innerHTML = html;
-        
+
         const profile = state.profile || {};
         tempDiv.querySelectorAll('[data-field]').forEach(el => {
           const field = el.getAttribute('data-field');
-          
+
           if (el.tagName === 'IMG') {
             if (profile[field]) {
               el.src = profile[field];
@@ -529,18 +587,18 @@
               el.style.display = 'none';
             }
           } else if (field === 'profile_picture') {
-             const img = el.querySelector('img');
-             const initial = el.querySelector('span');
-             if (profile.profile_picture) {
-               if (img) { img.src = profile.profile_picture; img.style.display = 'block'; }
-               if (initial) initial.style.display = 'none';
-             } else {
-               if (img) img.style.display = 'none';
-               if (initial) {
-                 initial.style.display = 'block';
-                 initial.innerText = (profile.full_name || 'U').charAt(0).toUpperCase();
-               }
-             }
+            const img = el.querySelector('img');
+            const initial = el.querySelector('span');
+            if (profile.profile_picture) {
+              if (img) { img.src = profile.profile_picture; img.style.display = 'block'; }
+              if (initial) initial.style.display = 'none';
+            } else {
+              if (img) img.style.display = 'none';
+              if (initial) {
+                initial.style.display = 'block';
+                initial.innerText = (profile.full_name || 'U').charAt(0).toUpperCase();
+              }
+            }
           } else {
             const val = profile[field] || (field === 'job_title' ? profile.position : "");
             el.innerText = val;
@@ -556,7 +614,7 @@
         // SPECIAL FIX: If template has .t1-title but no data-field, fix it
         const t1Title = tempDiv.querySelector('.t1-title');
         if (t1Title && !t1Title.dataset.field) {
-            t1Title.innerText = profile.position || "RESUME APPLICANT";
+          t1Title.innerText = profile.position || "RESUME APPLICANT";
         }
 
 
@@ -569,18 +627,18 @@
             if (itemTpl && state[type] && state[type].length > 0) {
               const baseNode = itemTpl.cloneNode(true);
               baseNode.removeAttribute('data-tpl');
-              listRoot.innerHTML = ''; 
-              
+              listRoot.innerHTML = '';
+
               state[type].forEach(item => {
                 const node = baseNode.cloneNode(true);
                 // Search both the node itself and its children for data-fields
                 const fieldEls = [node, ...node.querySelectorAll('[data-field]')];
-                
+
                 fieldEls.forEach(el => {
                   if (!el.getAttribute) return; // Skip text nodes if any
                   const f = el.getAttribute('data-field');
                   if (!f) return;
-                  
+
                   if (item[f] !== undefined && item[f] !== "") {
                     el.innerText = item[f];
                   } else if (f === 'date_range') {
@@ -670,23 +728,23 @@
       renderResume();
     }
 
-    window.removeAvatar = function() {
-        state.profile.profile_picture = "";
-        const formImg = document.getElementById('formAvatarPreview');
-        const containerLabel = document.getElementById('avatarUploadLabel');
-        const removeBtn = document.getElementById('removeAvatarBtn');
-        const fileInput = document.getElementById('profilePicInput');
-        
-        if (formImg) {
-            formImg.src = "";
-            formImg.style.display = 'none';
-        }
-        if (containerLabel) containerLabel.classList.remove('has-image');
-        if (removeBtn) removeBtn.style.display = 'none';
-        if (fileInput) fileInput.value = ""; // Clear the file picker too
-        
-        renderResume();
-        showToast("Photo removed from preview. Click 'Save' to apply permanently.");
+    window.removeAvatar = function () {
+      state.profile.profile_picture = "";
+      const formImg = document.getElementById('formAvatarPreview');
+      const containerLabel = document.getElementById('avatarUploadLabel');
+      const removeBtn = document.getElementById('removeAvatarBtn');
+      const fileInput = document.getElementById('profilePicInput');
+
+      if (formImg) {
+        formImg.src = "";
+        formImg.style.display = 'none';
+      }
+      if (containerLabel) containerLabel.classList.remove('has-image');
+      if (removeBtn) removeBtn.style.display = 'none';
+      if (fileInput) fileInput.value = ""; // Clear the file picker too
+
+      renderResume();
+      showToast("Photo removed from preview. Click 'Save' to apply permanently.");
     };
 
     async function loadBuilderData() {
@@ -694,7 +752,7 @@
       try {
         const res = await fetch("/api/resume-builder/", { credentials: "include" });
         if (!res.ok) {
-           throw new Error(`Server returned ${res.status}: ${res.statusText}`);
+          throw new Error(`Server returned ${res.status}: ${res.statusText}`);
         }
         const data = await res.json();
 
@@ -714,21 +772,21 @@
             form[f].value = state.profile[f] || "";
           }
         });
-        
+
         // Initial Avatar Preview in Form
         const formImg = document.getElementById('formAvatarPreview');
         const containerLabel = document.getElementById('avatarUploadLabel');
         const removeBtn = document.getElementById('removeAvatarBtn');
         if (formImg && state.profile.profile_picture) {
-           formImg.src = state.profile.profile_picture;
-           formImg.style.display = 'block';
-           if(containerLabel) containerLabel.classList.add('has-image');
-           if(removeBtn) removeBtn.style.display = 'block';
+          formImg.src = state.profile.profile_picture;
+          formImg.style.display = 'block';
+          if (containerLabel) containerLabel.classList.add('has-image');
+          if (removeBtn) removeBtn.style.display = 'block';
         } else if (formImg) {
-           formImg.src = "";
-           formImg.style.display = 'none';
-           if(containerLabel) containerLabel.classList.remove('has-image');
-           if(removeBtn) removeBtn.style.display = 'none';
+          formImg.src = "";
+          formImg.style.display = 'none';
+          if (containerLabel) containerLabel.classList.remove('has-image');
+          if (removeBtn) removeBtn.style.display = 'none';
         }
 
         renderAllLists();
@@ -763,7 +821,7 @@
           credentials: 'include',
           body: formData
         });
-        
+
         if (res.ok) {
           const data = await res.json();
           showToast("Profile updated successfully!");
@@ -814,12 +872,12 @@
 
         if (form.id === "profile-form") {
           const field = e.target.name;
-          
+
           if (field === 'profile_picture' && e.target.files && e.target.files[0]) {
             const reader = new FileReader();
             reader.onload = (event) => {
               state.profile.profile_picture = event.target.result;
-              
+
               // Update form preview too
               const formImg = document.getElementById('formAvatarPreview');
               const container = document.getElementById('avatarUploadLabel');
@@ -827,10 +885,10 @@
               if (formImg) {
                 formImg.src = event.target.result;
                 formImg.style.display = 'block';
-                if(container) container.classList.add('has-image');
-                if(removeBtn) removeBtn.style.display = 'block';
+                if (container) container.classList.add('has-image');
+                if (removeBtn) removeBtn.style.display = 'block';
               }
-              
+
               renderResume();
             };
             reader.readAsDataURL(e.target.files[0]);
@@ -859,7 +917,7 @@
       if (saveBtn) {
         saveBtn.addEventListener("click", saveProfile);
       }
-      
+
       loadBuilderData();
     });
 
@@ -936,7 +994,7 @@
       };
     })();
 
-    document.getElementById("exportPdfBtn").addEventListener("click", async function(event) {
+    document.getElementById("exportPdfBtn").addEventListener("click", async function (event) {
       const element = document.getElementById('resume-preview-container');
       const opt = {
         margin: 0.2,
@@ -961,4 +1019,5 @@
 
   </script>
 </body>
+
 </html>

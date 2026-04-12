@@ -2,7 +2,8 @@
   @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap');
   .t8-wrap { font-family: 'Roboto', sans-serif; background: #fff; text-align: left; position: relative; padding-bottom: 3rem; }
   .t8-head { background-color: #ffd84d; padding: 2rem; display: flex; align-items: center; gap: 2rem; border-bottom: 2px solid #000; }
-  .t8-img-box { width: 100px; height: 100px; background: #eee; background-size: cover; border: 3px solid #000; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 900; }
+  .t8-img-box { width: 100px; height: 100px; background: #eee; background-size: cover; border: 3px solid #000; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 900; overflow: hidden; }
+  .t8-img-box img { width: 100%; height: 100%; object-fit: cover; }
   .t8-title-box h1 { margin: 0; font-size: 2.2rem; font-weight: 900; color: #000; text-transform: uppercase; line-height: 1; }
   .t8-role { font-size: 1rem; font-weight: 700; color: #444; margin-top: 0.5rem; }
   
@@ -22,7 +23,10 @@
 
 <div class="t8-wrap">
   <div class="t8-head">
-    <div class="t8-img-box" data-field="full_name">U</div>
+    <div class="t8-img-box" data-field="profile_picture">
+      <img src="" alt="Profile" style="display:none;">
+      <span class="t8-initial" data-field="full_name">U</span>
+    </div>
     <div class="t8-title-box">
       <h1 data-field="full_name">YOUR NAME</h1>
       <div class="t8-role" data-field="position">PROFESSIONAL TITLE</div>

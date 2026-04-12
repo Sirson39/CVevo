@@ -226,7 +226,7 @@
     }
 
     function buildCsvLink(jobId) {
-      return `http://127.0.0.1:8000/api/hr/export-csv/?job_id=${jobId}`;
+      return `/api/hr/export-csv/?job_id=${jobId}`;
     }
 
     function renderExportButtons(jobId) {
@@ -320,7 +320,7 @@
       const search = document.getElementById("reportSearch").value.trim();
 
       try {
-        const res = await fetch(`http://127.0.0.1:8000/api/hr/reports-export/?job_id=${selectedJobId}&q=${encodeURIComponent(search)}`, {
+        const res = await fetch(`/api/hr/reports-export/?job_id=${selectedJobId}&q=${encodeURIComponent(search)}`, {
           credentials: "include"
         });
 

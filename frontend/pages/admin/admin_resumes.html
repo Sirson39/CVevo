@@ -96,7 +96,7 @@
       if (!confirm(`Delete "${filename}"?`)) return;
 
       try {
-        await fetch(`http://127.0.0.1:8000/api/admin/resumes/${id}/`, {
+        await fetch(`/api/admin/resumes/${id}/`, {
           method: "DELETE",
           credentials: "include"
         });
@@ -108,7 +108,7 @@
 
     async function loadResumes() {
       try {
-        const res = await fetch("http://127.0.0.1:8000/api/admin/resumes/", {
+        const res = await fetch("/api/admin/resumes/", {
           credentials: "include"
         });
         const data = await res.json();

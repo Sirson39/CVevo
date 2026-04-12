@@ -167,7 +167,7 @@
       const minScore = params.get("min_score") || "";
 
       try {
-        const res = await fetch(`http://127.0.0.1:8000/api/hr/candidate-ranking/?job_id=${selectedJobId}&min_score=${minScore}`, {
+        const res = await fetch(`/api/hr/candidate-ranking/?job_id=${selectedJobId}&min_score=${minScore}`, {
           credentials: "include"
         });
         const data = await res.json();
