@@ -305,7 +305,7 @@ class JobPostViewSet(viewsets.ModelViewSet):
         if hasattr(self.request.user, 'hr_profile'):
             serializer.save(hr=self.request.user.hr_profile)
         else:
-            raise serializers.ValidationError({"error": "Only HR users can post jobs."})
+            raise serializer.ValidationError({"error": "Only HR users can post jobs."})
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -341,10 +341,13 @@ class ResumeViewSet(viewsets.ModelViewSet):
         except Exception as e:
             print("Auto-parse error:", e)
 
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+
 @method_decorator(csrf_exempt, name='dispatch')
 class ResumeBuilderView(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
     def get(self, request):
         profile, _ = JobseekerProfile.objects.get_or_create(user=request.user)
         # Using Serializers for full nested data

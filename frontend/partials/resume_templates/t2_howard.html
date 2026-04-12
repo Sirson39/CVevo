@@ -7,7 +7,7 @@
   .t2-contact { font-size: 0.85rem; color: #333; margin-top: 0.5rem; word-spacing: 5px; }
   
   .t2-sect-head { background-color: #dbeafe; padding: 0.4rem 0; text-align: center; font-family: 'Playfair Display', serif; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; font-size: 0.95rem; margin: 1.5rem 0 1rem 0; border: 1px solid #bfdbfe; }
-  .t2-p { font-size: 0.85rem; line-height: 1.7; margin-bottom: 1rem; color: #333; text-align: justify; }
+  .t2-p { font-size: 0.85rem; line-height: 1.7; margin-bottom: 1rem; color: #333; text-align: justify; white-space: pre-line; }
   
   .t2-item { margin-bottom: 1.25rem; font-size: 0.85rem; }
   .t2-item-top { display: flex; align-items: baseline; justify-content: space-between; font-weight: 600; margin-bottom: 0.2rem; }
@@ -26,7 +26,11 @@
   <div class="t2-header">
     <h1 class="t2-name" data-field="full_name">YOUR NAME</h1>
     <div class="t2-title" data-field="position">PROFESSIONAL TITLE</div>
-    <div class="t2-contact"><span data-field="location">City, Country</span></div>
+    <div class="t2-contact">
+      <span data-field="location">City, Country</span> | 
+      <span data-field="linkedin">LinkedIn</span> | 
+      <span data-field="portfolio">Portfolio</span>
+    </div>
     <div class="t2-contact"><span data-field="email">email@example.com</span> | <span data-field="phone">+1 234 567 890</span></div>
   </div>
 

@@ -9,7 +9,7 @@ async function loadPartial(selector, path) {
   try {
     const res = await fetch(path);
     if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+      throw new Error(`HTTP error! status: ${res.status}`);
     }
     const html = await res.text();
     mount.innerHTML = html;
@@ -93,22 +93,20 @@ function configureSidebarByRole() {
 
   if (user.role === "jobseeker") {
     const section = document.getElementById("jobseekerSections");
-    const helpSec = document.getElementById("helpSection");
     if (section) section.style.display = "block";
-    if (helpSec) helpSec.style.display = "block";
+    if (helpLink) helpLink.style.display = "flex";
     if (brandLink) brandLink.href = "../jobseeker/jobseeker_dashboard.html";
     if (profileLink) profileLink.href = "../jobseeker/profile_settings.html";
     if (helpLink) helpLink.href = "../jobseeker/help_support.html";
-  } 
+  }
   else if (user.role === "hr") {
     const section = document.getElementById("hrSections");
-    const helpSec = document.getElementById("helpSection");
     if (section) section.style.display = "block";
-    if (helpSec) helpSec.style.display = "block";
+    if (helpLink) helpLink.style.display = "flex";
     if (brandLink) brandLink.href = "../hr/hr_dashboard.html";
     if (profileLink) profileLink.href = "../hr/hr_profile_settings.html";
     if (helpLink) helpLink.href = "../hr/hr_help_support.html";
-  } 
+  }
   else if (user.role === "admin" || user.is_staff) {
     const section = document.getElementById("adminSections");
     if (section) section.style.display = "block";
@@ -231,7 +229,7 @@ function setupLogout() {
 async function protectPage() {
   console.log("[CVevo] Checking authentication status...");
   let user = getCurrentUser();
-  
+
   if (!user) {
     console.log("[CVevo] No user in localStorage, attempting to sync with session...");
     try {
@@ -247,7 +245,7 @@ async function protectPage() {
     } catch (err) {
       console.error("[CVevo] Session sync API error:", err);
     }
-    
+
     console.log("[CVevo] Redirecting to login...");
     window.location.href = "../public/login.html";
     return false;
@@ -279,15 +277,47 @@ async function initAppLayout({ pageKey, stepKey, title, subtitle }) {
     setActiveStepper(stepKey);
   }
 
-  highlightActiveSidebarLink(pageKey);
-
-  // Inject confirm modal mount if not exists
   if (!document.getElementById("appConfirmModal")) {
     const div = document.createElement("div");
     div.id = "confirmModalMount";
     document.body.appendChild(div);
     await loadPartial("#confirmModalMount", "../../partials/confirm_modal.html");
   }
+
+  // Inject Toast Container
+  if (!document.getElementById("toast-container")) {
+    const container = document.createElement("div");
+    container.id = "toast-container";
+    container.style.cssText = "position: fixed; top: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; pointer-events: none;";
+    document.body.appendChild(container);
+  }
+}
+
+function showToast(message, type = "success") {
+  const container = document.getElementById("toast-container");
+  if (!container) return;
+
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${type}`;
+  
+  const icon = type === "success" 
+    ? '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17L4 12"/></svg>'
+    : '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+
+  toast.innerHTML = `
+    <div class="toast-content" style="display: flex; align-items: center; gap: 12px; padding: 14px 20px; background: ${type === "success" ? "#10b981" : "#ef4444"}; color: white; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); pointer-events: auto; min-width: 280px; animation: toastSlideIn 0.3s ease forwards;">
+      <div class="toast-icon" style="flex-shrink: 0; display: flex;">${icon}</div>
+      <div class="toast-text" style="font-size: 14px; font-weight: 600; letter-spacing: -0.01em;">${message}</div>
+    </div>
+  `;
+
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.animation = "toastSlideOut 0.3s ease forwards";
+    setTimeout(() => toast.remove(), 300);
+  }, 3500);
 }
 
 window.initAppLayout = initAppLayout;
+window.showToast = showToast;

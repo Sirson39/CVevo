@@ -2,7 +2,10 @@
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Source+Sans+Pro:wght@400;600&display=swap');
   .t3-wrap { font-family: 'Source Sans Pro', sans-serif; background: #fff; color: #1e293b; text-align: left; padding-bottom: 2rem; }
   .t3-top { background-color: #d1bba8; padding: 2rem; display: flex; gap: 2rem; align-items: center; }
-  .t3-avatar { width: 120px; height: 120px; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 3rem; font-family: 'Playfair Display', serif; color: #d1bba8; margin-right: 1rem; }
+  .t3-avatar { width: 120px; height: 120px; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 3rem; font-family: 'Playfair Display', serif; color: #d1bba8; margin-right: 1rem; overflow: hidden; }
+  .t3-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .t8-img-box { width: 100px; height: 100px; background: #eee; background-size: cover; border: 3px solid #000; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 900; overflow: hidden; }
+  .t8-img-box img { width: 100%; height: 100%; object-fit: cover; }
   .t3-header-text h1 { font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 500; margin: 0 0 0.5rem 0; color: #1e293b; letter-spacing: 0.5px; }
   .t3-header-text .role { font-weight: 600; font-size: 1rem; margin-bottom: 1rem; }
   .t3-header-text .contact { font-size: 0.8rem; line-height: 1.6; }
@@ -12,7 +15,7 @@
   .t3-content { width: 65%; }
   
   .t3-sect-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; border-bottom: 2px solid #1e293b; display: inline-block; padding-bottom: 0.2rem; }
-  .t3-p { font-size: 0.85rem; line-height: 1.6; margin-bottom: 2rem; text-align: justify; }
+  .t3-p { font-size: 0.85rem; line-height: 1.6; margin-bottom: 2rem; text-align: justify; white-space: pre-line; }
   
   .t3-skills { list-style: none; padding: 0; margin: 0 0 2rem 0; font-size: 0.85rem; line-height: 1.8; }
   .t3-skills li::before { content: "-"; margin-right: 0.5rem; }
@@ -27,14 +30,19 @@
 
 <div class="t3-wrap">
   <div class="t3-top">
-    <div class="t3-avatar" data-field="full_name">U</div>
+    <div class="t3-avatar" data-field="profile_picture">
+      <img src="" alt="Profile" style="display:none;">
+      <span class="t3-initial" data-field="full_name">U</span>
+    </div>
     <div class="t3-header-text">
       <h1 data-field="full_name">YOUR NAME</h1>
       <div class="role" data-field="position">PROFESSIONAL TITLE</div>
       <div class="contact">
         <span data-field="location">City, Country</span><br>
         <span data-field="email">email@example.com</span><br>
-        <span data-field="phone">+1 234 567 890</span>
+        <span data-field="phone">+1 234 567 890</span><br>
+        <span data-field="linkedin">LinkedIn</span><br>
+        <span data-field="portfolio">Portfolio</span>
       </div>
     </div>
   </div>

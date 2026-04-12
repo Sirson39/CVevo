@@ -49,6 +49,7 @@ class JobseekerProfile(models.Model):
     linkedin = models.CharField(max_length=255, blank=True)
     portfolio = models.CharField(max_length=255, blank=True)
     summary = models.TextField(blank=True)
+    profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True, storage=OverwriteStorage())
     selected_template = models.CharField(max_length=50, default='modern_professional')
     created_at = models.DateTimeField(auto_now_add=True)
 

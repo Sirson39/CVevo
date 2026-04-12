@@ -8,14 +8,14 @@
 
   <div class="topbar-right">
     <!-- HR search only -->
-    <form class="search" id="topbarSearchForm" style="display:none;">
+    <form class="search" id="topbarSearchForm">
       <span class="search-ico">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px;">
           <circle cx="11" cy="11" r="8"/>
           <path d="m21 21-4.35-4.35"/>
         </svg>
       </span>
-      <input type="text" id="topbarSearchInput" name="q" placeholder="Search jobs/requirements..." />
+      <input type="text" id="topbarSearchInput" name="q" placeholder="Search..." />
     </form>
 
     <div class="notifications-container" style="position: relative; display: inline-block;">
@@ -170,20 +170,14 @@
 
     if (!form || !input) return;
 
-    if (user && user.role === "hr") {
-      form.style.display = "flex";
-
-      form.addEventListener("submit", function (e) {
-        e.preventDefault();
-        const q = input.value.trim();
-        const target = q
-          ? `../hr/hr_dashboard.html?q=${encodeURIComponent(q)}`
-          : "../hr/hr_dashboard.html";
-        window.location.href = target;
-      });
-    } else {
-      form.style.display = "none";
-    }
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const user = getCurrentUser();
+      const q = input.value.trim();
+      const base = (user && user.role === "hr") ? "../hr/hr_dashboard.html" : "../jobseeker/jobseeker_dashboard.html";
+      const target = q ? `${base}?q=${encodeURIComponent(q)}` : base;
+      window.location.href = target;
+    });
   }
 
   function toggleNotifications(event) {
@@ -217,7 +211,7 @@
     if (event) event.preventDefault();
 
     try {
-      await fetch("http://127.0.0.1:8000/api/notifications/read/", {
+      await fetch("/api/notifications/read/", {
         method: "POST",
         credentials: "include"
       });

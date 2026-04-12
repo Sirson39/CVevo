@@ -49,7 +49,6 @@ class ReferenceSerializer(serializers.ModelSerializer):
 class JobseekerProfileSerializer(serializers.ModelSerializer):
     full_name = serializers.ReadOnlyField(source='user.full_name')
     email = serializers.ReadOnlyField(source='user.email')
-    summary = serializers.CharField(source='bio', allow_blank=True, required=False)
     educations = EducationSerializer(many=True, read_only=True)
     experiences = ExperienceSerializer(many=True, read_only=True)
     projects = ProjectSerializer(many=True, read_only=True)

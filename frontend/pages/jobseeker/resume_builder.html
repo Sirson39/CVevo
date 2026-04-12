@@ -44,6 +44,74 @@
       margin-bottom: 1rem;
       position: relative;
     }
+    .rb-field input[type="file"] { display: none; }
+    
+    .avatar-upload {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 3px dashed #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      background: #f8fafc;
+      transition: all 0.3s;
+      margin-top: 0.5rem;
+    }
+    
+    .avatar-upload:hover {
+      border-color: #2f8f7a;
+      background: #f1f5f9;
+    }
+    
+    .avatar-upload img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      inset: 0;
+      display: none;
+    }
+    
+    .avatar-upload i {
+      font-size: 24px;
+      color: #94a3b8;
+      margin-bottom: 4px;
+    }
+    
+    .avatar-upload span {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #64748b;
+    }
+    
+    .avatar-upload.has-image {
+      border: 3px solid #2f8f7a;
+    }
+    
+    .avatar-upload.has-image i, .avatar-upload.has-image span {
+      opacity: 0;
+    }
+    
+    .avatar-upload.has-image:hover i, .avatar-upload.has-image:hover span {
+      opacity: 1;
+      position: relative;
+      z-index: 10;
+      color: #fff;
+    }
+    
+    .avatar-upload.has-image:hover::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.4);
+      z-index: 5;
+    }
     .entry-delete {
       position: absolute;
       top: 0.5rem;
@@ -86,7 +154,7 @@
 
           <div class="rb-actions">
             <a class="btn btn-ghost" href="templates_gallery.html">
-              Select Template
+              Select Templates
             </a>
             <button class="btn btn-primary" id="saveProfileBtn">
               Save Profile Info
@@ -134,10 +202,16 @@
                     <span>LinkedIn</span>
                     <input type="url" name="linkedin">
                   </label>
-                  <label class="rb-field">
-                    <span>Portfolio</span>
-                    <input type="url" name="portfolio">
-                  </label>
+                  <div class="rb-field" id="profile-pic-section" style="grid-column: span 2; display: none;">
+                    <span style="display:block; margin-bottom: 0.5rem; font-size: 0.85rem; font-weight: 700; color: #475569;">Profile Picture</span>
+                    <label class="avatar-upload" id="avatarUploadLabel">
+                      <img id="formAvatarPreview" src="" alt="Preview">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                      <span>Upload Photo</span>
+                      <input type="file" name="profile_picture" accept="image/*" id="profilePicInput">
+                    </label>
+                    <button type="button" id="removeAvatarBtn" onclick="removeAvatar()" style="margin-top: 0.5rem; font-size: 11px; color: #ef4444; border: none; background: none; cursor: pointer; text-decoration: underline; display: none;">Remove Photo</button>
+                  </div>
                 </div>
                 <div class="rb-field" style="margin-top: 1.5rem;">
                   <span>Professional Summary</span>
@@ -411,15 +485,30 @@
     }
     const templateCache = {};
 
+    function toggleProfilePicSection() {
+        const section = document.getElementById('profile-pic-section');
+        const templateCode = state.selected_template || 't1_kelly';
+        if (section) {
+            // Only show for T3 and T8
+            if (templateCode.includes('t3') || templateCode.includes('t8')) {
+                section.style.display = 'block';
+            } else {
+                section.style.display = 'none';
+            }
+        }
+    }
+
     async function renderResume() {
+      toggleProfilePicSection();
       const container = document.getElementById("resume-preview-container");
+      if (!container) return;
+      
       const templateCode = state.selected_template || 't1_kelly';
       
       try {
         let html = templateCache[templateCode];
         if (!html) {
-          console.log("Fetching template:", templateCode);
-          const res = await fetch(`/partials/resume_templates/${templateCode}.html`);
+          const res = await fetch(`../../partials/resume_templates/${templateCode}.html`);
           if (!res.ok) throw new Error(`Template not found: ${templateCode}`);
           html = await res.text();
           templateCache[templateCode] = html;
@@ -428,13 +517,40 @@
         const tempDiv = document.createElement("div");
         tempDiv.innerHTML = html;
         
-        // 1. Profile fields
         const profile = state.profile || {};
         tempDiv.querySelectorAll('[data-field]').forEach(el => {
           const field = el.getAttribute('data-field');
-          // Handle 'position' mapping for templates that might use 'job_title' or similar
-          const val = profile[field] || (field === 'job_title' ? profile.position : "");
-          el.innerText = val;
+          
+          if (el.tagName === 'IMG') {
+            if (profile[field]) {
+              el.src = profile[field];
+              el.style.display = 'block';
+            } else {
+              el.style.display = 'none';
+            }
+          } else if (field === 'profile_picture') {
+             const img = el.querySelector('img');
+             const initial = el.querySelector('span');
+             if (profile.profile_picture) {
+               if (img) { img.src = profile.profile_picture; img.style.display = 'block'; }
+               if (initial) initial.style.display = 'none';
+             } else {
+               if (img) img.style.display = 'none';
+               if (initial) {
+                 initial.style.display = 'block';
+                 initial.innerText = (profile.full_name || 'U').charAt(0).toUpperCase();
+               }
+             }
+          } else {
+            const val = profile[field] || (field === 'job_title' ? profile.position : "");
+            el.innerText = val;
+            const parentLi = el.closest('li');
+            if (parentLi && !val && ['email', 'phone', 'location', 'linkedin', 'portfolio'].includes(field)) {
+              parentLi.style.display = 'none';
+            } else if (parentLi) {
+              parentLi.style.display = '';
+            }
+          }
         });
 
         // SPECIAL FIX: If template has .t1-title but no data-field, fix it
@@ -554,9 +670,32 @@
       renderResume();
     }
 
+    window.removeAvatar = function() {
+        state.profile.profile_picture = "";
+        const formImg = document.getElementById('formAvatarPreview');
+        const containerLabel = document.getElementById('avatarUploadLabel');
+        const removeBtn = document.getElementById('removeAvatarBtn');
+        const fileInput = document.getElementById('profilePicInput');
+        
+        if (formImg) {
+            formImg.src = "";
+            formImg.style.display = 'none';
+        }
+        if (containerLabel) containerLabel.classList.remove('has-image');
+        if (removeBtn) removeBtn.style.display = 'none';
+        if (fileInput) fileInput.value = ""; // Clear the file picker too
+        
+        renderResume();
+        showToast("Photo removed from preview. Click 'Save' to apply permanently.");
+    };
+
     async function loadBuilderData() {
+      const container = document.getElementById("resume-preview-container");
       try {
         const res = await fetch("/api/resume-builder/", { credentials: "include" });
+        if (!res.ok) {
+           throw new Error(`Server returned ${res.status}: ${res.statusText}`);
+        }
         const data = await res.json();
 
         state.profile = data.profile || {};
@@ -566,59 +705,78 @@
         state.projects = data.projects || [];
         state.certificates = data.certificates || [];
         state.references = data.references || [];
-        state.selected_template = data.selected_template; // VERY IMPORTANT FIX
+        state.selected_template = data.selected_template || 't1_kelly';
 
         const form = document.getElementById("profile-form");
         const fields = ["full_name", "position", "email", "phone", "location", "linkedin", "portfolio", "summary"];
         fields.forEach(f => {
-          if (document.activeElement !== form[f]) {
+          if (form[f] && document.activeElement !== form[f]) {
             form[f].value = state.profile[f] || "";
           }
         });
+        
+        // Initial Avatar Preview in Form
+        const formImg = document.getElementById('formAvatarPreview');
+        const containerLabel = document.getElementById('avatarUploadLabel');
+        const removeBtn = document.getElementById('removeAvatarBtn');
+        if (formImg && state.profile.profile_picture) {
+           formImg.src = state.profile.profile_picture;
+           formImg.style.display = 'block';
+           if(containerLabel) containerLabel.classList.add('has-image');
+           if(removeBtn) removeBtn.style.display = 'block';
+        } else if (formImg) {
+           formImg.src = "";
+           formImg.style.display = 'none';
+           if(containerLabel) containerLabel.classList.remove('has-image');
+           if(removeBtn) removeBtn.style.display = 'none';
+        }
 
         renderAllLists();
       } catch (e) {
         console.error("Load failed:", e);
+        if (container) {
+          container.innerHTML = `<div style="padding:2rem; text-align:center; color:#ef4444;">
+            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom:1rem;">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <p style="font-weight:700;">Could not load profile data</p>
+            <p style="font-size:12px; margin-top:0.5rem; opacity:0.7;">${e.message}</p>
+            <button class="btn btn-sm btn-ghost" onclick="loadBuilderData()" style="margin-top:1rem;">Try Again</button>
+          </div>`;
+        }
       }
     }
 
     async function saveProfile() {
       const btn = document.getElementById("saveProfileBtn");
+      const profileForm = document.getElementById("profile-form");
       if (!btn) return;
       const oldText = btn.innerText;
       btn.innerText = "Saving...";
       btn.disabled = true;
 
-      const form = document.getElementById("profile-form");
-      const payload = {
-        full_name: form.full_name.value,
-        position: form.position.value,
-        email: form.email.value,
-        phone: form.phone.value,
-        location: form.location.value,
-        linkedin: form.linkedin.value,
-        portfolio: form.portfolio.value,
-        summary: form.summary.value
-      };
+      const formData = new FormData(profileForm);
 
       try {
         const res = await fetch('/api/resume-builder/', {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include', // Ensure session cookie is sent
-          body: JSON.stringify(payload)
+          credentials: 'include',
+          body: formData
         });
         
         if (res.ok) {
-          alert("Profile updated successfully!");
-          await loadBuilderData();
+          const data = await res.json();
+          showToast("Profile updated successfully!");
+          // The API returns the profile object directly, not wrapped in {profile: ...}
+          state.profile = data;
+          renderResume();
         } else {
           const errors = await res.json();
-          alert("Failed to save profile: " + JSON.stringify(errors));
+          showToast("Failed to save profile", "error");
         }
       } catch (err) {
         console.error(err);
-        alert("Error connecting to server. Please try again.");
+        showToast("Connection error occurred", "error");
       } finally {
         btn.innerText = oldText;
         btn.disabled = false;
@@ -645,20 +803,56 @@
     document.addEventListener('DOMContentLoaded', () => {
       const profileForm = document.getElementById("profile-form");
       if (profileForm) {
-        profileForm.addEventListener("input", () => {
-          state.profile = {
-            full_name: profileForm.full_name.value,
-            position: profileForm.position.value,
-            email: profileForm.email.value,
-            phone: profileForm.phone.value,
-            location: profileForm.location.value,
-            linkedin: profileForm.linkedin.value,
-            portfolio: profileForm.portfolio.value,
-            summary: profileForm.summary.value
-          };
-          renderResume();
-        });
+        // Form exists
       }
+
+      // UNIVERSAL SYNC: Listen for ANY input change in the builder container
+      const bc = document.getElementById("builder-container");
+      bc.addEventListener("input", (e) => {
+        const form = e.target.closest("form");
+        if (!form) return;
+
+        if (form.id === "profile-form") {
+          const field = e.target.name;
+          
+          if (field === 'profile_picture' && e.target.files && e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              state.profile.profile_picture = event.target.result;
+              
+              // Update form preview too
+              const formImg = document.getElementById('formAvatarPreview');
+              const container = document.getElementById('avatarUploadLabel');
+              const removeBtn = document.getElementById('removeAvatarBtn');
+              if (formImg) {
+                formImg.src = event.target.result;
+                formImg.style.display = 'block';
+                if(container) container.classList.add('has-image');
+                if(removeBtn) removeBtn.style.display = 'block';
+              }
+              
+              renderResume();
+            };
+            reader.readAsDataURL(e.target.files[0]);
+            return;
+          }
+
+          state.profile[field] = e.target.value;
+          renderResume();
+        }
+      });
+
+      // Also listen for change on file input specifically
+      bc.addEventListener("change", (e) => {
+        if (e.target.name === 'profile_picture' && e.target.files && e.target.files[0]) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            state.profile.profile_picture = event.target.result;
+            renderResume();
+          };
+          reader.readAsDataURL(e.target.files[0]);
+        }
+      });
 
       // Attach Save button listener
       const saveBtn = document.getElementById("saveProfileBtn");

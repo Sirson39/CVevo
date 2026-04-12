@@ -207,7 +207,8 @@
         const match = tpl.code.match(/t(\d+)/);
         const num = match ? match[1] : null;
         
-        let imgSrc = `../../assets/img/Template ${num}.png`;
+        // Added ?v= timestamp to force the browser to show your NEW images immediately
+        let imgSrc = `../../assets/img/Template ${num}.png?v=${new Date().getTime()}`;
         
         // If no number (unlikely) or special case, use fallback
         if (!num) {

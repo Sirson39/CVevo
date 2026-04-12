@@ -128,8 +128,7 @@
         });
 
         if (res.ok) {
-          msg.textContent = "Settings updated successfully! ✅";
-          msg.style.color = "#10b981";
+          showToast("Settings updated successfully! ✅");
           // Update localStorage
           const userStr = localStorage.getItem("currentUser");
           if (userStr) {
@@ -140,12 +139,10 @@
             if (window.setUserUI) window.setUserUI();
           }
         } else {
-          msg.textContent = "Failed to update settings. ❌";
-          msg.style.color = "#ef4444";
+          showToast("Failed to update settings.", "error");
         }
       } catch (err) {
-        msg.textContent = "An error occurred. ❌";
-        msg.style.color = "#ef4444";
+        showToast("An error occurred connecting to server.", "error");
       } finally {
         btn.disabled = false;
         btn.textContent = "Save Changes";
@@ -156,3 +153,4 @@
   </script>
 </body>
 </html>
+  
