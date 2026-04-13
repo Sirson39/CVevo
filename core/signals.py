@@ -58,9 +58,14 @@ def ensure_profile_on_login(sender, request, user, **kwargs):
         return
 
     # If no profile, check session for intent
+    # This only runs for new social accounts or accounts without profiles
     acct = request.session.pop("oauth_account_type", None)
     if not acct or acct == "hr":
-        return
+        # Check if they are already HR by role (from manual signup but no profile? unlikely but safe)
+        if user.role == "hr":
+            return
+        # If no session intent and no profile, default to jobseeker
+        acct = "jobseeker"
 
     # Role already set or need setting?
     if user.role != "jobseeker":

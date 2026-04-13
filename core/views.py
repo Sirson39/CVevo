@@ -18,14 +18,12 @@ def post_login_redirect(request):
         return redirect('/pages/jobseeker/jobseeker_dashboard.html')
 
 def google_start(request, acct):
-    """Bridge for Social Auth while using decoupled frontend."""
-    if acct == "hr":
-        return redirect('/pages/public/auth-register-hr.html')
-    
-    if acct not in ("jobseeker",):
-        acct = "jobseeker"
+    """Bridge for Social Auth while using decoupled frontend. Only allowed for jobseekers."""
+    if acct != "jobseeker":
+        # HR and other roles must use manual login
+        return redirect('/pages/public/login.html?error=google_not_allowed_for_hr')
         
-    request.session["oauth_account_type"] = acct
+    request.session["oauth_account_type"] = "jobseeker"
     request.session.save()
     return redirect("/accounts/google/login/")
 

@@ -139,6 +139,8 @@ class ATSResultSerializer(serializers.ModelSerializer):
     pillars = serializers.SerializerMethodField()
     matched_list = serializers.SerializerMethodField()
     missing_list = serializers.SerializerMethodField()
+    strengths = serializers.SerializerMethodField()
+    recommendations = serializers.SerializerMethodField()
 
     class Meta:
         model = ATSResult
@@ -146,7 +148,8 @@ class ATSResultSerializer(serializers.ModelSerializer):
             'id', 'resume', 'job_post', 'custom_job_title', 'score', 
             'feedback', 'analyzed_at', 'status', 'score_breakdown',
             'matched_list', 'missing_list', 
-            'job_title', 'company_name', 'formatted_date', 'suggestions', 'pillars'
+            'job_title', 'company_name', 'formatted_date', 'suggestions', 'pillars',
+            'strengths', 'recommendations'
         ]
 
     def get_job_title(self, obj):
@@ -188,6 +191,22 @@ class ATSResultSerializer(serializers.ModelSerializer):
             return data.get('pillars', data) # Fallback to entire object if no pillars key
         except:
             return {}
+
+    def get_strengths(self, obj):
+        try:
+            import json
+            data = json.loads(obj.score_breakdown)
+            return data.get('strengths', [])
+        except:
+            return []
+
+    def get_recommendations(self, obj):
+        try:
+            import json
+            data = json.loads(obj.score_breakdown)
+            return data.get('recommendations', [])
+        except:
+            return []
 
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:

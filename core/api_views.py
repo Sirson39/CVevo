@@ -275,6 +275,7 @@ class HRDashboardView(APIView):
                 'id': job.id,
                 'title': job.title,
                 'status': job.status,
+                'created_at': job.created_at.strftime('%b %d, %Y') if job.created_at else '',
                 'candidate_count': stats['count'] or 0,
                 'top_score': round(stats['max_score'] or 0, 0)
             })
@@ -492,7 +493,10 @@ class GeneralAnalysisView(APIView):
         # Save to history so it appears in dashboard
         full_breakdown = {
             'pillars': scan.get('breakdown', {}),
-            'suggestions': scan.get('suggestions', [])
+            'suggestions': scan.get('suggestions', []),
+            'strengths': scan.get('strengths', []),
+            'recommendations': scan.get('recommendations', []),
+            'issues_found': scan.get('issues_found', [])
         }
         
         result = ATSResult.objects.create(

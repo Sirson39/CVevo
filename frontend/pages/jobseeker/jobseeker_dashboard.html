@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Dashboard • CVevo</title>
+  <title>Dashboard | CVevo</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,6 +14,94 @@
 
   <link rel="stylesheet" href="../../assets/css/styles.css">
   <link rel="stylesheet" href="../../assets/css/dashboard.css">
+  <style>
+    .js-head {
+      margin-bottom: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .js-head h1 {
+      font-size: 21px;
+      letter-spacing: -0.02em;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    .js-head p {
+      font-size: 13px;
+      margin: 6px 0 0;
+      color: #64748b;
+      line-height: 1.4;
+    }
+
+    .js-kpi-grid {
+      gap: 12px;
+      margin: 0 0 0.25rem 0;
+    }
+
+    .js-kpi {
+      padding: 14px 16px;
+      border-radius: 12px;
+      min-height: 88px;
+      display: flex;
+      align-items: flex-start;
+      border: 1px solid #f1f5f9;
+    }
+
+    .js-main-grid {
+      margin-top: 0;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .js-panel {
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid #f1f5f9;
+      align-self: start;
+    }
+
+    .js-table-head {
+      margin-bottom: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .js-side-stack {
+      gap: 14px;
+      align-self: start;
+    }
+
+    .js-analysis {
+      align-self: start;
+    }
+
+    @media (max-width: 920px) {
+      .js-main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .js-head {
+        flex-direction: column;
+      }
+    }
+
+    .content {
+      padding-top: 12px;
+    }
+
+    .section {
+      margin: 10px 0 16px;
+    }
+  </style>
 </head>
 
 <body class="app-body">
@@ -24,11 +112,10 @@
       <div id="topbarMount"></div>
 
       <main class="content">
-        <!-- Dashboard Header -->
-        <div class="ru-head" style="margin-bottom: 0.4rem;">
+        <div class="js-head">
           <div>
-            <h1 id="welcomeTitle" class="ru-title" style="font-size: 22px; letter-spacing: -0.02em; font-weight: 800;">Welcome back</h1>
-            <p class="ru-sub" style="font-size: 13px; margin-top: 12px; color: #64748b;">Here's an overview of your resume performance and job matches.</p>
+            <h1 id="welcomeTitle">Welcome back</h1>
+            <p>Here's an overview of your resume performance and job matches.</p>
           </div>
           <div class="actions-row">
             <a class="btn btn-primary" href="resume_upload.html"
@@ -42,11 +129,9 @@
           </div>
         </div>
 
-        <!-- Top Metrics -->
-        <section class="section" style="margin: 0 0 0.6rem 0;">
-          <div class="grid grid-4" style="gap: 16px;">
-            <article class="card kpi"
-              style="padding: 18px; border-radius: 12px; min-height: 110px; display: flex; align-items: flex-start; border: 1px solid #f1f5f9;">
+        <section class="section" style="margin: 0 0 0.25rem 0;">
+          <div class="grid grid-4 js-kpi-grid">
+            <article class="card kpi js-kpi">
               <div class="kpi-body" style="width: 100%;">
                 <div class="kpi-label" style="font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 4px;">
                   Average ATS Score</div>
@@ -57,8 +142,7 @@
               </div>
             </article>
 
-            <article class="card kpi"
-              style="padding: 18px; border-radius: 12px; min-height: 110px; display: flex; align-items: flex-start; border: 1px solid #f1f5f9;">
+            <article class="card kpi js-kpi">
               <div class="kpi-body" style="width: 100%;">
                 <div class="kpi-label" style="font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 4px;">
                   Active Resumes</div>
@@ -69,8 +153,7 @@
               </div>
             </article>
 
-            <article class="card kpi"
-              style="padding: 18px; border-radius: 12px; min-height: 110px; display: flex; align-items: flex-start; border: 1px solid #f1f5f9;">
+            <article class="card kpi js-kpi">
               <div class="kpi-body" style="width: 100%;">
                 <div class="kpi-label" style="font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 4px;">
                   Total Scans</div>
@@ -81,8 +164,7 @@
               </div>
             </article>
 
-            <article class="card kpi"
-              style="padding: 18px; border-radius: 12px; min-height: 110px; display: flex; align-items: flex-start; border: 1px solid #f1f5f9;">
+            <article class="card kpi js-kpi">
               <div class="kpi-body" style="width: 100%;">
                 <div class="kpi-label" style="font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 4px;">
                   Profile Strength</div>
@@ -96,15 +178,12 @@
           </div>
         </section>
 
-        <!-- Main Content Grid -->
-        <div class="grid grid-2" style="margin-top: 0; grid-template-columns: 1.5fr 1fr; gap: 20px;">
-          <!-- Resume History Table -->
-          <section class="card shadow-sm" style="padding: 20px; border-radius: 12px; border: 1px solid #f1f5f9;">
-            <div class="card-head"
-              style="margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center;">
+        <div class="grid js-main-grid">
+          <section class="card shadow-sm js-panel">
+            <div class="js-table-head">
               <h3 class="card-title" style="font-size: 16px; font-weight: 800; color: #0f172a;">Resume History</h3>
               <a class="small-link" href="resume_upload.html"
-                style="font-size: 13px; color: #10b981; font-weight: 700; text-decoration: none;">Manage all →</a>
+                style="font-size: 13px; color: #10b981; font-weight: 700; text-decoration: none;">Manage all -></a>
             </div>
 
             <div class="table-wrap">
@@ -130,25 +209,20 @@
             </div>
           </section>
 
-          <!-- Side Panels -->
-          <div class="stack" style="gap: 20px;">
-            <!-- Analysis Placeholder -->
-            <article class="card" style="padding: 20px; border-radius: 12px; border: 1px solid #f1f5f9;">
+          <div class="stack js-side-stack">
+            <article class="card js-panel js-analysis">
               <h3 class="card-title" style="font-size: 16px; font-weight: 800; color: #0f172a;">Quick Analysis</h3>
               <p class="muted" style="margin-top: 6px; font-size: 13px; color: #64748b; line-height: 1.5;">Select a
-                resume and a job
-                description to get instant feedback.</p>
+                resume and a job description to get instant feedback.</p>
 
-              <div class="divider" style="height: 1px; background: #f1f5f9; margin: 16px 0;"></div>
+              <div class="divider" style="height: 1px; background: #f1f5f9; margin: 12px 0 14px;"></div>
 
               <a href="quick_analysis.html" class="btn btn-primary"
                 style="display: flex; align-items: center; justify-content: center; width: 100%; padding: 10px; border-radius: 10px; background: #10b981; color: #fff; font-weight: 700; border: none; text-align: center; text-decoration: none; transition: transform 0.2s; font-size: 13px;">Start
                 New Scan</a>
             </article>
 
-            <!-- Quick Links (matching reference style) -->
             <article class="card" style="padding: 24px; border-radius: 16px; border: 1px solid #f1f5f9; display: none;">
-              <!-- Hidden to match Image 2 which doesn't show these extra tools prominently -->
             </article>
           </div>
         </div>

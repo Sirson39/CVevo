@@ -208,7 +208,7 @@
     }
 
     document.getElementById("qualityBtn").addEventListener("click", () => {
-      window.location.href = `general_analysis.html?resume_id=${resumeId}`;
+       window.location.href = `analysis_results.html?resume_id=${resumeId}&action=run_quality_scan`;
     });
 
     loadData();

@@ -234,6 +234,19 @@
       btn.setAttribute("aria-label", showing ? "Hide password" : "Show password");
     }
 
+    // Check for URL errors (e.g. from google_start)
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlError = urlParams.get('error');
+    if (urlError) {
+      const errorBox = document.getElementById("loginError");
+      errorBox.style.display = "block";
+      if (urlError === 'google_not_allowed_for_hr') {
+        errorBox.innerHTML = "Google login is not allowed for HR accounts. Please use your email and password.";
+      } else {
+        errorBox.innerHTML = decodeURIComponent(urlError);
+      }
+    }
+
     document.getElementById("loginForm").addEventListener("submit", async function(e){
       e.preventDefault();
 

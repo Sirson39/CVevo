@@ -210,39 +210,39 @@
               <form id="createJobForm">
                 <div class="form-group">
                   <label class="form-label" for="title">Position Title</label>
-                  <input type="text" id="title" name="title" class="form-input" required>
+                  <input type="text" id="title" name="title" class="form-input" placeholder="e.g. Frontend Developer" required>
                 </div>
 
                 <div class="form-group">
                   <label class="form-label" for="description">Role Description</label>
-                  <textarea id="description" name="description" class="form-textarea" required></textarea>
+                  <textarea id="description" name="description" class="form-textarea" placeholder="Short role summary and responsibilities." required></textarea>
                 </div>
 
                 <div class="grid grid-2" style="grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                   <div class="form-group">
                     <label class="form-label" for="required_skills">Critical Skills</label>
-                    <textarea id="required_skills" name="required_skills" class="form-textarea" style="min-height: 110px;"></textarea>
+                    <textarea id="required_skills" name="required_skills" class="form-textarea" style="min-height: 110px;" placeholder="e.g. React, Node.js, Git"></textarea>
                   </div>
                   <div class="form-group">
                     <label class="form-label" for="experience_requirements">Experience Level</label>
-                    <textarea id="experience_requirements" name="experience_requirements" class="form-textarea" style="min-height: 110px;"></textarea>
+                    <textarea id="experience_requirements" name="experience_requirements" class="form-textarea" style="min-height: 110px;" placeholder="e.g. 3+ years in web development"></textarea>
                   </div>
                 </div>
 
                 <div class="grid grid-2" style="grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                   <div class="form-group">
                     <label class="form-label" for="education_requirements">Education Requirements</label>
-                    <textarea id="education_requirements" name="education_requirements" class="form-textarea" style="min-height: 110px;"></textarea>
+                    <textarea id="education_requirements" name="education_requirements" class="form-textarea" style="min-height: 110px;" placeholder="e.g. Bachelor's degree or equivalent"></textarea>
                   </div>
                   <div class="form-group">
                     <label class="form-label" for="tools_and_technologies">Tech Stack / Tools</label>
-                    <textarea id="tools_and_technologies" name="tools_and_technologies" class="form-textarea" style="min-height: 110px;"></textarea>
+                    <textarea id="tools_and_technologies" name="tools_and_technologies" class="form-textarea" style="min-height: 110px;" placeholder="e.g. Django, PostgreSQL, Docker"></textarea>
                   </div>
                 </div>
 
                 <div class="form-group" style="margin-bottom: 2rem;">
                   <label class="form-label" for="deadline">Application Deadline</label>
-                  <input type="datetime-local" id="deadline" name="deadline" class="form-input">
+                  <input type="datetime-local" id="deadline" name="deadline" class="form-input" aria-label="Application deadline date and time">
                   <div class="helper-text">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                     Job will automatically close at this time and prevent further applications.
@@ -251,7 +251,7 @@
 
                 <div class="form-group" style="background: #f8fafc; padding: 1.5rem; border-radius: 16px; border: 1px solid #f1f5f9;">
                   <label class="form-label" for="requirements" style="color: var(--primary-green);">ATS Scanning Keywords</label>
-                  <textarea id="requirements" name="requirements" class="form-textarea" style="min-height: 110px;" required></textarea>
+                  <textarea id="requirements" name="requirements" class="form-textarea" style="min-height: 110px;" placeholder="e.g. React, APIs, Teamwork, AWS" required></textarea>
                   <div class="helper-text">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                     Our NLP engine uses these exact keywords to rank incoming resumes.

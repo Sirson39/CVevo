@@ -116,23 +116,50 @@
         .replace(/'/g, "&#039;");
     }
 
-    async function deleteJob(id) {
-      appConfirm(
-        "Delete Job Posting?",
-        "Are you sure you want to delete this job post? All associated candidate analysis and data will be removed. This action cannot be undone.",
-        async function (confirmed) {
-          if (!confirmed) return;
-          try {
-            const res = await fetch(`/api/hr/jobs/${id}/`, {
-              method: "DELETE",
-              credentials: "include"
-            });
-            if (res.ok) loadManageJobs();
-          } catch (err) {
-            console.error(err);
-          }
+    function formatDateTime(value) {
+      if (!value) return "-";
+
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) {
+        return escapeHtml(value);
+      }
+
+      return new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit"
+      }).format(date);
+    }
+
+    async function deleteJob(id, title) {
+      const confirmed = await appConfirm({
+        title: "Delete Job?",
+        message: `Are you sure you want to delete "${title}"? All associated candidate analysis and data will be removed. This action cannot be undone.`,
+        confirmText: "Yes, Delete",
+        cancelText: "Cancel",
+        iconType: "warning"
+      });
+
+      if (!confirmed) return;
+
+      try {
+        const res = await fetch(`/api/hr/jobs/${id}/`, {
+          method: "DELETE",
+          credentials: "include"
+        });
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || "Failed to delete job.");
         }
-      );
+
+        loadManageJobs();
+      } catch (err) {
+        console.error(err);
+        alert(err.message || "Failed to delete job.");
+      }
     }
 
     async function loadManageJobs() {
@@ -165,11 +192,11 @@
           <tr class="job-row" style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;">
             <td style="padding: 1.25rem;">
               <div style="font-weight: 700; font-size: 1rem; color: #1e293b;">${escapeHtml(job.title)}</div>
-              <div style="font-size: 0.8rem; color: #64748b; margin-top: 0.25rem;">Created: ${escapeHtml(job.created_at)}</div>
+              <div style="font-size: 0.8rem; color: #64748b; margin-top: 0.25rem;">Created: ${formatDateTime(job.created_at)}</div>
               ${job.deadline ? `
                 <div style="font-size: 0.75rem; ${job.is_expired ? "color: #ef4444; font-weight: 600;" : "color: #64748b;"} margin-top: 4px; display: flex; align-items: center; gap: 4px;">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                  Deadline: ${escapeHtml(job.deadline)}
+                  Deadline: ${formatDateTime(job.deadline)}
                 </div>
               ` : ""}
             </td>
@@ -192,7 +219,13 @@
                 <a href="hr_candidate_ranking.html?job_id=${job.id}" class="btn btn-ghost" style="padding: 6px 12px; font-size: 0.8rem;">
                   View Ranked List
                 </a>
-                <button type="button" onclick="deleteJob(${job.id})" class="btn" style="padding: 6px 12px; font-size: 0.8rem; background: #fee2e2; color: #dc2626; border: none; border-radius: 6px; font-weight: 600;">
+                <button
+                  type="button"
+                  data-job-id="${job.id}"
+                  data-job-title="${escapeHtml(job.title)}"
+                  onclick="deleteJob(this.dataset.jobId, this.dataset.jobTitle)"
+                  class="btn"
+                  style="padding: 6px 12px; font-size: 0.8rem; background: #fee2e2; color: #dc2626; border: none; border-radius: 6px; font-weight: 600;">
                   Delete
                 </button>
               </div>

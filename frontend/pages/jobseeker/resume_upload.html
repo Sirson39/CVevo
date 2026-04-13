@@ -305,7 +305,7 @@
 
             <div class="ru-actions" style="display: flex; gap: 8px;">
               <a href="${escapeHtml(resume.file)}" class="ru-btn ghost" target="_blank" style="padding: 6px 12px; font-size: 13px; border-radius: 8px; text-decoration: none; color: #64748b; background: #f1f5f9;">View</a>
-              <a href="general_analysis.html?resume_id=${resume.id}" class="ru-btn secondary" title="Fast Quality Scan (No JD)" style="padding: 6px 12px; font-size: 13px; border-radius: 8px; background: #f1f5f9; color: #475569; text-decoration: none; border: 1px solid #e2e8f0;">Quality Scan</a>
+              <a href="analysis_results.html?resume_id=${resume.id}&action=run_quality_scan" class="ru-btn secondary" title="Fast Quality Scan (No JD)" style="padding: 6px 12px; font-size: 13px; border-radius: 8px; background: #f1f5f9; color: #475569; text-decoration: none; border: 1px solid #e2e8f0;">Quality Scan</a>
               <a href="analyze_resume.html?resume_id=${resume.id}" class="ru-btn primary" title="Full ATS Analysis (Select JD)" style="padding: 6px 12px; font-size: 13px; border-radius: 8px; background: #10b981; color: #fff; text-decoration: none;">Analyze</a>
               <button class="ru-btn danger" type="button" 
                 onclick="handleDeleteResume(${resume.id})" 

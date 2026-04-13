@@ -31,7 +31,7 @@ function showToast(message, type = "info", silent = false) {
 
   const toast = document.createElement("div");
   toast.className = "toast-item";
-  
+
   const icons = {
     success: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>',
     info: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',
@@ -96,8 +96,8 @@ async function loadNotifications(isInitial = false) {
 
     // Seen Tracker Logic
     let seenIds = [];
-    try { seenIds = JSON.parse(localStorage.getItem(NOTIF_SEEN_KEY) || "[]"); } catch(e){}
-    
+    try { seenIds = JSON.parse(localStorage.getItem(NOTIF_SEEN_KEY) || "[]"); } catch (e) { }
+
     let fired = false;
     notifications.forEach(n => {
       if (!n.is_read && !seenIds.includes(n.id)) {
@@ -217,16 +217,18 @@ function configureSidebarByRole() {
 }
 
 async function protectPage() {
-  let user = getCurrentUser();
-  if (!user) {
-    try {
-      const res = await fetch("/api/users/me/", { credentials: "include" });
-      if (res.ok) {
-        user = await res.json();
-        localStorage.setItem("currentUser", JSON.stringify(user));
-        return true;
-      }
-    } catch (err) { }
+  // Always verify/sync user with backend on page load to prevent stale localStorage (e.g. after Google Login)
+  try {
+    const res = await fetch("/api/users/me/", { credentials: "include" });
+    if (res.ok) {
+      const user = await res.json();
+      localStorage.setItem("currentUser", JSON.stringify(user));
+      return true;
+    }
+  } catch (err) { }
+
+  // If sync fails and no user in storage, redirect
+  if (!getCurrentUser()) {
     window.location.href = "../public/login.html";
     return false;
   }
@@ -339,7 +341,7 @@ async function initAppLayout({ pageKey, stepKey, title, subtitle }) {
       e.stopPropagation();
       dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
     };
-    
+
     // SECRET TEST: Right-click the bell for a success toast!
     bellBtn.oncontextmenu = (e) => {
       e.preventDefault();
