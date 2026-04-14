@@ -13,7 +13,7 @@ def post_login_redirect(request):
     if request.user.role == 'hr':
         return redirect('/pages/hr/hr_dashboard.html')
     elif request.user.role in ['admin', 'superuser']:
-        return redirect('/sysadmin/')
+        return redirect('/pages/admin/super_admin_dashboard.html')
     else:
         return redirect('/pages/jobseeker/jobseeker_dashboard.html')
 

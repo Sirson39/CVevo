@@ -93,16 +93,33 @@
     });
 
     async function deleteResume(id, filename) {
-      if (!confirm(`Delete "${filename}"?`)) return;
+      const confirmed = window.appConfirm
+        ? await window.appConfirm({
+            title: "Delete Resume?",
+            message: `Are you sure you want to delete "${filename}"? This action cannot be undone.`,
+            confirmText: "Yes, Delete",
+            cancelText: "Cancel",
+            iconType: "warning"
+          })
+        : confirm(`Delete "${filename}"?`);
+
+      if (!confirmed) return;
 
       try {
-        await fetch(`/api/admin/resumes/${id}/`, {
+        const res = await fetch(`/api/admin/resumes/${id}/`, {
           method: "DELETE",
           credentials: "include"
         });
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || "Failed to delete resume.");
+        }
+
         loadResumes();
       } catch (err) {
         console.error(err);
+        alert(err.message || "Failed to delete resume.");
       }
     }
 
@@ -120,7 +137,8 @@
           </div>
         `).join("");
 
-        document.getElementById("resumeTableBody").innerHTML = (data.resumes || []).map(r => `
+        const tbody = document.getElementById("resumeTableBody");
+        tbody.innerHTML = (data.resumes || []).map(r => `
           <tr>
             <td class="file-cell">
               <svg viewBox="0 0 24 24" class="file-icon" fill="none" stroke="currentColor" stroke-width="2">
@@ -139,7 +157,12 @@
                   <circle cx="12" cy="12" r="3"></circle>
                 </svg>
               </a>
-              <button class="btn-icon" title="Delete" onclick="deleteResume(${r.id}, '${r.filename}')">
+              <button
+                class="btn-icon"
+                title="Delete"
+                type="button"
+                data-resume-id="${r.id}"
+                data-resume-name="${r.filename || ""}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="3 6 5 6 21 6"></polyline>
                   <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -148,6 +171,12 @@
             </td>
           </tr>
         `).join("");
+
+        tbody.onclick = async (event) => {
+          const button = event.target.closest("button[data-resume-id]");
+          if (!button) return;
+          await deleteResume(button.dataset.resumeId, button.dataset.resumeName || "this resume");
+        };
 
         new Chart(document.getElementById("sourceChart"), {
           type: "bar",

@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 import json
+from datetime import datetime, timedelta
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
@@ -112,6 +113,588 @@ class AuthView(APIView):
             return Response({'error': 'Invalid action'}, status=400)
         except Exception as e:
             return Response({'error': str(e)}, status=500)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AdminLoginView(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        from django.contrib.auth import authenticate, login
+
+        email = request.data.get('email')
+        password = request.data.get('password')
+
+        user = authenticate(request, username=email, password=password)
+        if not user:
+            return Response({'error': 'Invalid credentials'}, status=401)
+
+        if user.role != 'admin' and not user.is_staff and not user.is_superuser:
+            return Response({'error': 'Admin access only.'}, status=403)
+
+        login(request, user)
+        return Response({
+            'status': 'success',
+            'user': {
+                'id': user.id,
+                'email': user.email,
+                'full_name': user.full_name,
+                'role': 'admin'
+            }
+        })
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AdminDashboardView(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [permissions.IsAuthenticated]
+
+    def _is_admin(self, user):
+        return bool(user and user.is_authenticated and (user.role == 'admin' or user.is_staff or user.is_superuser))
+
+    def get(self, request):
+        from django.db.models import Avg, Max, Min, Count
+        from django.utils import timezone
+        from django.utils.timesince import timesince
+
+        if not self._is_admin(request.user):
+            return Response({'error': 'Admin access only.'}, status=403)
+
+        now = timezone.localtime(timezone.now())
+        total_users = User.objects.count()
+        jobseekers = User.objects.filter(role='jobseeker').count()
+        hr_users = User.objects.filter(role='hr').count()
+        admin_users = User.objects.filter(role='admin').count()
+        total_resumes = Resume.objects.count()
+        total_scans = ATSResult.objects.count()
+        active_jobs = JobPost.objects.filter(status='Open').count()
+        total_jobs = JobPost.objects.count()
+        new_users_30d = User.objects.filter(date_joined__gte=now - timedelta(days=30)).count()
+        scans_30d = ATSResult.objects.filter(analyzed_at__gte=now - timedelta(days=30)).count()
+        pending_support = SupportRequest.objects.filter(is_resolved=False).count() + ContactMessage.objects.filter(is_resolved=False).count()
+
+        avg_score_data = ATSResult.objects.aggregate(avg=Avg('score'), max_score=Max('score'), min_score=Min('score'))
+        avg_score = round(avg_score_data['avg'] or 0, 1)
+        max_score = round(avg_score_data['max_score'] or 0, 1)
+        min_score = round(avg_score_data['min_score'] or 0, 1)
+
+        score_buckets = {
+            'Below 50': ATSResult.objects.filter(score__lt=50).count(),
+            '50 - 79': ATSResult.objects.filter(score__gte=50, score__lt=80).count(),
+            '80+': ATSResult.objects.filter(score__gte=80).count(),
+        }
+
+        growth_labels = []
+        growth_jobseekers = []
+        growth_hr = []
+        growth_scans = []
+        for offset in range(5, -1, -1):
+            total_months = now.year * 12 + now.month - 1 - offset
+            year = total_months // 12
+            month = total_months % 12 + 1
+            label = datetime(year, month, 1).strftime('%b %Y')
+            growth_labels.append(label)
+            growth_jobseekers.append(User.objects.filter(role='jobseeker', date_joined__year=year, date_joined__month=month).count())
+            growth_hr.append(User.objects.filter(role='hr', date_joined__year=year, date_joined__month=month).count())
+            growth_scans.append(ATSResult.objects.filter(analyzed_at__year=year, analyzed_at__month=month).count())
+
+        recent_scans = []
+        for result in ATSResult.objects.select_related('resume', 'job_post', 'resume__jobseeker').order_by('-analyzed_at')[:6]:
+            job_title = result.job_post.title if result.job_post else result.custom_job_title or 'Quick Scan'
+            owner = result.resume.jobseeker.full_name if result.resume and result.resume.jobseeker else 'Candidate'
+            recent_scans.append({
+                'filename': result.resume.filename if result.resume else 'Resume',
+                'job_title': job_title,
+                'owner': owner,
+                'score': round(result.score or 0, 1),
+                'time_ago': f"{timesince(result.analyzed_at, now)} ago" if result.analyzed_at else '',
+            })
+
+        jobs = []
+        for job in JobPost.objects.select_related('hr').order_by('-created_at')[:5]:
+            jobs.append({
+                'title': job.title,
+                'company': job.hr.company if job.hr else '',
+                'num_applicants': ATSResult.objects.filter(job_post=job).count(),
+            })
+
+        return Response({
+            'stats': {
+                'total_users': total_users,
+                'new_users_30d': new_users_30d,
+                'jobseekers': jobseekers,
+                'hr': hr_users,
+                'admins': admin_users,
+                'total_resumes': total_resumes,
+                'total_scans': total_scans,
+                'scans_30d': scans_30d,
+                'active_jobs': active_jobs,
+                'total_jobs': total_jobs,
+                'pending_support': pending_support,
+                'avg_score': avg_score,
+                'max_score': max_score,
+                'min_score': min_score,
+            },
+            'growth_chart': {
+                'labels': growth_labels,
+                'jobseekers': growth_jobseekers,
+                'hr': growth_hr,
+                'scans': growth_scans,
+            },
+            'score_distribution': {
+                'labels': list(score_buckets.keys()),
+                'data': list(score_buckets.values()),
+            },
+            'recent_scans': recent_scans,
+            'jobs': jobs,
+        })
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AdminUsersView(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [permissions.IsAuthenticated]
+
+    def _is_admin(self, user):
+        return bool(user and user.is_authenticated and (user.role == 'admin' or user.is_staff or user.is_superuser))
+
+    def _serialize_user(self, user):
+        company = ''
+        if hasattr(user, 'hr_profile'):
+            company = user.hr_profile.company or ''
+        return {
+            'id': user.id,
+            'full_name': user.full_name,
+            'email': user.email,
+            'role': user.role,
+            'date_joined': user.date_joined.strftime('%b %d, %Y') if getattr(user, 'date_joined', None) else '',
+            'is_active': user.is_active,
+            'is_verified': user.is_verified,
+            'company': company,
+        }
+
+    def get(self, request, pk=None):
+        if not self._is_admin(request.user):
+            return Response({'error': 'Admin access only.'}, status=403)
+
+        if pk is not None:
+            user = get_object_or_404(User, id=pk)
+            return Response(self._serialize_user(user))
+
+        users = User.objects.all().order_by('-date_joined')
+        role_labels = ['jobseeker', 'hr', 'admin']
+        role_counts = {role: User.objects.filter(role=role).count() for role in role_labels}
+
+        return Response({
+            'users': [self._serialize_user(user) for user in users[:200]],
+            'show_stats': [
+                {'label': 'Total Users', 'value': User.objects.count()},
+                {'label': 'Jobseekers', 'value': role_counts['jobseeker']},
+                {'label': 'HR Users', 'value': role_counts['hr']},
+                {'label': 'Admins', 'value': role_counts['admin']},
+            ],
+            'role_chart': {
+                'labels': ['Jobseekers', 'HR', 'Admins'],
+                'data': [role_counts['jobseeker'], role_counts['hr'], role_counts['admin']],
+            }
+        })
+
+    def post(self, request):
+        if not self._is_admin(request.user):
+            return Response({'error': 'Admin access only.'}, status=403)
+
+        email = (request.data.get('email') or '').strip()
+        password = request.data.get('password') or ''
+        full_name = (request.data.get('full_name') or '').strip()
+        role = (request.data.get('role') or 'jobseeker').strip()
+
+        if not email or not password or not full_name:
+            return Response({'error': 'Full name, email, and password are required.'}, status=400)
+        if User.objects.filter(email=email).exists():
+            return Response({'error': 'Email already exists.'}, status=400)
+
+        user = User.objects.create_user(email=email, password=password, full_name=full_name, role=role)
+
+        if role == 'admin':
+            user.is_staff = True
+            user.is_superuser = True
+            user.save(update_fields=['is_staff', 'is_superuser'])
+        elif role == 'hr':
+            company = request.data.get('company') or full_name
+            HRProfile.objects.get_or_create(
+                user=user,
+                defaults={'full_name': full_name, 'company': company, 'role': request.data.get('role_title') or 'HR Manager'}
+            )
+        else:
+            JobseekerProfile.objects.get_or_create(user=user, defaults={'full_name': full_name, 'email': email})
+
+        return Response(self._serialize_user(user), status=201)
+
+    def put(self, request, pk):
+        if not self._is_admin(request.user):
+            return Response({'error': 'Admin access only.'}, status=403)
+
+        user = get_object_or_404(User, id=pk)
+        full_name = (request.data.get('full_name') or '').strip()
+        email = (request.data.get('email') or '').strip()
+        role = (request.data.get('role') or user.role).strip()
+        is_active = request.data.get('is_active')
+        is_verified = request.data.get('is_verified')
+
+        if email and User.objects.exclude(id=user.id).filter(email=email).exists():
+            return Response({'error': 'Email already exists.'}, status=400)
+
+        if full_name:
+            user.full_name = full_name
+        if email:
+            user.email = email
+        user.role = role
+        if is_active is not None:
+            user.is_active = bool(is_active)
+        if is_verified is not None:
+            user.is_verified = bool(is_verified)
+
+        if role == 'admin':
+            user.is_staff = True
+            user.is_superuser = True
+        else:
+            user.is_staff = False
+            user.is_superuser = False
+
+        user.save()
+
+        if role == 'hr' and hasattr(user, 'hr_profile'):
+            profile = user.hr_profile
+            profile.full_name = full_name or profile.full_name
+            profile.company = request.data.get('company') or profile.company or profile.full_name
+            profile.role = request.data.get('role_title') or profile.role
+            profile.save()
+        elif role == 'jobseeker' and hasattr(user, 'jobseeker_profile'):
+            profile = user.jobseeker_profile
+            profile.full_name = full_name or profile.full_name
+            profile.email = email or profile.email
+            profile.save()
+
+        return Response(self._serialize_user(user))
+
+    def delete(self, request, pk):
+        if not self._is_admin(request.user):
+            return Response({'error': 'Admin access only.'}, status=403)
+        if request.user.id == pk:
+            return Response({'error': 'You cannot delete your own account.'}, status=400)
+
+        user = get_object_or_404(User, id=pk)
+        user.delete()
+        return Response({'status': 'deleted'})
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AdminJobsView(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [permissions.IsAuthenticated]
+
+    def _is_admin(self, user):
+        return bool(user and user.is_authenticated and (user.role == 'admin' or user.is_staff or user.is_superuser))
+
+    def _serialize_job(self, job):
+        from django.db.models import Max
+        applicants_count = ATSResult.objects.filter(job_post=job).count()
+        return {
+            'id': job.id,
+            'title': job.title,
+            'company': job.hr.company if job.hr else '',
+            'hr_name': job.hr.full_name if job.hr else '',
+            'created_at': job.created_at.strftime('%b %d, %Y') if job.created_at else '',
+            'status': job.status,
+            'applicants_count': applicants_count,
+            'num_applicants': applicants_count,
+            'admin_note': job.admin_note or '',
+            'top_score': ATSResult.objects.filter(job_post=job).aggregate(max_score=Max('score'))['max_score'] or 0,
+        }
+
+    def get(self, request, pk=None):
+        from django.db.models import Count
+        if not self._is_admin(request.user):
+            return Response({'error': 'Admin access only.'}, status=403)
+
+        if pk is not None:
+            job = get_object_or_404(JobPost, id=pk)
+            data = self._serialize_job(job)
+            data['description'] = job.description
+            data['admin_note'] = job.admin_note or ''
+            return Response(data)
+
+        jobs = JobPost.objects.select_related('hr').order_by('-created_at')
+        status_counts = {
+            'Open': jobs.filter(status='Open').count(),
+            'Closed': jobs.filter(status='Closed').count(),
+            'Disabled': jobs.filter(status='Disabled').count(),
+        }
+
+        return Response({
+            'jobs': [self._serialize_job(job) for job in jobs[:200]],
+            'show_stats': [
+                {'label': 'Total Jobs', 'value': jobs.count()},
+                {'label': 'Open Jobs', 'value': status_counts['Open']},
+                {'label': 'Closed Jobs', 'value': status_counts['Closed']},
+                {'label': 'Disabled Jobs', 'value': status_counts['Disabled']},
+            ],
+            'status_chart': {
+                'labels': ['Open', 'Closed', 'Disabled'],
+                'data': [status_counts['Open'], status_counts['Closed'], status_counts['Disabled']],
+            }
+        })
+
+    def put(self, request, pk):
+        if not self._is_admin(request.user):
+            return Response({'error': 'Admin access only.'}, status=403)
+        job = get_object_or_404(JobPost, id=pk)
+
+        title = (request.data.get('title') or '').strip()
+        status_value = (request.data.get('status') or job.status).strip()
+        admin_note = request.data.get('admin_note')
+
+        if title:
+            job.title = title
+        if status_value in {'Open', 'Closed', 'Disabled'}:
+            job.status = status_value
+        if admin_note is not None:
+            job.admin_note = admin_note
+
+        job.save()
+        return Response(self._serialize_job(job))
+
+    def delete(self, request, pk):
+        if not self._is_admin(request.user):
+            return Response({'error': 'Admin access only.'}, status=403)
+        job = get_object_or_404(JobPost, id=pk)
+        job.delete()
+        return Response({'status': 'deleted'})
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AdminResumesView(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [permissions.IsAuthenticated]
+
+    def _is_admin(self, user):
+        return bool(user and user.is_authenticated and (user.role == 'admin' or user.is_staff or user.is_superuser))
+
+    def _serialize_resume(self, resume):
+        owner = resume.jobseeker.full_name if resume.jobseeker else 'Bulk Upload'
+        return {
+            'id': resume.id,
+            'filename': resume.filename,
+            'owner': owner,
+            'source': resume.source,
+            'uploaded_at': resume.uploaded_at.strftime('%b %d, %Y') if resume.uploaded_at else '',
+            'file_url': resume.file.url if resume.file else '',
+        }
+
+    def get(self, request, pk=None):
+        from django.db.models import Avg
+        if not self._is_admin(request.user):
+            return Response({'error': 'Admin access only.'}, status=403)
+
+        if pk is not None:
+            resume = get_object_or_404(Resume, id=pk)
+            return Response(self._serialize_resume(resume))
+
+        resumes = Resume.objects.select_related('jobseeker').order_by('-uploaded_at')
+        source_counts = {
+            'Jobseeker': resumes.filter(source='Jobseeker').count(),
+            'HR Bulk': resumes.filter(source='HR Bulk').count(),
+        }
+        return Response({
+            'resumes': [self._serialize_resume(resume) for resume in resumes[:200]],
+            'show_stats': [
+                {'label': 'Total Resumes', 'value': resumes.count()},
+                {'label': 'Jobseeker Uploads', 'value': source_counts['Jobseeker']},
+                {'label': 'Bulk Uploads', 'value': source_counts['HR Bulk']},
+            ],
+            'source_chart': {
+                'labels': ['Jobseeker', 'HR Bulk'],
+                'data': [source_counts['Jobseeker'], source_counts['HR Bulk']],
+            }
+        })
+
+    def delete(self, request, pk):
+        if not self._is_admin(request.user):
+            return Response({'error': 'Admin access only.'}, status=403)
+        resume = get_object_or_404(Resume, id=pk)
+        resume.delete()
+        return Response({'status': 'deleted'})
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AdminATSView(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [permissions.IsAuthenticated]
+
+    def _is_admin(self, user):
+        return bool(user and user.is_authenticated and (user.role == 'admin' or user.is_staff or user.is_superuser))
+
+    def _serialize_result(self, result):
+        skill_count = len(result.matched_list)
+        job_title = result.job_post.title if result.job_post else result.custom_job_title or ''
+        jobseeker = result.resume.jobseeker.full_name if result.resume and result.resume.jobseeker else 'Bulk Upload'
+        return {
+            'id': result.id,
+            'jobseeker': jobseeker,
+            'target_job': job_title,
+            'score': round(result.score or 0, 1),
+            'skills_found': skill_count,
+            'scanned_at': result.analyzed_at.strftime('%b %d, %Y') if result.analyzed_at else '',
+        }
+
+    def get(self, request, pk=None):
+        from django.db.models import Avg
+
+        if not self._is_admin(request.user):
+            return Response({'error': 'Admin access only.'}, status=403)
+
+        if pk is not None:
+            result = get_object_or_404(ATSResult, id=pk)
+            return Response(self._serialize_result(result))
+
+        results = ATSResult.objects.select_related('resume', 'job_post', 'resume__jobseeker').order_by('-analyzed_at')
+        score_buckets = {
+            'Below 50': results.filter(score__lt=50).count(),
+            '50 - 79': results.filter(score__gte=50, score__lt=80).count(),
+            '80+': results.filter(score__gte=80).count(),
+        }
+        return Response({
+            'ats_results': [self._serialize_result(result) for result in results[:200]],
+            'show_stats': [
+                {'label': 'Total Scans', 'value': results.count()},
+                {'label': 'Avg Score', 'value': f"{round(results.aggregate(avg=Avg('score'))['avg'] or 0, 1)}%"},
+                {'label': 'High Scores', 'value': score_buckets['80+']},
+            ],
+            'score_chart': {
+                'labels': list(score_buckets.keys()),
+                'data': list(score_buckets.values()),
+            }
+        })
+
+    def delete(self, request, pk):
+        if not self._is_admin(request.user):
+            return Response({'error': 'Admin access only.'}, status=403)
+        result = get_object_or_404(ATSResult, id=pk)
+        result.delete()
+        return Response({'status': 'deleted'})
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AdminSupportView(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [permissions.IsAuthenticated]
+
+    def _is_admin(self, user):
+        return bool(user and user.is_authenticated and (user.role == 'admin' or user.is_staff or user.is_superuser))
+
+    def _format_dt(self, value):
+        return value.strftime('%b %d, %Y') if value else ''
+
+    def _serialize_support_request(self, ticket):
+        requester_name = ''
+        if ticket.user:
+            requester_name = ticket.user.full_name or ticket.user.email
+        return {
+            'id': ticket.id,
+            'kind': 'support',
+            'source_label': 'Support Request',
+            'subject': ticket.subject,
+            'message': ticket.message,
+            'requester_name': requester_name,
+            'requester_email': ticket.user.email if ticket.user else '',
+            'user_name': requester_name,
+            'is_resolved': ticket.is_resolved,
+            'created_at': self._format_dt(ticket.created_at),
+            'priority': ticket.priority,
+        }
+
+    def _serialize_contact_message(self, message):
+        return {
+            'id': message.id,
+            'kind': 'contact',
+            'source_label': 'Contact Message',
+            'subject': message.subject,
+            'message': message.message,
+            'requester_name': message.name or 'Website Visitor',
+            'requester_email': message.email or '',
+            'user_name': message.name or 'Website Visitor',
+            'is_resolved': message.is_resolved,
+            'created_at': self._format_dt(message.created_at),
+            'priority': 'Normal',
+        }
+
+    def _get_ticket(self, pk, kind=None):
+        if kind == 'contact':
+            return get_object_or_404(ContactMessage, id=pk), 'contact'
+        if kind == 'support':
+            return get_object_or_404(SupportRequest, id=pk), 'support'
+
+        try:
+            return get_object_or_404(SupportRequest, id=pk), 'support'
+        except Exception:
+            return get_object_or_404(ContactMessage, id=pk), 'contact'
+
+    def get(self, request, pk=None):
+        if not self._is_admin(request.user):
+            return Response({'error': 'Admin access only.'}, status=403)
+
+        kind = request.query_params.get('kind')
+        if pk is not None:
+            ticket, ticket_kind = self._get_ticket(pk, kind)
+            if ticket_kind == 'support':
+                return Response(self._serialize_support_request(ticket))
+            return Response(self._serialize_contact_message(ticket))
+
+        support_requests = list(SupportRequest.objects.select_related('user').order_by('-created_at'))
+        contact_messages = list(ContactMessage.objects.order_by('-created_at'))
+        combined = (
+            [('support', ticket.created_at, ticket) for ticket in support_requests] +
+            [('contact', message.created_at, message) for message in contact_messages]
+        )
+        combined.sort(key=lambda item: item[1] or datetime.min, reverse=True)
+        tickets = [
+            self._serialize_support_request(item[2]) if item[0] == 'support'
+            else self._serialize_contact_message(item[2])
+            for item in combined
+        ]
+
+        return Response({
+            'tickets': tickets[:200],
+            'show_stats': [
+                {
+                    'label': 'Open Tickets',
+                    'value': SupportRequest.objects.filter(is_resolved=False).count() + ContactMessage.objects.filter(is_resolved=False).count()
+                },
+                {
+                    'label': 'Resolved',
+                    'value': SupportRequest.objects.filter(is_resolved=True).count() + ContactMessage.objects.filter(is_resolved=True).count()
+                },
+                {'label': 'Urgent', 'value': SupportRequest.objects.filter(priority='Urgent').count()},
+            ],
+        })
+
+    def post(self, request, pk):
+        if not self._is_admin(request.user):
+            return Response({'error': 'Admin access only.'}, status=403)
+        kind = request.query_params.get('kind')
+        ticket, _ = self._get_ticket(pk, kind)
+        ticket.is_resolved = True
+        ticket.save(update_fields=['is_resolved'])
+        return Response({'status': 'resolved'})
+
+    def delete(self, request, pk):
+        if not self._is_admin(request.user):
+            return Response({'error': 'Admin access only.'}, status=403)
+        kind = request.query_params.get('kind')
+        ticket, _ = self._get_ticket(pk, kind)
+        ticket.delete()
+        return Response({'status': 'deleted'})
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()

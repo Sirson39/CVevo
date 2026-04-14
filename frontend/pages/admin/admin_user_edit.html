@@ -137,16 +137,22 @@
       };
 
       try {
-        await fetch(`/api/admin/users/${userId}/`, {
+        const res = await fetch(`/api/admin/users/${userId}/`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
           body: JSON.stringify(payload)
         });
 
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || "Failed to save user.");
+        }
+
         window.location.href = "./admin_users.html";
       } catch (err) {
         console.error(err);
+        alert(err.message || "Failed to save user.");
       }
     });
 

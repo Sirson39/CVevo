@@ -151,30 +151,37 @@
       subtitle: "Manage platform users"
     });
 
-    function confirmDeleteUser(id, email) {
-      if (window.appConfirm) {
-        window.appConfirm(
-          "Delete User Account",
-          `Are you sure you want to delete ${email}?`,
-          (confirmed) => {
-            if (confirmed) deleteUser(id);
-          }
-        );
-      } else {
-        if (confirm(`Delete ${email}?`)) deleteUser(id);
-      }
-    }
-
     async function deleteUser(id) {
       try {
-        await fetch(`/api/admin/users/${id}/`, {
+        const res = await fetch(`/api/admin/users/${id}/`, {
           method: "DELETE",
           credentials: "include"
         });
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || "Failed to delete user.");
+        }
+
         loadUsersPage();
       } catch (err) {
         console.error(err);
+        alert(err.message || "Failed to delete user.");
       }
+    }
+
+    async function confirmDeleteUser(id, email) {
+      const confirmed = window.appConfirm
+        ? await window.appConfirm({
+            title: "Delete User Account",
+            message: `Are you sure you want to delete ${email}?`,
+            confirmText: "Yes, Delete",
+            cancelText: "Cancel",
+            iconType: "warning"
+          })
+        : confirm(`Delete ${email}?`);
+
+      if (confirmed) await deleteUser(id);
     }
 
     async function loadUsersPage() {
@@ -219,7 +226,12 @@
                   <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                 </svg>
               </a>
-              <button class="btn-icon" title="Delete" onclick="confirmDeleteUser(${u.id}, '${u.email}')">
+              <button
+                class="btn-icon"
+                title="Delete"
+                type="button"
+                data-user-id="${u.id}"
+                data-user-email="${u.email || ""}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="3 6 5 6 21 6"></polyline>
                   <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -228,6 +240,14 @@
             </td>
           </tr>
         `).join("");
+
+        tbody.onclick = async (event) => {
+          const button = event.target.closest("button[data-user-id]");
+          if (!button) return;
+          const userId = button.dataset.userId;
+          const userEmail = button.dataset.userEmail || "this user";
+          await confirmDeleteUser(userId, userEmail);
+        };
 
         new Chart(document.getElementById("roleChart"), {
           type: "doughnut",

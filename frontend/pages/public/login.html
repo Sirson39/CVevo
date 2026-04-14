@@ -279,7 +279,9 @@
 
         if (data.user) {
           localStorage.setItem("currentUser", JSON.stringify(data.user));
-          if (data.user.role === "hr") {
+          if (data.user.role === "admin") {
+            window.location.href = "../admin/super_admin_dashboard.html";
+          } else if (data.user.role === "hr") {
             window.location.href = "../hr/hr_dashboard.html";
           } else {
             window.location.href = "../jobseeker/jobseeker_dashboard.html";

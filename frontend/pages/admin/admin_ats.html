@@ -98,6 +98,10 @@
         });
         const data = await res.json();
 
+        if (!res.ok) {
+          throw new Error(data.error || "Failed to load ATS analytics.");
+        }
+
         document.getElementById("statsSidebar").innerHTML = (data.show_stats || []).map(item => `
           <div class="mini-stat-card">
             <span>${item.label}</span>
@@ -105,29 +109,38 @@
           </div>
         `).join("");
 
-        document.getElementById("atsTableBody").innerHTML = (data.ats_results || []).map(result => `
-          <tr>
-            <td><strong>${result.jobseeker || "Bulk Upload"}</strong></td>
-            <td>${result.target_job || ""}</td>
-            <td>
-              <div class="score-pill-container">
-                <span class="score-value">${result.score || 0}%</span>
-                <div class="score-bar">
-                  <div class="score-progress" style="width:${result.score || 0}%"></div>
-                </div>
-              </div>
-            </td>
-            <td><span class="skill-count">${result.skills_found || 0} Skills</span></td>
-            <td>${result.scanned_at || ""}</td>
-          </tr>
-        `).join("");
+        const rows = data.ats_results || [];
+        document.getElementById("atsTableBody").innerHTML = rows.length
+          ? rows.map(result => `
+              <tr>
+                <td><strong>${result.jobseeker || "Bulk Upload"}</strong></td>
+                <td>${result.target_job || "General Scan"}</td>
+                <td>
+                  <div class="score-pill-container">
+                    <span class="score-value">${result.score || 0}%</span>
+                    <div class="score-bar">
+                      <div class="score-progress" style="width:${result.score || 0}%"></div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="skill-count">${result.skills_found || 0} Skills</span></td>
+                <td>${result.scanned_at || ""}</td>
+              </tr>
+            `).join("")
+          : `
+              <tr>
+                <td colspan="5" style="padding: 2rem; text-align: center; color: #64748b;">
+                  No ATS scan results found yet.
+                </td>
+              </tr>
+            `;
 
         new Chart(document.getElementById("scoreChart"), {
           type: "doughnut",
           data: {
-            labels: data.score_chart?.labels || [],
+            labels: data.score_chart?.labels || ["Below 50", "50 - 79", "80+"],
             datasets: [{
-              data: data.score_chart?.data || [],
+              data: data.score_chart?.data || [0, 0, 0],
               backgroundColor: ['#f43f5e', '#f59e0b', '#10b981'],
               borderWidth: 0
             }]
@@ -140,6 +153,19 @@
         });
       } catch (err) {
         console.error(err);
+        document.getElementById("statsSidebar").innerHTML = `
+          <div class="mini-stat-card">
+            <span>Error</span>
+            <strong>Failed</strong>
+          </div>
+        `;
+        document.getElementById("atsTableBody").innerHTML = `
+          <tr>
+            <td colspan="5" style="padding: 2rem; text-align: center; color: #ef4444;">
+              ${err.message || "Failed to load ATS data."}
+            </td>
+          </tr>
+        `;
       }
     }
 

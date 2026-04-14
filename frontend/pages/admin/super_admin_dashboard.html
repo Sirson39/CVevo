@@ -40,7 +40,9 @@
       border: 1px solid var(--border-color);
       box-shadow: var(--card-shadow);
       display: flex;
+      align-items: flex-start;
       gap: 16px;
+      min-height: 126px;
     }
 
     .card-icon {
@@ -65,19 +67,32 @@
       font-weight: 600;
       color: var(--text-muted);
       text-transform: uppercase;
+      letter-spacing: 0.08em;
+      line-height: 1.2;
     }
 
     .card-data .value {
-      font-size: 1.6rem;
+      font-size: 2rem;
       font-weight: 800;
       color: var(--text-dark);
-      margin: 2px 0;
+      margin: 8px 0 6px;
+      line-height: 1;
+      letter-spacing: -0.03em;
     }
 
     .card-data .trend {
       font-size: 0.75rem;
       font-weight: 600;
       color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .card-data {
+      min-width: 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     .dashboard-grid {
@@ -259,15 +274,28 @@
         const stats = data.stats || {};
         const summaryGrid = document.getElementById("summaryGrid");
 
+        function statCard(icon, label, value, trend) {
+          return `
+            <div class="summary-card">
+              <div class="card-icon">${icon}</div>
+              <div class="card-data">
+                <span class="label">${label}</span>
+                <span class="value">${value}</span>
+                <span class="trend">${trend}</span>
+              </div>
+            </div>
+          `;
+        }
+
         summaryGrid.innerHTML = `
-          <div class="summary-card"><div class="card-icon">${iconSVG('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>')}</div><div class="card-data"><span class="label">Total Users</span><span class="value">${stats.total_users || 0}</span><span class="trend">+${stats.new_users_30d || 0} recently</span></div></div>
-          <div class="summary-card"><div class="card-icon">${iconSVG('<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>')}</div><div class="card-data"><span class="label">Jobseekers</span><span class="value">${stats.jobseekers || 0}</span><span class="trend">Registered profiles</span></div></div>
-          <div class="summary-card"><div class="card-icon">${iconSVG('<rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>')}</div><div class="card-data"><span class="label">HR Teams</span><span class="value">${stats.hr || 0}</span><span class="trend">Active organizations</span></div></div>
-          <div class="summary-card"><div class="card-icon">${iconSVG('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>')}</div><div class="card-data"><span class="label">Resumes</span><span class="value">${stats.total_resumes || 0}</span><span class="trend">Uploaded files</span></div></div>
-          <div class="summary-card"><div class="card-icon">${iconSVG('<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>')}</div><div class="card-data"><span class="label">ATS Scans</span><span class="value">${stats.total_scans || 0}</span><span class="trend">${stats.scans_30d || 0} last 30d</span></div></div>
-          <div class="summary-card"><div class="card-icon">${iconSVG('<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>')}</div><div class="card-data"><span class="label">Active Jobs</span><span class="value">${stats.active_jobs || 0}</span><span class="trend">${stats.total_jobs || 0} total posts</span></div></div>
-          <div class="summary-card"><div class="card-icon">${iconSVG('<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>')}</div><div class="card-data"><span class="label">Support</span><span class="value">${stats.pending_support || 0}</span><span class="trend">Pending messages</span></div></div>
-          <div class="summary-card"><div class="card-icon">${iconSVG('<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>')}</div><div class="card-data"><span class="label">Avg ATS Score</span><span class="value">${stats.avg_score || 0}%</span><span class="trend">System average</span></div></div>
+          ${statCard(iconSVG('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>'), "Total Users", stats.total_users || 0, `+${stats.new_users_30d || 0} recently`)}
+          ${statCard(iconSVG('<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'), "Jobseekers", stats.jobseekers || 0, "Registered profiles")}
+          ${statCard(iconSVG('<rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>'), "HR Teams", stats.hr || 0, "Active organizations")}
+          ${statCard(iconSVG('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>'), "Resumes", stats.total_resumes || 0, "Uploaded files")}
+          ${statCard(iconSVG('<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>'), "ATS Scans", stats.total_scans || 0, `${stats.scans_30d || 0} in last 30d`)}
+          ${statCard(iconSVG('<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>'), "Active Jobs", stats.active_jobs || 0, `${stats.total_jobs || 0} total posts`)}
+          ${statCard(iconSVG('<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>'), "Support", stats.pending_support || 0, "Pending messages")}
+          ${statCard(iconSVG('<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>'), "Avg ATS Score", `${stats.avg_score || 0}%`, "System average")}
         `;
 
         document.getElementById("insightsBox").innerHTML = `

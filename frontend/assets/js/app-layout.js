@@ -201,6 +201,16 @@ function configureSidebarByRole() {
   const profileLink = document.getElementById("sidebarProfileLink");
   const helpLink = document.getElementById("sidebarHelpLink");
 
+  if (user.role === "admin") {
+    document.body.classList.add("is-admin-layout");
+    const adminSections = document.getElementById("adminSections");
+    const accountSection = document.getElementById("sidebarAccountSection");
+    if (adminSections) adminSections.style.display = "block";
+    if (accountSection) accountSection.style.display = "none";
+    if (brandLink) brandLink.href = "../admin/super_admin_dashboard.html";
+    return;
+  }
+
   if (user.role === "jobseeker") {
     document.getElementById("jobseekerSections").style.display = "block";
     if (brandLink) brandLink.href = "../jobseeker/jobseeker_dashboard.html";
@@ -332,6 +342,11 @@ async function initAppLayout({ pageKey, stepKey, title, subtitle }) {
   setActiveSidebar(pageKey);
   setTopbar(title, subtitle);
   setUserUI();
+
+  if (String(pageKey || "").startsWith("admin_") || pageKey === "super_admin_dashboard") {
+    const searchForm = document.getElementById("topbarSearchForm");
+    if (searchForm) searchForm.style.display = "none";
+  }
 
   // Notification Setup
   const bellBtn = document.getElementById("bell-btn");

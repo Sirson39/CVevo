@@ -92,6 +92,23 @@ select {
   width: 100%;
 }
 
+.is-admin-layout .sidebar {
+  overflow: hidden;
+}
+
+.is-admin-layout .side-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+}
+
+.is-admin-layout .side-bottom {
+  flex-shrink: 0;
+}
+
 .side-top {
   padding: 6px 0 4px;
 }
@@ -285,6 +302,14 @@ select {
   display: flex;
   align-items: center;
   gap: 20px;
+}
+
+.is-admin-layout .topbar-right {
+  gap: 12px;
+}
+
+.is-admin-layout .search {
+  display: none;
 }
 
 .search {

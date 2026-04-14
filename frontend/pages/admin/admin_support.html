@@ -21,6 +21,8 @@
     .data-table th { padding:12px 15px; border-bottom:1px solid #f1f5f9; color:#64748b; font-size:0.8rem; text-transform:uppercase; font-weight:700; }
     .data-table td { padding:16px 15px; border-bottom:1px solid #f8fafc; vertical-align:middle; }
     .ticket-small { font-size:0.8rem; color:#64748b; margin-top:4px; line-height:1.4; }
+    .ticket-meta { display:flex; flex-direction:column; gap:2px; }
+    .ticket-source { display:inline-flex; align-items:center; padding:4px 10px; border-radius:999px; background:#f8fafc; color:#475569; font-size:0.72rem; font-weight:700; width:fit-content; margin-bottom:6px; }
     .badge { padding:4px 10px; border-radius:20px; font-size:0.75rem; font-weight:700; }
     .badge.resolved { background:#dcfce7; color:#15803d; }
     .badge.pending { background:#fff7ed; color:#ea580c; }
@@ -80,29 +82,70 @@
       subtitle: "Support tickets and messages"
     });
 
-    async function resolveTicket(id) {
+    function ticketUrl(id, kind, suffix = "") {
+      const query = kind ? `?kind=${encodeURIComponent(kind)}` : "";
+      return `/api/admin/support/${id}/${suffix}${query}`;
+    }
+
+    function escapeAttr(value) {
+      return encodeURIComponent(String(value ?? ""));
+    }
+
+    async function resolveTicket(id, kind) {
+      const confirmed = window.appConfirm
+        ? await window.appConfirm({
+            title: "Resolve Ticket?",
+            message: "Mark this support item as resolved?",
+            confirmText: "Yes, Resolve",
+            cancelText: "Cancel",
+            iconType: "warning"
+          })
+        : confirm("Mark this support item as resolved?");
+
+      if (!confirmed) return;
+
       try {
-        await fetch(`/api/admin/support/${id}/resolve/`, {
+        const res = await fetch(ticketUrl(id, kind, "resolve/"), {
           method: "POST",
           credentials: "include"
         });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || "Failed to resolve ticket.");
+        }
         loadSupport();
       } catch (err) {
         console.error(err);
+        alert(err.message || "Failed to resolve ticket.");
       }
     }
 
-    async function deleteTicket(id) {
-      if (!confirm("Delete this ticket permanently?")) return;
+    async function deleteTicket(id, kind, subject) {
+      const confirmed = window.appConfirm
+        ? await window.appConfirm({
+            title: "Delete Ticket?",
+            message: `Delete "${subject}" permanently? This action cannot be undone.`,
+            confirmText: "Yes, Delete",
+            cancelText: "Cancel",
+            iconType: "warning"
+          })
+        : confirm(`Delete "${subject}" permanently?`);
+
+      if (!confirmed) return;
 
       try {
-        await fetch(`/api/admin/support/${id}/`, {
+        const res = await fetch(ticketUrl(id, kind), {
           method: "DELETE",
           credentials: "include"
         });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || "Failed to delete ticket.");
+        }
         loadSupport();
       } catch (err) {
         console.error(err);
+        alert(err.message || "Failed to delete ticket.");
       }
     }
 
@@ -120,13 +163,21 @@
           </div>
         `).join("");
 
-        document.getElementById("ticketsTableBody").innerHTML = (data.tickets || []).map(ticket => `
+        const tickets = data.tickets || [];
+        const tbody = document.getElementById("ticketsTableBody");
+        tbody.innerHTML = tickets.length ? tickets.map(ticket => `
           <tr>
             <td>
-              <strong>${ticket.subject || ""}</strong>
-              <p class="ticket-small">${ticket.message || ""}</p>
+              <div class="ticket-meta">
+                <span class="ticket-source">${ticket.source_label || "Support Item"}</span>
+                <strong>${ticket.subject || ""}</strong>
+                <p class="ticket-small">${ticket.message || ""}</p>
+              </div>
             </td>
-            <td>${ticket.user_name || ""}</td>
+            <td>
+              <strong>${ticket.requester_name || ticket.user_name || ""}</strong>
+              ${ticket.requester_email ? `<p class="ticket-small">${ticket.requester_email}</p>` : ""}
+            </td>
             <td>
               <span class="badge ${ticket.is_resolved ? "resolved" : "pending"}">
                 ${ticket.is_resolved ? "Resolved" : "Open"}
@@ -134,13 +185,46 @@
             </td>
             <td>${ticket.created_at || ""}</td>
             <td class="actions">
-              ${ticket.is_resolved ? "" : `<button class="action-btn resolve" onclick="resolveTicket(${ticket.id})">Resolve</button>`}
-              <button class="action-btn delete" onclick="deleteTicket(${ticket.id})">Delete</button>
+              ${ticket.is_resolved ? "" : `<button class="action-btn resolve" type="button" data-ticket-action="resolve" data-ticket-id="${ticket.id}" data-ticket-kind="${ticket.kind || ""}" data-ticket-subject="${escapeAttr(ticket.subject)}">Resolve</button>`}
+              <button class="action-btn delete" type="button" data-ticket-action="delete" data-ticket-id="${ticket.id}" data-ticket-kind="${ticket.kind || ""}" data-ticket-subject="${escapeAttr(ticket.subject)}">Delete</button>
             </td>
           </tr>
-        `).join("");
+        `).join("") : `
+          <tr>
+            <td colspan="5" style="padding: 2rem; text-align: center; color: #64748b;">
+              No support messages found yet.
+            </td>
+          </tr>
+        `;
+
+        tbody.onclick = async (event) => {
+          const button = event.target.closest("button[data-ticket-action]");
+          if (!button) return;
+          const id = button.dataset.ticketId;
+          const kind = button.dataset.ticketKind;
+          const subject = decodeURIComponent(button.dataset.ticketSubject || "this%20ticket");
+
+          if (button.dataset.ticketAction === "resolve") {
+            await resolveTicket(id, kind);
+          } else if (button.dataset.ticketAction === "delete") {
+            await deleteTicket(id, kind, subject);
+          }
+        };
       } catch (err) {
         console.error(err);
+        document.getElementById("statsRow").innerHTML = `
+          <div class="mini-stat-card">
+            <span>Error</span>
+            <strong>Failed</strong>
+          </div>
+        `;
+        document.getElementById("ticketsTableBody").innerHTML = `
+          <tr>
+            <td colspan="5" style="padding: 2rem; text-align: center; color: #ef4444;">
+              ${err.message || "Failed to load support tickets."}
+            </td>
+          </tr>
+        `;
       }
     }
 
