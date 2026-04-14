@@ -7,6 +7,89 @@
   <title>Quick Analysis • CVevo</title>
   <link rel="stylesheet" href="../../assets/css/styles.css">
   <link rel="stylesheet" href="../../assets/css/dashboard.css">
+  <style>
+    .scan-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 1.5rem;
+    }
+
+    .scan-overlay-card {
+      width: min(560px, 100%);
+      background: #fff;
+      border-radius: 24px;
+      padding: 2rem;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.45);
+    }
+
+    .scan-overlay-head {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .scan-overlay-icon {
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #ecfeff, #eff6ff);
+      flex-shrink: 0;
+    }
+
+    .scan-overlay-title {
+      font-size: 22px;
+      font-weight: 900;
+      color: #0f172a;
+      margin: 0 0 4px;
+    }
+
+    .scan-overlay-sub {
+      margin: 0;
+      color: #64748b;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .scan-overlay-bar {
+      height: 10px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      overflow: hidden;
+      margin: 1.5rem 0 1rem;
+    }
+
+    .scan-overlay-bar span {
+      display: block;
+      height: 100%;
+      width: 64%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #3b82f6, #10b981);
+      animation: scanSlide 1.4s ease-in-out infinite;
+    }
+
+    .scan-overlay-note {
+      font-size: 12px;
+      color: #94a3b8;
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    @keyframes scanSlide {
+      0% { transform: translateX(-45%); }
+      50% { transform: translateX(25%); }
+      100% { transform: translateX(105%); }
+    }
+  </style>
 </head>
 
 <body class="app-body">
@@ -64,10 +147,50 @@
     </div>
   </div>
 
+  <div id="scanOverlay" class="scan-overlay" aria-live="polite" aria-busy="true">
+    <div class="scan-overlay-card">
+      <div class="scan-overlay-head">
+        <div class="scan-overlay-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v4"></path>
+            <path d="M12 18v4"></path>
+            <path d="M4.93 4.93l2.83 2.83"></path>
+            <path d="M16.24 16.24l2.83 2.83"></path>
+            <path d="M2 12h4"></path>
+            <path d="M18 12h4"></path>
+            <path d="M4.93 19.07l2.83-2.83"></path>
+            <path d="M16.24 7.76l2.83-2.83"></path>
+          </svg>
+        </div>
+        <div>
+          <h2 class="scan-overlay-title" id="scanOverlayTitle">Running quick analysis</h2>
+          <p class="scan-overlay-sub" id="scanOverlaySub">We are comparing your resume against the selected job description.</p>
+        </div>
+      </div>
+
+      <div class="scan-overlay-bar"><span></span></div>
+      <div class="scan-overlay-note">Please keep this tab open. Results will appear automatically.</div>
+    </div>
+  </div>
+
   <script src="../../assets/js/app.js"></script>
   <script src="../../assets/js/app-layout.js"></script>
   <script>
     initAppLayout({ pageKey: "analysis_results" });
+
+    function showScanOverlay(title, subtitle) {
+      const overlay = document.getElementById("scanOverlay");
+      const t = document.getElementById("scanOverlayTitle");
+      const s = document.getElementById("scanOverlaySub");
+      if (t) t.textContent = title;
+      if (s) s.textContent = subtitle;
+      if (overlay) overlay.style.display = "flex";
+    }
+
+    function hideScanOverlay() {
+      const overlay = document.getElementById("scanOverlay");
+      if (overlay) overlay.style.display = "none";
+    }
 
     async function loadResumes() {
       try {
@@ -98,6 +221,7 @@
       const btn = document.getElementById("analyzeBtn");
       btn.innerText = "Analyzing...";
       btn.disabled = true;
+      showScanOverlay("Running quick analysis", "We are scoring your resume against the pasted job description.");
 
       const payload = {
         resume_id: e.target.resume_id.value,
@@ -117,14 +241,19 @@
         });
         const result = await res.json();
         if (res.ok) {
+          hideScanOverlay();
           window.location.href = `analysis_results.html?result_id=${result.id}`;
         } else {
+          hideScanOverlay();
           alert("Analysis failed: " + (result.error || "Please check inputs."));
           btn.innerText = "Analyze Match Score";
           btn.disabled = false;
         }
       } catch (e) {
+        hideScanOverlay();
         alert("Server error.");
+        btn.innerText = "Analyze Match Score";
+        btn.disabled = false;
       }
     });
 

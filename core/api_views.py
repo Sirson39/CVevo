@@ -915,7 +915,17 @@ class JobPostViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid():
             return Response({'error': serializer.errors}, status=400)
-        self.perform_create(serializer)
+
+        if not hasattr(request.user, 'hr_profile'):
+            return Response({'error': 'Only HR users can post jobs.'}, status=403)
+
+        job = serializer.save(hr=request.user.hr_profile)
+        Notification.push(
+            request.user,
+            f"Job Post '{job.title}' is now live.",
+            icon="💼",
+            notif_type="success"
+        )
         return Response({'message': 'Job posted successfully!', 'data': serializer.data}, status=201)
 
 # ==========================

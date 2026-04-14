@@ -292,6 +292,75 @@
       color: #475569;
       margin-bottom: 6px;
     }
+
+    /* Quality Scan Specific Cards */
+    .quality-summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .quality-card {
+      padding: 1.5rem;
+      border-radius: 16px;
+      border-width: 1px;
+      border-style: solid;
+    }
+
+    .quality-card.strengths {
+      background: #f0fdf4;
+      border-color: #dcfce7;
+    }
+
+    .quality-card.recommendations {
+      background: #fef2f2;
+      border-color: #fee2e2;
+    }
+
+    .quality-card-title {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .quality-card.strengths .quality-card-title { color: #166534; }
+    .quality-card.recommendations .quality-card-title { color: #991b1b; }
+
+    .quality-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .quality-item {
+      display: flex;
+      gap: 10px;
+      font-size: 13px;
+      line-height: 1.4;
+      font-weight: 500;
+    }
+
+    .quality-card.strengths .quality-item { color: #14532d; }
+    .quality-card.recommendations .quality-item { color: #7f1d1d; }
+
+    .q-icon {
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    @media (max-width: 768px) {
+      .quality-summary-grid { grid-template-columns: 1fr; }
+    }
+
   </style>
 </head>
 
@@ -339,139 +408,314 @@
   <script>
     initAppLayout({ pageKey: "analysis_results", stepKey: "analysis_results" });
 
-    async function loadHistory() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const highlightId = urlParams.get('result_id');
-      const container = document.getElementById("historyContainer");
+    let isScanning = false;
+    let scanTimer = null;
 
-      try {
-        const res = await fetch('/api/ats-results/', { credentials: 'include' });
-        const results = await res.json();
-
-        console.log("DEBUG: ATS Results Data ->", results);
-
-        if (results.length === 0) {
-          container.innerHTML = `<div class="history-card" style="text-align:center;">No results found.</div>`;
-          return;
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
         }
+      }
+      return cookieValue;
+    }
 
-        container.innerHTML = results.map(item => {
-          const score = Math.round(item.score);
-          const scoreColor = score > 70 ? '#10b981' : (score > 40 ? '#f59e0b' : '#ef4444');
-          const isQuick = !item.job_post;
+    function renderScanLoader(progress, stage, activeStep) {
+      const container = document.getElementById("historyContainer");
+      const steps = [
+        "Reading resume file",
+        "Extracting text and structure",
+        "Scoring against ATS rules",
+        "Preparing your results"
+      ];
+      container.innerHTML = `
+        <div class="scan-loader-card">
+          <div class="scan-loader-top">
+            <div>
+              <div class="scan-loader-badge">Quality Scan Running</div>
+              <h3 class="scan-loader-title">Analyzing your resume</h3>
+              <p class="scan-loader-subtitle">${stage}</p>
+            </div>
+            <div class="scan-spinner" aria-hidden="true"></div>
+          </div>
 
-          return `
-            <div class="history-card" id="result-${item.id}" style="${highlightId == item.id ? 'border-color: #10b981; border-width: 2px;' : ''}">
-              <div class="card-header">
-                <div>
-                  <span class="scan-badge ${isQuick ? 'badge-quick' : 'badge-ats'}">
-                    ${isQuick ? '⚡ QUICK SCAN' : '🔹 ATS SCAN'}
-                  </span>
-                  <h3 class="job-title">${item.custom_job_title || 'General Analysis'}</h3>
-                  <div class="job-meta">
-                    ${item.job_post ? `${item.job_post.company_name} • ` : ''}Analyzed on ${item.formatted_date}
-                  </div>
+          <div class="scan-progress"><span style="width:${Math.min(progress, 100)}%"></span></div>
+
+          <div class="scan-stepper">
+            ${steps.map((label, index) => `
+              <div class="scan-step ${index < activeStep ? 'done' : index === activeStep ? 'active' : ''}">
+                <span class="scan-step-dot"></span>
+                <span>${label}</span>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    function startScanAnimation() {
+      let progress = 12;
+      let step = 0;
+      renderScanLoader(progress, "Preparing scan...", step);
+      scanTimer = setInterval(() => {
+        if (!isScanning) return;
+        if (progress < 85) progress += progress < 35 ? 7 : progress < 65 ? 4 : 2;
+        if (progress >= 25) step = 1;
+        if (progress >= 55) step = 2;
+        if (progress >= 80) step = 3;
+        const stage = step === 0 ? "Reading your resume file..."
+          : step === 1 ? "Extracting text and structure..."
+          : step === 2 ? "Calculating ATS quality score..."
+          : "Finalizing results...";
+        renderScanLoader(progress, stage, step);
+      }, 260);
+    }
+
+    function stopScanAnimation() {
+      if (scanTimer) {
+        clearInterval(scanTimer);
+        scanTimer = null;
+      }
+    }
+
+    function renderResultCard(item, highlightId) {
+      const score = Math.round(item.score || 0);
+      const isQuick = !item.job_post;
+      const matched = item.matched_list && item.matched_list.length > 0
+        ? item.matched_list
+        : (item.matched_keywords ? item.matched_keywords.split(',') : []);
+      const missing = item.missing_list && item.missing_list.length > 0
+        ? item.missing_list
+        : (item.missing_keywords ? item.missing_keywords.split(',') : []);
+      const pillars = item.pillars && typeof item.pillars === "object" ? Object.entries(item.pillars) : [];
+      const pillarMaxMap = {
+        "Core Skills": 30,
+        "Tools & Frameworks": 10,
+        "Experience Relevance": 15,
+        "Project Relevance": 10,
+        "Education Match": 10,
+        "Semantic Similarity": 10,
+        "Resume Completeness": 5,
+        "Resume Quality": 10
+      };
+      const totalKeywordSignals = matched.length + missing.length;
+      const feedbackSummary = isQuick
+        ? "This is a quick quality scan, so there is no job description to compare against."
+        : (item.feedback || (totalKeywordSignals > 0
+          ? `Matched ${matched.length} out of ${totalKeywordSignals} specific requirements.`
+          : "No exact keyword overlap found."));
+
+      function formatPillarScore(value) {
+        const num = Number(value || 0);
+        return String(Math.round(num));
+      }
+
+      function renderPillarCard(key, val) {
+        const max = pillarMaxMap[key] || (typeof val === 'object' ? (val.max_score ?? 100) : 100);
+        const scoreVal = typeof val === 'object' ? Number(val.score ?? 0) : Number(val ?? 0);
+        const percentage = max ? Math.max(0, Math.min(100, (scoreVal / max) * 100)) : 0;
+        const isLow = percentage < 70;
+        return `
+          <div class="pillar-card">
+            <div class="pillar-info">
+              <span class="pillar-label">${key.replace(/_/g, ' ')}</span>
+              <span class="pillar-score ${isLow ? 'low' : ''}">${formatPillarScore(scoreVal)}/${max}</span>
+            </div>
+            <div class="pillar-progress-bg">
+              <div class="pillar-progress-fill ${isLow ? 'low' : ''}" style="width:${percentage}%"></div>
+            </div>
+          </div>`;
+      }
+
+      return `
+        <div class="history-card" id="result-${item.id}" style="${highlightId == item.id ? 'border-color: #10b981; border-width: 2px;' : ''}">
+          <div class="card-header">
+            <div>
+              <span class="scan-badge ${isQuick ? 'badge-quick' : 'badge-ats'}">${isQuick ? '⚡ QUICK SCAN' : '🔹 ATS SCAN'}</span>
+              <h3 class="job-title">${item.custom_job_title || 'General Analysis'}</h3>
+              <div class="job-meta">${item.job_post ? `${item.job_post.company_name} • ` : ''}Analyzed on ${item.formatted_date}</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:1rem;">
+              <div class="score-box">
+                <span class="score-val" style="color:${item.score >= 80 ? '#10b981' : item.score >= 60 ? '#3b82f6' : '#f59e0b'}">${score}%</span>
+                <span class="score-label">${isQuick ? 'QUALITY SCORE' : 'ATS MATCH SCORE'}</span>
+              </div>
+              <button class="btn-delete" type="button" onclick="deleteHistory(${item.id})" title="Delete entry">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="section-title">Feedback & Suggestions</div>
+          <p class="feedback-p" style="font-size: 14px; color: #64748b; margin-bottom: 1.5rem;">${feedbackSummary}</p>
+
+          ${!isQuick ? `
+            <div class="keyword-layout">
+              <div class="keyword-box box-matched">
+                <div class="box-title matched">Matched Keywords</div>
+                <div class="keyword-container">
+                  ${matched.length > 0
+                    ? matched.map(k => `<span class="tag tag-matched">${k.trim()}</span>`).join('')
+                    : '<div class="muted" style="font-size:12px;">No exact keyword overlap found.</div>'}
                 </div>
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                  <div class="score-box">
-                    <span class="score-val" style="color: ${item.score >= 80 ? '#10b981' : item.score >= 60 ? '#3b82f6' : '#f59e0b'}">${item.score}%</span>
-                    <span class="score-label">${isQuick ? 'QUALITY SCORE' : 'ATS MATCH SCORE'}</span>
+              </div>
+              <div class="keyword-box box-missing">
+                <div class="box-title missing">Missing Keywords</div>
+                <div class="keyword-container">
+                  ${missing.length > 0
+                    ? missing.map(k => `<span class="tag tag-missing">${k.trim()}</span>`).join('')
+                    : '<div class="muted" style="font-size:12px;">No critical keyword gaps detected.</div>'}
+                </div>
+              </div>
+            </div>
+            <div class="muted" style="font-size: 12px; margin-bottom: 1rem;">
+              This ATS score combines keyword overlap with experience relevance, semantic similarity, resume completeness, and resume quality.
+            </div>
+            ${item.suggestions && item.suggestions.length > 0 ? `
+              <div class="suggestions-list">
+                ${item.suggestions.map(s => `
+                  <div class="suggestion-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" style="margin-top:2px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <span>${s}</span>
                   </div>
-                  <button class="btn-delete" onclick="deleteHistory(${item.id})" title="Delete entry">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                  </button>
+                `).join('')}
+              </div>
+            ` : ''}
+            ${pillars.length > 0 ? `
+              <div class="section-title" style="margin-top: 1.25rem;">Score Breakdown</div>
+              <div class="pillars-grid">
+                ${pillars.map(([key, val]) => renderPillarCard(key, val)).join('')}
+              </div>
+            ` : ''}
+          ` : `
+            <div class="quality-summary-grid">
+              <div class="quality-card strengths">
+                <div class="quality-card-title">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  STRENGTHS
+                </div>
+                <div class="quality-list">
+                  ${(item.strengths || []).map(s => `
+                    <div class="quality-item"><span style="color:#10b981;">✓</span><span>${s}</span></div>
+                  `).join('') || '<div class="muted">No key strengths highlighted.</div>'}
                 </div>
               </div>
 
-              <div class="section-title">Feedback & Suggestions</div>
-              <p class="feedback-p" style="font-size: 14px; color: #64748b; margin-bottom: 1.5rem;">${item.feedback}</p>
-
-              <!-- Keyword Result Boxes (ONLY for ATS SCAN / Job Post Match) -->
-              ${!isQuick ? `
-              <div class="keyword-layout">
-                <div class="keyword-box box-matched">
-                  <div class="box-title matched">Matched Keywords</div>
-                  <div class="keyword-container">
-                    ${(() => {
-                const list = item.matched_list && item.matched_list.length > 0
-                  ? item.matched_list
-                  : (item.matched_keywords ? item.matched_keywords.split(',') : []);
-                return list.length > 0
-                  ? list.map(k => `<span class="tag tag-matched">${k.trim()}</span>`).join('')
-                  : '<div class="muted" style="font-size:12px;">No specific matches found.</div>';
-              })()}
-                  </div>
+              <div class="quality-card recommendations">
+                <div class="quality-card-title">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/><circle cx="12" cy="12" r="10"/></svg>
+                  RECOMMENDATIONS
                 </div>
-                <div class="keyword-box box-missing">
-                  <div class="box-title missing">Missing Keywords</div>
-                  <div class="keyword-container">
-                    ${(() => {
-                const list = item.missing_list && item.missing_list.length > 0
-                  ? item.missing_list
-                  : (item.missing_keywords ? item.missing_keywords.split(',') : []);
-                return list.length > 0
-                  ? list.map(k => `<span class="tag tag-missing">${k.trim()}</span>`).join('')
-                  : '<div class="muted" style="font-size:12px;">Excellent! No critical missing keywords.</div>';
-              })()}
-                  </div>
+                <div class="quality-list">
+                  ${(item.recommendations || []).map(r => `
+                    <div class="quality-item"><span style="color:#ef4444; font-weight:800;">!</span><span>${r}</span></div>
+                  `).join('') || '<div class="muted">No critical improvements needed.</div>'}
                 </div>
-              </div>` : ''}
-
-              <!-- Pillars (ONLY for Quality/Quick Scan) -->
-              ${isQuick ? `
-                <div class="section-title">Score Breakdown</div>
-                <div class="pillars-grid">
-                  ${Object.entries(item.pillars || {}).map(([key, val]) => {
-                const score = typeof val === 'object' ? val.score : val;
-                const max = typeof val === 'object' ? val.max_score : 100;
-                const percentage = (score / max * 100);
-                const isLow = percentage < 70;
-                return `
-                    <div class="pillar-card">
-                      <div class="pillar-info">
-                        <span class="pillar-label">${key.replace(/_/g, ' ').replace(/information/g, 'info')}</span>
-                        <span class="pillar-score ${isLow ? 'low' : ''}">${score}${typeof val === 'object' ? `/${max}` : ''}</span>
-                      </div>
-                      <div class="pillar-progress-bg">
-                        <div class="pillar-progress-fill ${isLow ? 'low' : ''}" style="width: ${percentage}%"></div>
-                      </div>
-                    </div>`;
-              }).join('')}
-                </div>
-              ` : ''}
-
-              ${item.suggestions && item.suggestions.length > 0 ? `
-                <div class="suggestions-list">
-                  ${item.suggestions.map(s => `
-                    <div class="suggestion-item">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" style="margin-top:2px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                      <span>${s}</span>
-                    </div>
-                  `).join('')}
-                </div>
-              ` : ''}
+              </div>
             </div>
-          `;
-        }).join('');
+
+            <div class="section-title">Detailed Analysis breakdown</div>
+            <div class="pillars-grid">
+              ${Object.entries(item.pillars || {}).map(([key, val]) => renderPillarCard(key, val)).join('')}
+            </div>
+          `}
+        </div>
+      `;
+    }
+
+    async function loadHistory() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const highlightId = urlParams.get('result_id');
+      const action = urlParams.get('action');
+      const rid = urlParams.get('resume_id');
+      const container = document.getElementById("historyContainer");
+
+      if (action === 'run_quality_scan' && rid && !isScanning) {
+        isScanning = true;
+        startScanAnimation();
+        await runQualityScan(rid);
+        return;
+      }
+
+      container.innerHTML = `<div style="padding:4rem; text-align:center;"><div class="muted">Loading your analysis history...</div></div>`;
+
+      try {
+        const res = await fetch('/api/ats-results/', { credentials: 'include' });
+        const data = await res.json();
+        const results = Array.isArray(data) ? data : (data.results || []);
+
+        if (!results.length) {
+          container.innerHTML = `<div class="history-card" style="text-align:center;">No results available.</div>`;
+          return;
+        }
+
+        container.innerHTML = results.map(item => renderResultCard(item, highlightId)).join('');
 
         if (highlightId) {
           const target = document.getElementById(`result-${highlightId}`);
           if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-
       } catch (err) {
-        container.innerHTML = '<div class="no-data history-card">Failed to load history.</div>';
+        console.error("loadHistory Error", err);
+        container.innerHTML = '<div class="no-data history-card">Failed to load history. Please try refreshing.</div>';
+      }
+    }
+
+    async function runQualityScan(rid) {
+      const startedAt = Date.now();
+      try {
+        const res = await fetch(`/api/analysis/general/${rid}/`, { credentials: 'include' });
+        const data = await res.json().catch(() => ({}));
+        const elapsed = Date.now() - startedAt;
+        if (elapsed < 1400) {
+          await new Promise(resolve => setTimeout(resolve, 1400 - elapsed));
+        }
+
+        stopScanAnimation();
+        isScanning = false;
+
+        if (res.ok) {
+          const url = new URL(window.location);
+          url.searchParams.delete('action');
+          url.searchParams.delete('resume_id');
+          url.searchParams.set('result_id', data.id);
+          window.history.replaceState({}, '', url);
+          await loadHistory();
+        } else {
+          alert("Quality scan failed: " + (data.error || 'Unknown error'));
+          await loadHistory();
+        }
+      } catch (err) {
+        console.error("Quality scan error", err);
+        stopScanAnimation();
+        isScanning = false;
+        document.getElementById("historyContainer").innerHTML = `
+          <div class="history-card" style="text-align:center; border-color:#fecaca; background:#fff1f2;">
+            <div style="font-weight:800; color:#991b1b; margin-bottom:0.5rem;">Quality scan failed</div>
+            <div class="muted" style="color:#7f1d1d;">${err.message || "We could not complete the scan right now."}</div>
+          </div>
+        `;
       }
     }
 
     async function deleteHistory(id) {
-      if (typeof appConfirm !== 'function') {
-        if (!confirm("Delete this analysis?")) return;
-        proceedDelete(id);
-        return;
-      }
-      const ok = await appConfirm("Delete Result?", "Are you sure you want to delete this analysis result? This action cannot be undone.");
-      if (ok) proceedDelete(id);
+      const confirmed = typeof appConfirm === 'function'
+        ? await appConfirm({
+            title: "Delete Result?",
+            message: "Are you sure you want to delete this analysis result? This action cannot be undone.",
+            confirmText: "Yes, Delete",
+            cancelText: "Cancel",
+            iconType: "warning"
+          })
+        : confirm("Delete this analysis?");
+
+      if (confirmed) proceedDelete(id);
     }
 
     async function proceedDelete(id) {
@@ -492,21 +736,6 @@
       } catch (e) {
         alert("Failed to delete entry.");
       }
-    }
-
-    function getCookie(name) {
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i].trim();
-          if (cookie.substring(0, name.length + 1) === (name + '=')) {
-            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-            break;
-          }
-        }
-      }
-      return cookieValue;
     }
 
     loadHistory();

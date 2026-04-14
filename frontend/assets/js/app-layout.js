@@ -239,7 +239,7 @@ async function protectPage() {
 
   // If sync fails and no user in storage, redirect
   if (!getCurrentUser()) {
-    window.location.href = "../public/login.html";
+    window.location.replace("../public/login.html");
     return false;
   }
   return true;
@@ -378,6 +378,12 @@ async function initAppLayout({ pageKey, stepKey, title, subtitle }) {
   loadNotifications(true);
   startNotificationPolling();
 
+  window.addEventListener("pageshow", (event) => {
+    if (event.persisted) {
+      protectPage();
+    }
+  });
+
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.onclick = async () => {
@@ -392,7 +398,7 @@ async function initAppLayout({ pageKey, stepKey, title, subtitle }) {
 
       await fetch("/api/auth/logout/", { method: "POST" });
       localStorage.removeItem("currentUser");
-      window.location.href = "../public/login.html";
+      window.location.replace("../public/login.html");
     };
   }
 

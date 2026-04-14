@@ -343,18 +343,24 @@
           body: JSON.stringify(payload)
         });
 
-        const data = await res.json();
+        const raw = await res.text();
+        let data = {};
+        try {
+          data = raw ? JSON.parse(raw) : {};
+        } catch (parseErr) {
+          data = { detail: raw };
+        }
 
         msg.style.display = "block";
         msg.style.color = res.ok ? "#10b981" : "#ef4444";
-        
-        let errorMsg = data.message || (res.ok ? "Job posted successfully." : "Failed to create job.");
-        if (data.error && typeof data.error === 'object') {
-            errorMsg = "Please fix: " + Object.keys(data.error).map(k => `${k}: ${data.error[k]}`).join(", ");
+
+        let message = data.message || data.detail || (res.ok ? "Job posted successfully." : "Failed to create job.");
+        if (data.error && typeof data.error === "object") {
+          message = "Please fix: " + Object.entries(data.error).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`).join(", ");
         } else if (data.error) {
-            errorMsg = data.error;
+          message = data.error;
         }
-        msg.textContent = errorMsg;
+        msg.textContent = message;
 
         if (res.ok) {
           setTimeout(() => {
@@ -364,7 +370,7 @@
       } catch (err) {
         msg.style.display = "block";
         msg.style.color = "#ef4444";
-        msg.textContent = "Something went wrong. Please check your connection.";
+        msg.textContent = err.message || "Something went wrong. Please check your connection.";
       }
     });
   </script>
