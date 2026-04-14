@@ -66,8 +66,6 @@
       font-size: 0.85rem;
       font-weight: 600;
       color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
       line-height: 1.2;
     }
 
@@ -264,8 +262,19 @@
       return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${path}</svg>`;
     }
 
+    function prettyLabel(value) {
+      const text = String(value || "").trim();
+      if (!text) return "";
+      return text
+        .toLowerCase()
+        .replace(/(^|[\s/-])(\p{L})/gu, (_, prefix, letter) => `${prefix}${letter.toUpperCase()}`);
+    }
+
     async function loadDashboard() {
       try {
+        if (typeof window.applyDashboardChartDefaults === "function") {
+          window.applyDashboardChartDefaults();
+        }
         const res = await fetch("/api/admin/dashboard/", {
           credentials: "include"
         });
@@ -331,7 +340,7 @@
             labels: data.growth_chart?.labels || [],
             datasets: [
               {
-                label: "Jobseekers",
+                label: prettyLabel("Jobseekers"),
                 data: data.growth_chart?.jobseekers || [],
                 borderColor: "#6366f1",
                 backgroundColor: "rgba(99, 102, 241, 0.1)",
@@ -339,7 +348,7 @@
                 fill: true
               },
               {
-                label: "HR Users",
+                label: prettyLabel("HR Users"),
                 data: data.growth_chart?.hr || [],
                 borderColor: "#f43f5e",
                 backgroundColor: "rgba(244, 63, 94, 0.1)",
@@ -347,7 +356,7 @@
                 fill: true
               },
               {
-                label: "Scans",
+                label: prettyLabel("Scans"),
                 data: data.growth_chart?.scans || [],
                 borderColor: "#ea8e5c",
                 backgroundColor: "rgba(234, 142, 92, 0.1)",
@@ -358,7 +367,39 @@
           },
           options: {
             responsive: true,
-            maintainAspectRatio: false
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                labels: {
+                  color: "#64748b",
+                  font: {
+                    family: "'Plus Jakarta Sans', 'Inter', sans-serif",
+                    size: 13,
+                    weight: "600"
+                  }
+                }
+              }
+            },
+            scales: {
+              x: {
+                ticks: {
+                  color: "#64748b",
+                  font: {
+                    family: "'Plus Jakarta Sans', 'Inter', sans-serif",
+                    size: 12
+                  }
+                }
+              },
+              y: {
+                ticks: {
+                  color: "#64748b",
+                  font: {
+                    family: "'Plus Jakarta Sans', 'Inter', sans-serif",
+                    size: 12
+                  }
+                }
+              }
+            }
           }
         });
 
@@ -375,7 +416,19 @@
           options: {
             responsive: true,
             maintainAspectRatio: false,
-            cutout: "70%"
+            cutout: "70%",
+            plugins: {
+              legend: {
+                labels: {
+                  color: "#64748b",
+                  font: {
+                    family: "'Plus Jakarta Sans', 'Inter', sans-serif",
+                    size: 13,
+                    weight: "600"
+                  }
+                }
+              }
+            }
           }
         });
 

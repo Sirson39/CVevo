@@ -144,6 +144,13 @@
         .replace(/'/g, "&#039;");
     }
 
+    function formatUploadedDate(value) {
+      if (!value) return "";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return value;
+      return date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+    }
+
     browseBtn?.addEventListener('click', () => input.click());
 
     ['dragenter', 'dragover'].forEach(ev => {
@@ -299,7 +306,7 @@
               </span>
               <div>
                 <div class="ru-file-name" style="font-size: 14px; font-weight: 600;">${escapeHtml(resume.filename)}</div>
-                <div class="ru-file-sub" style="font-size: 11px; color: #64748b;">Uploaded: ${escapeHtml(resume.uploaded_at)}</div>
+                <div class="ru-file-sub" style="font-size: 11px; color: #64748b;">Uploaded: ${escapeHtml(formatUploadedDate(resume.uploaded_at))}</div>
               </div>
             </div>
 

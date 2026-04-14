@@ -1011,6 +1011,7 @@
 
       try {
         await html2pdf().set(opt).from(element).save();
+        fetch("/api/notifications/pdf-export/", { method: "GET", credentials: "include" }).catch(() => {});
       } finally {
         btn.innerHTML = originalText;
         btn.disabled = false;

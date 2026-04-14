@@ -45,6 +45,7 @@ urlpatterns = [
     path('hr/candidate-ranking/', api_views.HRCandidateRankingView.as_view(), name='api_hr_candidate_ranking'),
     path('hr/candidate-detail/', api_views.HRCandidateDetailView.as_view(), name='api_hr_candidate_detail'),
     path('hr/update-status/', api_views.HRUpdateStatusView.as_view(), name='api_hr_update_status'),
+    path('hr/applications/<int:result_id>/update-status/', api_views.HRUpdateStatusView.as_view(), name='api_hr_applications_update_status'),
     path('hr/resume-upload/jobs/', api_views.JobPostViewSet.as_view({'get': 'list'}), name='api_hr_resume_upload_jobs'),
     path('hr/resume-upload/', api_views.HRBulkUploadView.as_view(), name='api_hr_bulk_upload'),
     path('hr/bulk-upload/', api_views.HRBulkUploadView.as_view(), name='api_hr_bulk_upload_alias'),
@@ -58,8 +59,10 @@ urlpatterns = [
     path('resume-builder/templates/select/', api_views.TemplateGalleryView.as_view(), {'action': 'select'}, name='api_templates_select'),
     path('resume-builder/', api_views.ResumeBuilderView.as_view(), name='api_resume_builder'),
     path('resume-builder/profile/', api_views.ResumeBuilderView.as_view(), name='api_resume_builder_profile'),
+    path('resume-builder/export-docx/', api_views.ResumeBuilderDocxExportView.as_view(), name='api_resume_builder_export_docx'),
     path('resume-builder/<str:category>/', api_views.ResumeBuilderActionView.as_view(), name='api_resume_builder_add'),
     path('resume-builder/<str:category>/<int:pk>/', api_views.ResumeBuilderActionView.as_view(), name='api_resume_builder_delete'),
+    path('notifications/pdf-export/', api_views.NotificationPdfExportView.as_view(), name='api_notifications_pdf_export'),
     
     path('', include(router.urls)),
 ]

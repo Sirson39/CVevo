@@ -13,8 +13,38 @@
     .admin-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; }
     .analytics-row { display:grid; grid-template-columns:2fr 1fr; gap:24px; }
     .grid-card { background:#fff; padding:24px; border-radius:20px; border:1px solid #e2e8f0; box-shadow:0 4px 6px -1px rgba(0,0,0,0.05); }
-    .main-chart { height:400px; }
-    .chart-container { height:320px; margin-top:20px; }
+    .main-chart { min-height:400px; }
+    .card-subtitle { margin: 6px 0 0; color:#64748b; font-size:0.92rem; }
+    .source-metrics {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .source-metric {
+      background: #f8fafc;
+      border: 1px solid #eef2f7;
+      border-radius: 14px;
+      padding: 12px 14px;
+    }
+    .source-metric span {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-bottom: 4px;
+    }
+    .source-metric strong {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1;
+    }
+    .source-metric.jobseeker strong { color: #6366f1; }
+    .source-metric.hrbulk strong { color: #f97316; }
+    .chart-container { height:240px; margin-top:18px; }
     .stats-sidebar { display:flex; flex-direction:column; gap:15px; }
     .mini-stat-card { background:#fff; padding:20px; border-radius:16px; border:1px solid #e2e8f0; }
     .mini-stat-card span { display:block; font-size:0.8rem; font-weight:700; color:#64748b; text-transform:uppercase; }
@@ -51,6 +81,8 @@
           <div class="analytics-row">
             <div class="grid-card main-chart">
               <h3>Resume Sources</h3>
+              <p class="card-subtitle">Distribution of uploaded resumes by source.</p>
+              <div id="sourceMetrics" class="source-metrics"></div>
               <div class="chart-container">
                 <canvas id="sourceChart"></canvas>
               </div>
@@ -125,6 +157,9 @@
 
     async function loadResumes() {
       try {
+        if (typeof window.applyDashboardChartDefaults === "function") {
+          window.applyDashboardChartDefaults();
+        }
         const res = await fetch("/api/admin/resumes/", {
           credentials: "include"
         });
@@ -134,6 +169,15 @@
           <div class="mini-stat-card">
             <span>${item.label}</span>
             <strong>${item.value}</strong>
+          </div>
+        `).join("");
+
+        const sourceLabels = data.source_chart?.labels || [];
+        const sourceValues = data.source_chart?.data || [];
+        document.getElementById("sourceMetrics").innerHTML = sourceLabels.map((label, index) => `
+          <div class="source-metric ${String(label || "").toLowerCase().includes("jobseeker") ? "jobseeker" : "hrbulk"}">
+            <span>${label}</span>
+            <strong>${sourceValues[index] || 0}</strong>
           </div>
         `).join("");
 
@@ -179,20 +223,38 @@
         };
 
         new Chart(document.getElementById("sourceChart"), {
-          type: "bar",
+          type: "doughnut",
           data: {
             labels: data.source_chart?.labels || [],
             datasets: [{
               label: "Resumes by Source",
               data: data.source_chart?.data || [],
               backgroundColor: ['#6366f1', '#f97316', '#22c55e', '#a855f7'],
-              borderRadius: 10,
-              barThickness: 60
+              borderColor: "#ffffff",
+              borderWidth: 4,
+              hoverOffset: 4
             }]
           },
           options: {
             responsive: true,
-            maintainAspectRatio: false
+            maintainAspectRatio: false,
+            cutout: "70%",
+            plugins: {
+              legend: {
+                position: "bottom",
+                labels: {
+                  color: "#64748b",
+                  usePointStyle: true,
+                  pointStyle: "circle",
+                  padding: 18,
+                  font: {
+                    family: "'Plus Jakarta Sans', 'Inter', sans-serif",
+                    size: 12,
+                    weight: "600"
+                  }
+                }
+              }
+            }
           }
         });
       } catch (err) {

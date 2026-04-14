@@ -484,9 +484,20 @@
       }
     }
 
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
     function renderResultCard(item, highlightId) {
       const score = Math.round(item.score || 0);
       const isQuick = !item.job_post;
+      const resumeName = item.resume?.filename || "Resume";
+      const jobName = item.job_title || item.custom_job_title || item.job_post?.title || "General Analysis";
       const matched = item.matched_list && item.matched_list.length > 0
         ? item.matched_list
         : (item.matched_keywords ? item.matched_keywords.split(',') : []);
@@ -537,9 +548,13 @@
         <div class="history-card" id="result-${item.id}" style="${highlightId == item.id ? 'border-color: #10b981; border-width: 2px;' : ''}">
           <div class="card-header">
             <div>
-              <span class="scan-badge ${isQuick ? 'badge-quick' : 'badge-ats'}">${isQuick ? '⚡ QUICK SCAN' : '🔹 ATS SCAN'}</span>
+              <span class="scan-badge ${isQuick ? 'badge-quick' : 'badge-ats'}">${isQuick ? 'QUICK SCAN' : 'ATS SCAN'}</span>
               <h3 class="job-title">${item.custom_job_title || 'General Analysis'}</h3>
-              <div class="job-meta">${item.job_post ? `${item.job_post.company_name} • ` : ''}Analyzed on ${item.formatted_date}</div>
+              <div class="job-meta">Analyzed on ${item.formatted_date}</div>
+              <div class="job-meta" style="margin-top: 6px; color: #334155;">
+                Resume: <strong>${escapeHtml(resumeName)}</strong>
+                &nbsp;&bull;&nbsp;For: <strong>${escapeHtml(jobName)}</strong>
+              </div>
             </div>
             <div style="display:flex; align-items:center; gap:1rem;">
               <div class="score-box">
@@ -743,3 +758,9 @@
 </body>
 
 </html>
+
+
+
+
+
+

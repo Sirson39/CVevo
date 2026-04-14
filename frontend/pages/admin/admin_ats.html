@@ -13,8 +13,19 @@
     .admin-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; }
     .analytics-row { display:grid; grid-template-columns:2fr 1fr; gap:24px; }
     .grid-card { background:#fff; padding:24px; border-radius:20px; border:1px solid #e2e8f0; box-shadow:0 4px 6px -1px rgba(0,0,0,0.05); }
-    .main-chart { height:400px; }
-    .chart-container { height:320px; margin-top:20px; }
+    .main-chart { min-height:360px; }
+    .chart-container {
+      height:240px;
+      margin-top:16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+    }
+    .chart-container canvas {
+      max-width: 100% !important;
+      max-height: 100% !important;
+    }
     .stats-sidebar { display:flex; flex-direction:column; gap:15px; }
     .mini-stat-card { background:#fff; padding:20px; border-radius:16px; border:1px solid #e2e8f0; }
     .mini-stat-card span { display:block; font-size:0.8rem; font-weight:700; color:#64748b; text-transform:uppercase; }
@@ -93,6 +104,9 @@
 
     async function loadATSPage() {
       try {
+        if (typeof window.applyDashboardChartDefaults === "function") {
+          window.applyDashboardChartDefaults();
+        }
         const res = await fetch("/api/admin/ats/", {
           credentials: "include"
         });
@@ -142,13 +156,38 @@
             datasets: [{
               data: data.score_chart?.data || [0, 0, 0],
               backgroundColor: ['#f43f5e', '#f59e0b', '#10b981'],
-              borderWidth: 0
+              borderWidth: 0,
+              hoverOffset: 4
             }]
           },
           options: {
             responsive: true,
             maintainAspectRatio: false,
-            cutout: '70%'
+            cutout: '72%',
+            layout: {
+              padding: {
+                top: 6,
+                right: 6,
+                bottom: 0,
+                left: 6
+              }
+            },
+            plugins: {
+              legend: {
+                position: "bottom",
+                labels: {
+                  color: "#64748b",
+                  usePointStyle: true,
+                  pointStyle: "circle",
+                  padding: 16,
+                  font: {
+                    family: "'Plus Jakarta Sans', 'Inter', sans-serif",
+                    size: 12,
+                    weight: "600"
+                  }
+                }
+              }
+            }
           }
         });
       } catch (err) {

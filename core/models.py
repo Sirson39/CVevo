@@ -265,11 +265,18 @@ class ATSResult(models.Model):
         return f"{candidate_name} match for {job_title}: {self.score}%"
 
 class Notification(models.Model):
+    PRIORITY_CHOICES = [('high', 'High'), ('medium', 'Medium'), ('low', 'Low')]
     TYPE_CHOICES = [('success','Success'),('info','Info'),('warning','Warning'),('error','Error')]
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    title = models.CharField(max_length=120, default='Notification')
     message = models.CharField(max_length=300)
-    icon = models.CharField(max_length=10, default='??')
+    icon = models.CharField(max_length=10, default='\U0001F514')
     type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='info')
+    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='medium')
+    category = models.CharField(max_length=20, default='general')
+    target_role = models.CharField(max_length=20, default='all')
+    action_url = models.CharField(max_length=255, blank=True, default='')
+    metadata = models.JSONField(default=dict, blank=True)
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -277,7 +284,7 @@ class Notification(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f'[{self.type}] {self.user.email}: {self.message[:60]}'
+        return f'[{self.type}] {self.user.email}: {self.title[:40]}'
 
     @classmethod
     def push(cls, user, message, icon='🔔', notif_type='info'):
@@ -285,6 +292,68 @@ class Notification(models.Model):
         # Keep a slightly longer history for the dropdown (FIFO) but limited
         keep_ids = list(cls.objects.filter(user=user).values_list('id', flat=True)[:15])
         cls.objects.filter(user=user).exclude(id__in=keep_ids).delete()
+
+    @classmethod
+    def push(
+        cls,
+        user,
+        message,
+        icon='\U0001F514',
+        notif_type='info',
+        title=None,
+        priority='medium',
+        category='general',
+        target_role=None,
+        action_url='',
+        metadata=None
+    ):
+        if not user or not getattr(user, 'pk', None):
+            return None
+
+        metadata = metadata or {}
+        target_role = target_role or getattr(user, 'role', 'all') or 'all'
+        title = (title or message.split('. ')[0] or 'Notification').strip()[:120]
+
+        try:
+            from datetime import timedelta
+            from django.utils import timezone
+
+            cutoff = timezone.now() - timedelta(minutes=5)
+            duplicate = cls.objects.filter(
+                user=user,
+                title=title,
+                message=message,
+                category=category,
+                priority=priority,
+                created_at__gte=cutoff,
+            ).first()
+            if duplicate:
+                return duplicate
+        except Exception:
+            pass
+
+        obj = cls.objects.create(
+            user=user,
+            title=title,
+            message=message,
+            icon=icon,
+            type=notif_type,
+            priority=priority,
+            category=category,
+            target_role=target_role,
+            action_url=action_url,
+            metadata=metadata,
+        )
+        keep_ids = list(cls.objects.filter(user=user).order_by('-created_at').values_list('id', flat=True)[:15])
+        cls.objects.filter(user=user).exclude(id__in=keep_ids).delete()
+        return obj
+
+    @classmethod
+    def push_for_users(cls, users, **kwargs):
+        items = []
+        for user in users:
+            items.append(cls.push(user, **kwargs))
+        return items
 
 class ContactMessage(models.Model):
     name = models.CharField(max_length=120)
@@ -314,3 +383,4 @@ class SupportRequest(models.Model):
 
     def __str__(self):
         return f"{self.user.email} - {self.subject} ({self.priority})"
+

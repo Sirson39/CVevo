@@ -1,5 +1,7 @@
 from django.shortcuts import get_object_or_404
+from django.http import FileResponse
 import json
+from io import BytesIO
 from datetime import datetime, timedelta
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -33,6 +35,44 @@ from .serializers import (
 from .utils import extract_text_from_pdf, extract_text_from_docx, parse_resume_text
 
 import json
+import docx
+
+NOTIF_SOUND_PRIORITY = {"high"}
+NOTIF_VISIBLE_LIMIT = 5
+
+def _notify(user, *, title, message, icon="info", notif_type="info", priority="medium", category="general", target_role=None, action_url="", metadata=None):
+    return Notification.push(
+        user=user,
+        title=title,
+        message=message,
+        icon=icon,
+        notif_type=notif_type,
+        priority=priority,
+        category=category,
+        target_role=target_role,
+        action_url=action_url,
+        metadata=metadata or {},
+    )
+
+def _notify_jobseeker(user, **kwargs):
+    return _notify(user, target_role="jobseeker", **kwargs)
+
+def _notify_hr(user, **kwargs):
+    return _notify(user, target_role="hr", **kwargs)
+
+
+def _job_to_jd_fields(job):
+    if not job:
+        return None
+    return {
+        "title": job.title or "",
+        "description": job.description or "",
+        "required_skills": job.required_skills or "",
+        "experience_requirements": job.experience_requirements or "",
+        "education_requirements": job.education_requirements or "",
+        "tools_and_technologies": job.tools_and_technologies or "",
+        "requirements": job.requirements or "",
+    }
 
 # ==========================
 # AUTH & USER VIEWS
@@ -730,9 +770,25 @@ class UserMeView(APIView):
         user.save()
         
         # Notify about profile change
-        Notification.push(user, "Profile updated successfully.", icon="👤", notif_type="success")
+        Notification.push(
+            user,
+            title="Profile updated",
+            message="Your profile details were saved successfully.",
+            icon="profile",
+            notif_type="success",
+            priority="medium",
+            category="profile",
+        )
         if password:
-            Notification.push(user, "Security alert: Your password was changed.", icon="🔒", notif_type="warning")
+            Notification.push(
+                user,
+                title="Password changed",
+                message="Your password was changed successfully.",
+                icon="security",
+                notif_type="warning",
+                priority="high",
+                category="security",
+            )
         
         # Re-fetch data for response
         return self.get(request)
@@ -775,6 +831,15 @@ class HRProfileViewSet(viewsets.ModelViewSet):
             if 'full_name' in request.data:
                 request.user.full_name = request.data['full_name']
                 request.user.save()
+            _notify_hr(
+                request.user,
+                title='Profile updated',
+                message='Your HR profile was updated successfully.',
+                icon='user',
+                notif_type='success',
+                priority='medium',
+                category='profile',
+            )
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
 
@@ -907,7 +972,7 @@ class JobPostViewSet(viewsets.ModelViewSet):
 
         if hasattr(self.request.user, 'hr_profile'):
             serializer.save(hr=self.request.user.hr_profile)
-            Notification.push(self.request.user, f"Job Post '{serializer.validated_data.get('title')}' is now live.", icon="💼", notif_type="success")
+            Notification.push(self.request.user, f"Job Post '{serializer.validated_data.get('title')}' is now live.", icon="job", notif_type="success")
         else:
             raise serializer.ValidationError({"error": "Only HR users can post jobs."})
 
@@ -920,13 +985,61 @@ class JobPostViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Only HR users can post jobs.'}, status=403)
 
         job = serializer.save(hr=request.user.hr_profile)
-        Notification.push(
+        _notify_hr(
             request.user,
-            f"Job Post '{job.title}' is now live.",
-            icon="💼",
-            notif_type="success"
+            title='Job post created',
+            message=f"'{job.title}' is now live.",
+            icon='brief',
+                notif_type='success',
+            priority='high',
+            category='job',
+            action_url=f"/pages/hr/hr_manage_jobs.html?job_id={job.id}",
         )
         return Response({'message': 'Job posted successfully!', 'data': serializer.data}, status=201)
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        old_status = instance.status
+        response = super().update(request, *args, **kwargs)
+        updated_job = self.get_object()
+        title = 'Job post updated'
+        message = f"'{updated_job.title}' was updated."
+        notif_type = 'info'
+        if old_status != updated_job.status:
+            if updated_job.status in ['Closed', 'Disabled']:
+                title = 'Job post closed'
+                message = f"'{updated_job.title}' has been closed."
+                notif_type = 'warning'
+        _notify_hr(
+            request.user,
+            title=title,
+            message=message,
+            icon='job',
+            notif_type=notif_type,
+            priority='high',
+            category='job',
+            action_url=f"/pages/hr/hr_manage_jobs.html?job_id={updated_job.id}",
+        )
+        return response
+
+    def partial_update(self, request, *args, **kwargs):
+        kwargs['partial'] = True
+        return self.update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        title = instance.title
+        response = super().destroy(request, *args, **kwargs)
+        _notify_hr(
+            request.user,
+            title='Job post closed',
+            message=f"'{title}' has been removed from active listings.",
+            icon='job',
+            notif_type='warning',
+            priority='high',
+            category='job',
+        )
+        return response
 
 # ==========================
 # RESUME & BUILDER
@@ -954,14 +1067,29 @@ class ResumeViewSet(viewsets.ModelViewSet):
                 ParsedResumeData.objects.create(resume=resume, extracted_text=text, **parsed)
         except Exception as e:
             print("Auto-parse error:", e)
-        
-        Notification.push(self.request.user, f"Resume '{resume.filename}' uploaded and parsed.", icon="📄", notif_type="success")
+        _notify_jobseeker(
+            self.request.user,
+            title='Resume uploaded',
+            message=f"'{resume.filename}' was uploaded successfully.",
+            icon='resume',
+                notif_type='success',
+            priority='high',
+            category='resume',
+        )
 
     def perform_destroy(self, instance):
         filename = instance.filename
         user = self.request.user
         instance.delete()
-        Notification.push(user, f"Resume '{filename}' has been deleted.", icon="🗑️", notif_type="warning")
+        _notify_jobseeker(
+            user,
+            title='Resume deleted',
+            message=f"'{filename}' was deleted successfully.",
+            icon='delete',
+            notif_type='warning',
+            priority='medium',
+            category='resume',
+        )
 
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
@@ -993,6 +1121,169 @@ class ResumeBuilderView(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+def _safe_text(value, default=""):
+    if value is None:
+        return default
+    text = str(value).strip()
+    return text if text else default
+
+
+def _add_docx_bullet(doc, text):
+    if not text:
+        return
+    doc.add_paragraph(str(text), style="List Bullet")
+
+
+def _build_resume_docx(profile, skills, experiences, educations, projects, certificates, references):
+    doc = docx.Document()
+    styles = doc.styles
+    styles["Normal"].font.name = "Arial"
+    styles["Normal"].font.size = docx.shared.Pt(10.5)
+
+    title = _safe_text(profile.full_name or profile.user.full_name or "Resume")
+    job_title = _safe_text(profile.position)
+
+    heading = doc.add_paragraph()
+    heading.alignment = 1
+    run = heading.add_run(title)
+    run.bold = True
+    run.font.size = docx.shared.Pt(18)
+
+    if job_title:
+        sub = doc.add_paragraph()
+        sub.alignment = 1
+        sub_run = sub.add_run(job_title)
+        sub_run.italic = True
+        sub_run.font.size = docx.shared.Pt(11)
+
+    contact_bits = [
+        _safe_text(profile.email),
+        _safe_text(profile.phone),
+        _safe_text(profile.location),
+        _safe_text(profile.linkedin),
+        _safe_text(profile.portfolio),
+    ]
+    contact_line = " | ".join(bit for bit in contact_bits if bit)
+    if contact_line:
+        p = doc.add_paragraph()
+        p.alignment = 1
+        p.add_run(contact_line)
+
+    if _safe_text(profile.summary):
+        doc.add_heading("Professional Summary", level=1)
+        doc.add_paragraph(profile.summary)
+
+    if skills:
+        doc.add_heading("Skills", level=1)
+        technical = [s for s in skills if getattr(s, "skill_type", "Technical") == "Technical"]
+        soft = [s for s in skills if getattr(s, "skill_type", "") == "Soft"]
+        if technical:
+            doc.add_paragraph("Technical Skills", style="Intense Quote")
+            for item in technical:
+                _add_docx_bullet(doc, f"{_safe_text(item.name)} ({_safe_text(item.level)})")
+        if soft:
+            doc.add_paragraph("Soft Skills", style="Intense Quote")
+            for item in soft:
+                _add_docx_bullet(doc, f"{_safe_text(item.name)} ({_safe_text(item.level)})")
+
+    if experiences:
+        doc.add_heading("Experience", level=1)
+        for item in experiences:
+            p = doc.add_paragraph()
+            r = p.add_run(f"{_safe_text(item.position)} - {_safe_text(item.company)}")
+            r.bold = True
+            dates = "Present" if not item.end_date else str(item.end_date)
+            if item.start_date:
+                p.add_run(f" | {item.start_date} - {dates}")
+            if _safe_text(item.description):
+                doc.add_paragraph(item.description)
+
+    if educations:
+        doc.add_heading("Education", level=1)
+        for item in educations:
+            p = doc.add_paragraph()
+            r = p.add_run(f"{_safe_text(item.degree)} - {_safe_text(item.institution)}")
+            r.bold = True
+            dates = "Present" if not item.end_date else str(item.end_date)
+            if item.start_date:
+                p.add_run(f" | {item.start_date} - {dates}")
+
+    if projects:
+        doc.add_heading("Projects", level=1)
+        for item in projects:
+            p = doc.add_paragraph()
+            r = p.add_run(_safe_text(item.title))
+            r.bold = True
+            if _safe_text(item.link):
+                p.add_run(f" | {item.link}")
+            if _safe_text(item.description):
+                doc.add_paragraph(item.description)
+
+    if certificates:
+        doc.add_heading("Certificates", level=1)
+        for item in certificates:
+            p = doc.add_paragraph()
+            r = p.add_run(_safe_text(item.name))
+            r.bold = True
+            detail_bits = [b for b in [_safe_text(item.issuer), _safe_text(item.date_obtained)] if b]
+            if detail_bits:
+                p.add_run(f" | {' | '.join(detail_bits)}")
+            if _safe_text(item.link):
+                doc.add_paragraph(item.link)
+            if _safe_text(item.description):
+                doc.add_paragraph(item.description)
+
+    if references:
+        doc.add_heading("References", level=1)
+        for item in references:
+            line = f"{_safe_text(item.name)} - {_safe_text(item.relationship)} at {_safe_text(item.company)}"
+            doc.add_paragraph(line)
+            details = " | ".join(bit for bit in [_safe_text(item.email), _safe_text(item.phone)] if bit)
+            if details:
+                doc.add_paragraph(details)
+
+    buffer = BytesIO()
+    doc.save(buffer)
+    buffer.seek(0)
+    return buffer
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ResumeBuilderDocxExportView(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        profile, _ = JobseekerProfile.objects.get_or_create(user=request.user)
+        skills = list(profile.skills.all())
+        experiences = list(profile.experiences.all())
+        educations = list(profile.educations.all())
+        projects = list(profile.projects.all())
+        certificates = list(profile.certificates.all())
+        references = list(profile.references.all())
+
+        filename = f"CVevo_{_safe_text(profile.full_name or request.user.full_name or 'Resume').replace(' ', '_')}.docx"
+        buffer = _build_resume_docx(profile, skills, experiences, educations, projects, certificates, references)
+
+        if request.user.role == 'jobseeker':
+            _notify_jobseeker(
+                request.user,
+                title='Resume exported',
+                message='Your DOCX resume export is ready.',
+                icon="export",
+                notif_type='success',
+                priority='high',
+                category='export',
+            )
+
+        return FileResponse(
+            buffer,
+            as_attachment=True,
+            filename=filename,
+            content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        )
+
 # ==========================
 # ANALYSIS & RESULTS
 # ==========================
@@ -1006,18 +1297,17 @@ class QuickAnalysisView(APIView):
             job_description = request.data.get('job_description')
             job_id = request.data.get('job_id')
             job_title_input = request.data.get('job_title')
-            
+
             if job_id and (not job_description or job_description == 'FETCH_FROM_JOB'):
                 job = get_object_or_404(JobPost, id=job_id)
                 job_description = job.description
+            else:
+                job = JobPost.objects.filter(id=job_id).first() if job_id else None
 
             if not resume_id or not job_description:
                 return Response({'error': 'Missing fields'}, status=400)
-            
+
             resume = get_object_or_404(Resume, id=resume_id, jobseeker__user=request.user)
-            
-            # Notify Analysis Start
-            Notification.push(request.user, "ATS Analysis started. Scanning your resume... 🔍", icon="🕵️", notif_type="info")
 
             # 1. Get Resume Text
             parsed_data = getattr(resume, 'parsed_data', None)
@@ -1029,20 +1319,23 @@ class QuickAnalysisView(APIView):
             if not text:
                 return Response({'error': 'Text extraction failed'}, status=400)
 
-            # 2. Run Real ATS Analysis
-            analysis = calculate_ats_score(text, job_description)
-            
+            # 2. Run Real ATS Analysis using structured job fields when available
+            jd_fields = _job_to_jd_fields(job) if job else None
+            jd_text = job_description or (job.requirements if job else "") or ""
+            analysis = calculate_ats_score(text, jd_text, jd_fields=jd_fields)
+
             # 3. Save Result
             full_breakdown = {
                 'pillars': analysis.get('pillars', {}),
                 'suggestions': analysis.get('suggestions', [])
             }
-            
+
             print(f"DEBUG: ATS Match -> {analysis.get('matched_keywords')}")
             print(f"DEBUG: ATS Missing -> {analysis.get('missing_skills')}")
+
             result = ATSResult.objects.create(
                 resume=resume,
-                job_post=JobPost.objects.filter(id=job_id).first() if job_id else None,
+                job_post=job,
                 custom_job_title=job_title_input or ("Quick Scan" if not job_id else ""),
                 score=analysis.get('ats_score', 0),
                 feedback=analysis.get('feedback', ""),
@@ -1051,13 +1344,54 @@ class QuickAnalysisView(APIView):
                 score_breakdown=json.dumps(full_breakdown)
             )
             print(f"DEBUG: Result ID {result.id} Saved with Match KWs: {result.matched_keywords}")
-            
-            # Notify User
+
             job_name = job_title_input or (result.job_post.title if result.job_post else "Quick Scan")
-            Notification.push(request.user, f"ATS Analysis complete for '{job_name}'. Score: {result.score}%", icon="📊", notif_type="success")
-            
+            _notify_jobseeker(
+                request.user,
+                title='ATS analysis completed',
+                message=f"ATS analysis finished for '{job_name}'. Score: {result.score}%",
+                icon='brief',
+                notif_type='success',
+                priority='high',
+                category='analysis',
+                action_url=f"/pages/jobseeker/analysis_results.html?result_id={result.id}",
+            )
+            if result.job_post and hasattr(result.job_post.hr, 'user'):
+                _notify_jobseeker(
+                    request.user,
+                    title='Application submitted',
+                    message=f"Your application for '{job_name}' was submitted successfully.",
+                icon="app",
+                notif_type='success',
+                    priority='high',
+                    category='application',
+                    action_url=f"/pages/jobseeker/analysis_results.html?result_id={result.id}",
+                )
+                _notify_hr(
+                    result.job_post.hr.user,
+                    title='New application received',
+                    message=f"A new application was analyzed for '{job_name}'.",
+                    icon="app",
+                    notif_type='info',
+                    priority='high',
+                    category='application',
+                    action_url=f"/pages/hr/hr_candidate_detail.html?result_id={result.id}",
+                )
+
             return Response(ATSResultSerializer(result).data)
         except Exception as e:
+            try:
+                _notify_jobseeker(
+                    request.user,
+                    title='Analysis failed',
+                    message=str(e)[:250],
+                    icon="warning",
+                    notif_type='error',
+                    priority='high',
+                    category='analysis',
+                )
+            except Exception:
+                pass
             return Response({'error': str(e)}, status=500)
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -1065,47 +1399,76 @@ class GeneralAnalysisView(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [permissions.IsAuthenticated]
     def get(self, request, resume_id):
-        resume = get_object_or_404(Resume, id=resume_id, jobseeker__user=request.user)
-        
-        # Notify Analysis Start
-        Notification.push(request.user, "General Quality Scan initiated. ✨", icon="📈", notif_type="info")
+        try:
+            resume = get_object_or_404(Resume, id=resume_id, jobseeker__user=request.user)
 
-        # 1. Get Text
-        parsed_data = getattr(resume, 'parsed_data', None)
-        text = parsed_data.extracted_text if parsed_data else ""
-        if not text:
-            ext = resume.filename.split('.')[-1].lower()
-            text = extract_text_from_pdf(resume.file.path) if ext == 'pdf' else extract_text_from_docx(resume.file.path)
+            # 1. Get Text
+            parsed_data = getattr(resume, 'parsed_data', None)
+            text = parsed_data.extracted_text if parsed_data else ""
+            if not text:
+                ext = resume.filename.split('.')[-1].lower()
+                text = extract_text_from_pdf(resume.file.path) if ext == 'pdf' else extract_text_from_docx(resume.file.path)
 
-        if not text:
-            return Response({'error': 'No text found'}, status=400)
+            if not text:
+                _notify_jobseeker(
+                    request.user,
+                    title='Analysis failed',
+                    message='General quality scan could not read your resume text.',
+                    icon="warning",
+                    notif_type='error',
+                    priority='high',
+                    category='analysis',
+                )
+                return Response({'error': 'No text found'}, status=400)
 
-        # 2. Run Real General Quality Scan
-        scan = calculate_general_score(text, resume.file.size, resume.filename.split('.')[-1])
-        
-        # Save to history so it appears in dashboard
-        full_breakdown = {
-            'pillars': scan.get('breakdown', {}),
-            'suggestions': scan.get('suggestions', []),
-            'strengths': scan.get('strengths', []),
-            'recommendations': scan.get('recommendations', []),
-            'issues_found': scan.get('issues_found', [])
-        }
-        
-        result = ATSResult.objects.create(
-            resume=resume,
-            custom_job_title="General Quality Scan",
-            score=scan.get('quality_score', 0),
-            feedback=scan.get('summary', "Review complete."),
-            matched_keywords=",".join(scan.get('found_keywords', [])),
-            missing_keywords=",".join(scan.get('missing_keywords', [])),
-            score_breakdown=json.dumps(full_breakdown)
-        )
-        
-        # Notify User
-        Notification.push(request.user, f"General Quality Scan complete. Quality Score: {result.score}%", icon="✨", notif_type="info")
+            # 2. Run Real General Quality Scan
+            scan = calculate_general_score(text, resume.file.size, resume.filename.split('.')[-1])
 
-        return Response(ATSResultSerializer(result).data)
+            # Save to history so it appears in dashboard
+            full_breakdown = {
+                'pillars': scan.get('breakdown', {}),
+                'suggestions': scan.get('suggestions', []),
+                'strengths': scan.get('strengths', []),
+                'recommendations': scan.get('recommendations', []),
+                'issues_found': scan.get('issues_found', [])
+            }
+
+            result = ATSResult.objects.create(
+                resume=resume,
+                custom_job_title="General Quality Scan",
+                score=scan.get('quality_score', 0),
+                feedback=scan.get('summary', "Review complete."),
+                matched_keywords=",".join(scan.get('found_keywords', [])),
+                missing_keywords=",".join(scan.get('missing_keywords', [])),
+                score_breakdown=json.dumps(full_breakdown)
+            )
+
+            _notify_jobseeker(
+                request.user,
+                title='Quality analysis completed',
+                message=f"General quality scan finished. Score: {result.score}%",
+                icon="analysis",
+                notif_type='success',
+                priority='high',
+                category='analysis',
+                action_url=f"/pages/jobseeker/analysis_results.html?result_id={result.id}",
+            )
+
+            return Response(ATSResultSerializer(result).data)
+        except Exception as e:
+            try:
+                _notify_jobseeker(
+                    request.user,
+                    title='Analysis failed',
+                    message=str(e)[:250],
+                    icon="warning",
+                    notif_type='error',
+                    priority='high',
+                    category='analysis',
+                )
+            except Exception:
+                pass
+            return Response({'error': str(e)}, status=500)
 
 @method_decorator(csrf_exempt, name='dispatch')
 class ResumeBuilderActionView(APIView):
@@ -1258,8 +1621,48 @@ class ATSResultViewSet(viewsets.ModelViewSet):
 class NotificationViewSet(viewsets.ModelViewSet):
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [permissions.IsAuthenticated]
+
     def get_queryset(self):
-        return Notification.objects.filter(user=self.request.user) if self.request.user.is_authenticated else Notification.objects.none()
+        if not self.request.user.is_authenticated:
+            return Notification.objects.none()
+        return Notification.objects.filter(user=self.request.user).order_by('-created_at')
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        unread_count = queryset.filter(is_read=False).count()
+        has_more = queryset.count() > NOTIF_VISIBLE_LIMIT
+        notifications = list(queryset[:NOTIF_VISIBLE_LIMIT])
+        serializer = self.get_serializer(notifications, many=True)
+        return Response({
+            'notifications': serializer.data,
+            'unread_count': unread_count,
+            'has_more': has_more,
+            'visible_limit': NOTIF_VISIBLE_LIMIT,
+        })
+
+@method_decorator(csrf_exempt, name='dispatch')
+class NotificationPdfExportView(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        if not user.is_authenticated:
+            return Response({'error': 'Unauthorized'}, status=401)
+
+        if user.role == 'jobseeker':
+            _notify_jobseeker(
+                user,
+                title='Resume exported',
+                message='Your PDF resume export is ready.',
+                icon='analysis',
+                notif_type='success',
+                priority='high',
+                category='export',
+            )
+        return Response({'status': 'success'})
 
 class SupportRequestViewSet(viewsets.ModelViewSet):
     queryset = SupportRequest.objects.all()
@@ -1273,28 +1676,52 @@ class HRUpdateStatusView(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request):
+    def _apply_status(self, request, result_id=None):
         if not hasattr(request.user, 'hr_profile'):
             return Response({'error': 'Only HR users can update status'}, status=403)
-            
-        result_id = request.data.get('result_id')
-        action = request.data.get('action') # shortlist, interview, reject
-        
+
+        action = request.data.get('action')
+        status_value = request.data.get('status')
+        if result_id is None:
+            result_id = request.data.get('result_id')
+
         result = get_object_or_404(ATSResult, id=result_id, job_post__hr=request.user.hr_profile)
-        
+
         status_map = {
             'shortlist': 'Shortlisted',
             'interview': 'Interviewing',
-            'reject': 'Rejected'
+            'reject': 'Rejected',
+            'shortlisted': 'Shortlisted',
+            'interviewing': 'Interviewing',
+            'rejected': 'Rejected',
         }
-        
-        new_status = status_map.get(action)
+
+        new_status = status_map.get(action) or status_map.get((status_value or '').lower())
         if new_status:
+            old_status = result.status
             result.status = new_status
             result.save()
+            candidate_user = result.resume.jobseeker.user if result.resume.jobseeker else None
+            if candidate_user and old_status != new_status:
+                _notify_jobseeker(
+                    candidate_user,
+                    title='Application status updated',
+                    message=f"Your application for '{result.job_post.title}' is now {new_status}.",
+                icon='alert',
+                    notif_type='info' if new_status != 'Rejected' else 'warning',
+                    priority='high',
+                    category='application',
+                    action_url=f"/pages/jobseeker/analysis_results.html?result_id={result.id}",
+                )
             return Response({'status': 'success', 'new_status': new_status})
-        
+
         return Response({'error': 'Invalid action'}, status=400)
+
+    def post(self, request):
+        return self._apply_status(request)
+
+    def patch(self, request, result_id=None):
+        return self._apply_status(request, result_id=result_id)
 
 @method_decorator(csrf_exempt, name='dispatch')
 class HRBulkUploadView(APIView):
@@ -1332,7 +1759,11 @@ class HRBulkUploadView(APIView):
 
             if text:
                 # 3. Analyze against job requirements
-                analysis = calculate_ats_score(text, job.requirements or job.description)
+                analysis = calculate_ats_score(
+                    text,
+                    job.requirements or job.description,
+                    jd_fields=_job_to_jd_fields(job),
+                )
                 
                 # Combine breakdown for storage
                 full_breakdown = {
@@ -1352,6 +1783,19 @@ class HRBulkUploadView(APIView):
                 results.append({'filename': file.name, 'score': res.score, 'status': 'success'})
             else:
                 results.append({'filename': file.name, 'status': 'error', 'message': 'Could not extract text'})
+
+        success_count = len([item for item in results if item.get('status') == 'success'])
+        failure_count = len(results) - success_count
+        _notify_hr(
+            request.user,
+            title='Bulk upload completed',
+            message=f"{success_count} resumes processed" + (f", {failure_count} failed." if failure_count else "."),
+            icon='resume',
+                notif_type='success' if success_count else 'warning',
+            priority='high',
+            category='resume',
+            action_url=f"/pages/hr/hr_candidate_ranking.html?job_id={job.id}",
+        )
 
         return Response({
             'status': 'success', 
@@ -1408,6 +1852,16 @@ class HRCandidateRankingView(APIView):
                     'score': r.score
                 })
             data['results'] = res_data
+            _notify_hr(
+                request.user,
+                title='Candidate ranking generated',
+                message=f"Ranking is ready for '{job.title}'.",
+                icon='rank',
+                notif_type='info',
+                priority='high',
+                category='ranking',
+                action_url=f"/pages/hr/hr_candidate_ranking.html?job_id={job.id}",
+            )
             
         return Response(data)
 
@@ -1442,3 +1896,8 @@ class HRCandidateDetailView(APIView):
                 }
             }
         })
+
+
+
+
+

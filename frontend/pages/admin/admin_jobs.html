@@ -13,8 +13,12 @@
     .admin-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; }
     .analytics-row { display:grid; grid-template-columns:2fr 1fr; gap:24px; }
     .grid-card { background:#fff; padding:24px; border-radius:20px; border:1px solid #e2e8f0; box-shadow:0 4px 6px -1px rgba(0,0,0,0.05); }
-    .main-chart { height:400px; }
-    .chart-container { height:320px; margin-top:20px; }
+    .main-chart { min-height:440px; }
+    .chart-container {
+      height:340px;
+      margin-top:20px;
+      padding-bottom:10px;
+    }
     .stats-sidebar { display:flex; flex-direction:column; gap:15px; }
     .mini-stat-card { background:#fff; padding:20px; border-radius:16px; border:1px solid #e2e8f0; }
     .mini-stat-card span { display:block; font-size:0.8rem; font-weight:700; color:#64748b; text-transform:uppercase; }
@@ -132,6 +136,9 @@
 
     async function loadJobs() {
       try {
+        if (typeof window.applyDashboardChartDefaults === "function") {
+          window.applyDashboardChartDefaults();
+        }
         const res = await fetch("/api/admin/jobs/", {
           credentials: "include"
         });
@@ -183,12 +190,53 @@
               data: data.status_chart?.data || [],
               backgroundColor: ['#2f8f7a', '#64748b', '#f59e0b'],
               borderRadius: 10,
-              barThickness: 60
+              barThickness: 52,
+              borderSkipped: false
             }]
           },
           options: {
             responsive: true,
-            maintainAspectRatio: false
+            maintainAspectRatio: false,
+            layout: {
+              padding: {
+                top: 6,
+                right: 8,
+                bottom: 18,
+                left: 8
+              }
+            },
+            scales: {
+              x: {
+                ticks: {
+                  autoSkip: false,
+                  maxRotation: 0,
+                  minRotation: 0,
+                  padding: 10,
+                  color: "#64748b",
+                  font: {
+                    family: "'Plus Jakarta Sans', 'Inter', sans-serif",
+                    size: 12,
+                    weight: "600"
+                  }
+                },
+                grid: {
+                  color: "#eef2f7"
+                }
+              },
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  color: "#64748b",
+                  font: {
+                    family: "'Plus Jakarta Sans', 'Inter', sans-serif",
+                    size: 12
+                  }
+                },
+                grid: {
+                  color: "#eef2f7"
+                }
+              }
+            }
           }
         });
 

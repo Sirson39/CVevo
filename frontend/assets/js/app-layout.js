@@ -1,26 +1,59 @@
-let lastNotifId = null;
 const NOTIF_SEEN_KEY = "cvevo_notif_seen_ids";
-
-function playNotificationSound() {
-  try {
-    const context = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = context.createOscillator();
-    const gain = context.createGain();
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(880, context.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(440, context.currentTime + 0.5);
-    gain.gain.setValueAtTime(0.05, context.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.5);
-    osc.connect(gain);
-    gain.connect(context.destination);
-    osc.start();
-    osc.stop(context.currentTime + 0.5);
-  } catch (e) { }
+const NOTIF_MAX_VISIBLE = 5;
+const NOTIFICATION_ICONS = {
+  success: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+  info: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',
+  warning: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
+  error: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>'
+};
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+function stripEmojiText(value) {
+  return String(value ?? "")
+    .replace(/\p{Extended_Pictographic}/gu, "")
+    .replace(/[\uFE0F\u200D]/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+function getNotificationIcon(type, category) {
+  const normalizedType = String(type || "").toLowerCase();
+  const normalizedCategory = String(category || "").toLowerCase();
+  if (normalizedType === "success") return NOTIFICATION_ICONS.success;
+  if (normalizedType === "warning") return NOTIFICATION_ICONS.warning;
+  if (normalizedType === "error") return NOTIFICATION_ICONS.error;
+  if (normalizedCategory === "security") return NOTIFICATION_ICONS.warning;
+  if (normalizedCategory === "job" || normalizedCategory === "resume" || normalizedCategory === "export") return NOTIFICATION_ICONS.success;
+  return NOTIFICATION_ICONS.info;
 }
 
-function showToast(message, type = "info", silent = false) {
+function formatNotificationTime(value) {
+  if (!value) return "Just now";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  const diff = Date.now() - date.getTime();
+  const minute = 60 * 1000;
+  const hour = 60 * minute;
+  const day = 24 * hour;
+  if (diff < minute) return "Just now";
+  if (diff < hour) return `${Math.floor(diff / minute)}m ago`;
+  if (diff < day) return `${Math.floor(diff / hour)}h ago`;
+  return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
+function showToast(payload, type = "info", silent = false) {
   const container = document.getElementById("toast-container");
   if (!container) return;
+
+  const data = typeof payload === "object" && payload !== null ? payload : { message: payload, type, silent };
+  const toastType = data.type || type || "info";
+  const toastTitle = data.title || "";
+  const toastMessage = data.message || "";
 
   const items = container.querySelectorAll(".toast-item");
   if (items.length >= 5) {
@@ -32,13 +65,6 @@ function showToast(message, type = "info", silent = false) {
   const toast = document.createElement("div");
   toast.className = "toast-item";
 
-  const icons = {
-    success: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>',
-    info: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',
-    warning: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>',
-    error: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>'
-  };
-
   const themes = {
     success: { bg: "linear-gradient(135deg, #10b981, #059669)" },
     info: { bg: "linear-gradient(135deg, #3b82f6, #2563eb)" },
@@ -46,15 +72,15 @@ function showToast(message, type = "info", silent = false) {
     error: { bg: "linear-gradient(135deg, #ef4444, #dc2626)" }
   };
 
-  const theme = themes[type] || themes.info;
+  const theme = themes[toastType] || themes.info;
 
   toast.innerHTML = `
     <div style="
-      display: flex; align-items: center; gap: 14px; 
-      padding: 16px 24px; 
-      background: ${theme.bg}; 
-      color: white; 
-      border-radius: 16px; 
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 24px;
+      background: ${theme.bg};
+      color: white;
+      border-radius: 16px;
       box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
       backdrop-filter: blur(10px);
       margin-bottom: 12px;
@@ -63,21 +89,23 @@ function showToast(message, type = "info", silent = false) {
       animation: toastSlideIn 0.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
     ">
       <div style="flex-shrink: 0; background: rgba(255,255,255,0.2); border-radius: 12px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
-        ${icons[type] || icons.info}
+        ${NOTIFICATION_ICONS[toastType] || NOTIFICATION_ICONS.info}
       </div>
-      <div style="flex: 1; font-size: 14px; font-weight: 700; line-height: 1.4;">${message}</div>
+      <div style="flex: 1;">
+        ${toastTitle ? `<div style="font-size: 13px; font-weight: 800; line-height: 1.35; margin-bottom: 2px;">${escapeHtml(stripEmojiText(toastTitle))}</div>` : ""}
+        <div style="font-size: 13px; font-weight: 600; line-height: 1.4; opacity: 0.95;">${escapeHtml(stripEmojiText(toastMessage))}</div>
+      </div>
     </div>
   `;
 
   container.appendChild(toast);
-  if (!silent) playNotificationSound();
 
   setTimeout(() => {
     if (toast.parentNode) {
       toast.style.animation = "toastSlideOut 0.4s ease forwards";
       setTimeout(() => toast.remove(), 400);
     }
-  }, 6000);
+  }, 2000);
 }
 
 async function loadNotifications(isInitial = false) {
@@ -94,23 +122,11 @@ async function loadNotifications(isInitial = false) {
 
     if (dot) dot.style.display = count > 0 ? "block" : "none";
 
-    // Seen Tracker Logic
     let seenIds = [];
     try { seenIds = JSON.parse(localStorage.getItem(NOTIF_SEEN_KEY) || "[]"); } catch (e) { }
 
-    let fired = false;
-    notifications.forEach(n => {
-      if (!n.is_read && !seenIds.includes(n.id)) {
-        showToast(n.message, n.type || "info");
-        seenIds.push(n.id);
-        fired = true;
-      }
-    });
-
-    if (fired) {
-      // Keep only latest 20 seen IDs to save space
-      localStorage.setItem(NOTIF_SEEN_KEY, JSON.stringify(seenIds.slice(-20)));
-    }
+    // History-only mode: keep notifications in the dropdown, no toast popups.
+    localStorage.setItem(NOTIF_SEEN_KEY, JSON.stringify(seenIds.slice(-20)));
 
     if (!body) return;
     if (notifications.length === 0) {
@@ -118,20 +134,51 @@ async function loadNotifications(isInitial = false) {
       return;
     }
 
-    body.innerHTML = notifications.map(n => `
-      <div class="nd-item ${n.type || ""} ${n.is_read ? "" : "unread"}" style="padding:16px; border-bottom:1px solid #f1f5f9; display:flex; gap:12px;">
-        <div style="font-size:18px;">${n.icon || "🔔"}</div>
-        <div style="flex:1;">
-          <div style="font-size:13px; font-weight:700; color:#1e293b;">${n.message}</div>
-          <div style="font-size:11px; color:#94a3b8; margin-top:4px;">${n.created_at || "Just now"}</div>
-        </div>
+    const visible = notifications.slice(0, NOTIF_MAX_VISIBLE);
+    const hasMore = data.has_more;
+    body.innerHTML = `
+      <div class="nd-list">
+        ${visible.map(n => `
+          <div class="nd-item ${n.type || ""} ${n.is_read ? "" : "unread"} ${String(n.priority || "medium") === "high" ? "high" : ""}">
+            <div class="nd-icon">${getNotificationIcon(n.type, n.category)}</div>
+            <div class="nd-content">
+              <div class="nd-head">
+                <span class="nd-title">${escapeHtml(stripEmojiText(n.title || "Notification"))}</span>
+                ${!n.is_read ? '<span class="nd-unread-dot"></span>' : ''}
+              </div>
+              <div class="nd-message">${escapeHtml(stripEmojiText(n.message || ""))}</div>
+              <div class="nd-time">${formatNotificationTime(n.created_at)}</div>
+            </div>
+          </div>
+        `).join("")}
       </div>
-    `).join("");
+      ${hasMore ? `<div class="nd-footer">Showing latest ${visible.length} notifications</div>` : ""}
+    `;
   } catch (err) { }
 }
-
 function startNotificationPolling() {
   setInterval(() => loadNotifications(false), 15000);
+}
+
+function applyDashboardChartDefaults() {
+  const ChartLib = window.Chart;
+  if (!ChartLib || applyDashboardChartDefaults._applied) return;
+
+  const chartFont = {
+    family: "'Plus Jakarta Sans', 'Inter', sans-serif",
+    size: 13,
+    weight: "600"
+  };
+
+  ChartLib.defaults.font.family = chartFont.family;
+  ChartLib.defaults.color = "#64748b";
+
+  if (ChartLib.defaults.plugins && ChartLib.defaults.plugins.legend && ChartLib.defaults.plugins.legend.labels) {
+    ChartLib.defaults.plugins.legend.labels.color = "#64748b";
+    ChartLib.defaults.plugins.legend.labels.font = chartFont;
+  }
+
+  applyDashboardChartDefaults._applied = true;
 }
 
 // --- Rest of the layout logic ---
@@ -357,12 +404,6 @@ async function initAppLayout({ pageKey, stepKey, title, subtitle }) {
       dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
     };
 
-    // SECRET TEST: Right-click the bell for a success toast!
-    bellBtn.oncontextmenu = (e) => {
-      e.preventDefault();
-      showToast("Real-time notifications are UP! 🚀🔊", "success");
-    };
-
     window.onclick = () => dropdown.style.display = "none";
     dropdown.onclick = (e) => e.stopPropagation();
   }
@@ -423,8 +464,9 @@ window.initAppLayout = initAppLayout;
 window.showToast = showToast;
 window.appConfirm = appConfirm;
 window.loadPartial = loadPartial;
-window.playNotificationSound = playNotificationSound;
 window.loadNotifications = loadNotifications;
 window.startNotificationPolling = startNotificationPolling;
+window.applyDashboardChartDefaults = applyDashboardChartDefaults;
 
-console.log("✅ CVevo app-layout.js logic initialized and exported.");
+console.log("CVevo app-layout.js logic initialized and exported.");
+

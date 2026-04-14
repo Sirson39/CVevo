@@ -45,7 +45,50 @@
 
     .analytics-row { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; align-items: stretch; }
     .grid-card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; box-shadow: var(--shadow); padding: 22px; }
-    .chart-container { height: 220px; margin-top: 8px; }
+    .chart-header-sub { margin: 6px 0 0; color: var(--muted); font-size: 0.92rem; }
+    .role-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .role-metric {
+      background: #f8fafc;
+      border: 1px solid #eef2f7;
+      border-radius: 14px;
+      padding: 12px 14px;
+    }
+    .role-metric span {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .role-metric strong {
+      display: block;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1;
+    }
+    .role-metric.jobseeker strong { color: #4f46e5; }
+    .role-metric.hr strong { color: #0ea5e9; }
+    .role-metric.admin strong { color: #f43f5e; }
+    .chart-container {
+      height: 270px;
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .chart-container canvas {
+      max-width: 100% !important;
+      max-height: 100% !important;
+    }
     .stats-sidebar { display: grid; gap: 16px; }
     .mini-stat-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 14px 18px; box-shadow: var(--shadow); }
     .mini-stat-card span { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: var(--muted); }
@@ -110,6 +153,8 @@
           <div class="analytics-row">
             <div class="grid-card">
               <h3>Role Distribution</h3>
+              <p class="chart-header-sub">Current user mix across the platform.</p>
+              <div id="roleMetrics" class="role-metrics"></div>
               <div class="chart-container">
                 <canvas id="roleChart"></canvas>
               </div>
@@ -186,6 +231,9 @@
 
     async function loadUsersPage() {
       try {
+        if (typeof window.applyDashboardChartDefaults === "function") {
+          window.applyDashboardChartDefaults();
+        }
         const res = await fetch("/api/admin/users/", {
           credentials: "include"
         });
@@ -198,6 +246,19 @@
             <strong>${item.value}</strong>
           </div>
         `).join("");
+
+        const roleLabels = data.role_chart?.labels || [];
+        const roleValues = data.role_chart?.data || [];
+        document.getElementById("roleMetrics").innerHTML = roleLabels.map((label, index) => {
+          const key = String(label || "").toLowerCase();
+          const className = key.includes("jobseeker") ? "jobseeker" : key.includes("hr") ? "hr" : "admin";
+          return `
+            <div class="role-metric ${className}">
+              <span>${label}</span>
+              <strong>${roleValues[index] || 0}</strong>
+            </div>
+          `;
+        }).join("");
 
         const tbody = document.getElementById("usersTableBody");
         tbody.innerHTML = (data.users || []).map(u => `
@@ -256,13 +317,39 @@
             datasets: [{
               data: data.role_chart?.data || [],
               backgroundColor: ['#4f46e5', '#0ea5e9', '#f43f5e'],
-              borderWidth: 0
+              borderColor: "#ffffff",
+              borderWidth: 4,
+              hoverOffset: 4
             }]
           },
           options: {
             responsive: true,
             maintainAspectRatio: false,
-            cutout: '75%'
+            cutout: '72%',
+            layout: {
+              padding: {
+                top: 4,
+                right: 4,
+                bottom: 0,
+                left: 4
+              }
+            },
+            plugins: {
+              legend: {
+                position: "bottom",
+                labels: {
+                  color: "#64748b",
+                  usePointStyle: true,
+                  pointStyle: "circle",
+                  padding: 16,
+                  font: {
+                    family: "'Plus Jakarta Sans', 'Inter', sans-serif",
+                    size: 12,
+                    weight: "600"
+                  }
+                }
+              }
+            }
           }
         });
 

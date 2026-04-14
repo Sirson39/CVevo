@@ -11,8 +11,8 @@
     <form class="search" id="topbarSearchForm">
       <span class="search-ico">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px;">
-          <circle cx="11" cy="11" r="8"/>
-          <path d="m21 21-4.35-4.35"/>
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.35-4.35" />
         </svg>
       </span>
       <input type="text" id="topbarSearchInput" name="q" placeholder="Search..." />
@@ -22,21 +22,23 @@
       <button class="iconbtn" id="bell-btn" type="button">
         <span class="dot" id="bell-dot" style="display:none;"></span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px; height:18px;">
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/>
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />
         </svg>
       </button>
 
       <div id="notifications-dropdown" class="nd-dropdown">
         <div class="nd-header">
           <span>Notifications</span>
-          <button type="button" class="nd-mark" id="markAllReadBtn" style="background: none; border: none; cursor: pointer;">
+          <button type="button" class="nd-mark" id="markAllReadBtn"
+            style="background: none; border: none; cursor: pointer;">
             Mark all as read
           </button>
         </div>
         <div class="nd-body" id="notificationsBody">
           <div class="nd-empty">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:32px; height:32px; color: #cbd5e1; margin-bottom: 0.5rem;">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              style="width:32px; height:32px; color: #cbd5e1; margin-bottom: 0.5rem;">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />
             </svg>
             <p>No new notifications</p>
           </div>
@@ -49,252 +51,295 @@
       <span class="user-name" id="topbarUserName">User</span>
     </button>
 
-    <div class="topbar-actions" id="topbarGuestActions" style="display:none; gap: 0.5rem; align-items: center; margin-left: 1rem;">
-      <a href="../public/login.html" style="font-size: 13px; color: #64748b; text-decoration: none; font-weight: 500;">Login</a>
-      <a href="../public/register_choose.html" style="font-size: 12px; padding: 6px 12px; background: #10b981; color: white; border-radius: 6px; text-decoration: none; font-weight: 600;">Sign Up</a>
+    <div class="topbar-actions" id="topbarGuestActions"
+      style="display:none; gap: 0.5rem; align-items: center; margin-left: 1rem;">
+      <a href="../public/login.html"
+        style="font-size: 13px; color: #64748b; text-decoration: none; font-weight: 500;">Login</a>
+      <a href="../public/register_choose.html"
+        style="font-size: 12px; padding: 6px 12px; background: #10b981; color: white; border-radius: 6px; text-decoration: none; font-weight: 600;">Sign
+        Up</a>
     </div>
   </div>
 </header>
 
 <style>
-.nd-dropdown {
-  display: none;
-  position: absolute;
-  right: 0;
-  top: calc(100% + 10px);
-  width: 300px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
-  z-index: 1000;
-  overflow: hidden;
-}
+  .nd-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 10px);
+    width: 360px;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 14px 30px -18px rgba(15, 23, 42, 0.28);
+    border: 1px solid #eceff5;
+    z-index: 1000;
+    overflow: hidden;
+  }
 
-.nd-header {
-  padding: 12px 16px;
-  border-bottom: 1px solid #f1f5f9;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: 700;
-  color: #1e293b;
-  font-size: 14px;
-}
+  .nd-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid #edf2f7;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 13px;
+    letter-spacing: 0.2px;
+  }
 
-.nd-mark {
-  font-size: 11px;
-  color: #10b981;
-  text-decoration: none;
-  font-weight: 600;
-}
+  .nd-mark {
+    font-size: 12px;
+    color: #10b981;
+    font-weight: 700;
+    background: transparent;
+    padding: 0;
+  }
 
-.nd-body {
-  max-height: 320px;
-  overflow-y: auto;
-}
+  .nd-body {
+    max-height: 360px;
+    overflow-y: auto;
+  }
 
-.nd-item {
-  padding: 12px 16px;
-  border-bottom: 1px solid #f8fafc;
-  transition: background 0.2s;
-}
+  .nd-list {
+    padding: 0;
+  }
 
-.nd-item:hover { background: #f8fafc; }
-.nd-item.success { border-left: 3px solid #10b981; }
-.nd-item.error { border-left: 3px solid #ef4444; }
-.nd-item.info { border-left: 3px solid #3b82f6; }
+  .nd-item {
+    padding: 16px 18px;
+    border-bottom: 1px solid #eef2f7;
+    display: flex;
+    gap: 12px;
+    transition: background 0.18s ease;
+    background: #fff;
+    border-left: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
 
-.nd-content p {
-  margin: 0;
-  font-size: 13px;
-  color: #334155;
-  line-height: 1.4;
-}
+  .nd-item:hover {
+    background: #fafcff;
+  }
 
-.nd-time {
-  font-size: 11px;
-  color: #94a3b8;
-  margin-top: 4px;
-  display: block;
-}
+  .nd-item.unread {
+    background: #fff;
+  }
 
-.nd-empty {
-  padding: 32px 16px;
-  text-align: center;
-  color: #64748b;
-  font-size: 13px;
-}
+  .nd-item.success {
+    border-left: 0;
+  }
+
+  .nd-item.error {
+    border-left: 0;
+  }
+
+  .nd-item.info {
+    border-left: 0;
+  }
+
+  .nd-item.high {
+    box-shadow: none;
+  }
+
+  .nd-icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    background: transparent;
+    color: #8b5cf6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    margin-top: 2px;
+    flex-shrink: 0;
+    box-shadow: none;
+  }
+
+  .nd-item.success .nd-icon { color: #10b981; }
+  .nd-item.warning .nd-icon { color: #d97706; }
+  .nd-item.error .nd-icon { color: #ef4444; }
+  .nd-item.high .nd-icon { color: #6366f1; }
+
+  .nd-content { flex: 1; min-width: 0; }
+
+  .nd-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .nd-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1.35;
+  }
+
+  .nd-unread-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 999px;
+    background: #3b82f6;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+
+  .nd-message {
+    font-size: 13px;
+    color: #111827;
+    line-height: 1.55;
+  }
+
+  .nd-time {
+    font-size: 11px;
+    color: #94a3b8;
+    display: block;
+    white-space: nowrap;
+    margin-top: 8px;
+  }
+
+  .nd-footer {
+    padding: 10px 16px 12px;
+    text-align: center;
+    font-size: 11px;
+    color: #94a3b8;
+    border-top: 1px solid #edf2f7;
+    background: #fff;
+  }
+
+  .nd-empty {
+    padding: 34px 16px;
+    text-align: center;
+    color: #64748b;
+    font-size: 13px;
+  }
 </style>
 
 <script>
-(function () {
-  function getCurrentUser() {
-    try {
-      return JSON.parse(localStorage.getItem("currentUser") || "null");
-    } catch (err) {
-      return null;
-    }
-  }
-
-  function setTopbarUser() {
-    const user = getCurrentUser();
-
-    const avatar = document.getElementById("topbarAvatar");
-    const name = document.getElementById("topbarUserName");
-    const userBtn = document.getElementById("topbarUserBtn");
-    const guestActions = document.getElementById("topbarGuestActions");
-
-    if (!user) {
-      if (userBtn) userBtn.style.display = "none";
-      if (guestActions) guestActions.style.display = "flex";
-      return;
-    }
-
-    if (userBtn) userBtn.style.display = "inline-flex";
-    if (guestActions) guestActions.style.display = "none";
-
-    let label = user.full_name || user.email || "User";
-    if (user.role === "hr" && user.company) {
-      label = user.company;
-    }
-
-    if (name) name.textContent = label.slice(0, 15);
-    if (avatar) avatar.textContent = label.slice(0, 1).toUpperCase();
-  }
-
-  function setupRoleSearch() {
-    const user = getCurrentUser();
-    const form = document.getElementById("topbarSearchForm");
-    const input = document.getElementById("topbarSearchInput");
-
-    if (!form || !input) return;
-
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      const q = input.value.trim();
-      const target = `../shared/search_results.html?q=${encodeURIComponent(q)}`;
-      window.location.href = target;
-    });
-  }
-
-  function toggleNotifications(event) {
-    if (event) event.stopPropagation();
-    const dropdown = document.getElementById("notifications-dropdown");
-    if (!dropdown) return;
-
-    const isVisible = dropdown.style.display === "block";
-    dropdown.style.display = isVisible ? "none" : "block";
-  }
-
-  function setupNotificationDropdown() {
-    const bellBtn = document.getElementById("bell-btn");
-    const dropdown = document.getElementById("notifications-dropdown");
-
-    if (bellBtn) {
-      bellBtn.addEventListener("click", toggleNotifications);
-    }
-
-    document.addEventListener("click", function (event) {
-      if (!dropdown || !bellBtn) return;
-      if (dropdown.style.display === "block") {
-        if (!dropdown.contains(event.target) && !bellBtn.contains(event.target)) {
-          dropdown.style.display = "none";
-        }
+  (function () {
+    function getCurrentUser() {
+      try {
+        return JSON.parse(localStorage.getItem("currentUser") || "null");
+      } catch (err) {
+        return null;
       }
-    });
-  }
+    }
 
-  async function markAllAsRead(event) {
-    if (event) event.preventDefault();
+    function setTopbarUser() {
+      const user = getCurrentUser();
 
-    try {
-      await fetch("/api/notifications/read/", {
-        method: "POST",
-        credentials: "include"
+      const avatar = document.getElementById("topbarAvatar");
+      const name = document.getElementById("topbarUserName");
+      const userBtn = document.getElementById("topbarUserBtn");
+      const guestActions = document.getElementById("topbarGuestActions");
+
+      if (!user) {
+        if (userBtn) userBtn.style.display = "none";
+        if (guestActions) guestActions.style.display = "flex";
+        return;
+      }
+
+      if (userBtn) userBtn.style.display = "inline-flex";
+      if (guestActions) guestActions.style.display = "none";
+
+      let label = user.full_name || user.email || "User";
+      if (user.role === "hr" && user.company) {
+        label = user.company;
+      }
+
+      if (name) name.textContent = label.slice(0, 15);
+      if (avatar) avatar.textContent = label.slice(0, 1).toUpperCase();
+    }
+
+    function setupRoleSearch() {
+      const user = getCurrentUser();
+      const form = document.getElementById("topbarSearchForm");
+      const input = document.getElementById("topbarSearchInput");
+
+      if (!form || !input) return;
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const q = input.value.trim();
+        const target = `../shared/search_results.html?q=${encodeURIComponent(q)}`;
+        window.location.href = target;
       });
-
-      const dot = document.getElementById("bell-dot");
-      if (dot) dot.style.display = "none";
-
-      document.querySelectorAll(".nd-item.unread").forEach(item => {
-        item.classList.remove("unread");
-      });
-    } catch (err) {
-      console.error(err);
     }
-  }
 
-  function setupMarkAllRead() {
-    const btn = document.getElementById("markAllReadBtn");
-    if (!btn) return;
-    btn.addEventListener("click", markAllAsRead);
-  }
+    async function markAllAsRead(event) {
+      if (event) event.preventDefault();
 
-  window.playNotificationSound = function() {
-    try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      try {
+        await fetch("/api/notifications/read/", {
+          method: "POST",
+          credentials: "include"
+        });
 
-      const osc1 = ctx.createOscillator();
-      const gain1 = ctx.createGain();
-      osc1.type = "sine";
-      osc1.frequency.setValueAtTime(659.25, ctx.currentTime);
-      gain1.gain.setValueAtTime(0, ctx.currentTime);
-      gain1.gain.linearRampToValueAtTime(0.2, ctx.currentTime + 0.05);
-      gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-      osc1.connect(gain1);
-      gain1.connect(ctx.destination);
-      osc1.start(ctx.currentTime);
-      osc1.stop(ctx.currentTime + 0.3);
+        const dot = document.getElementById("bell-dot");
+        if (dot) dot.style.display = "none";
 
-      const osc2 = ctx.createOscillator();
-      const gain2 = ctx.createGain();
-      osc2.type = "sine";
-      osc2.frequency.setValueAtTime(880, ctx.currentTime + 0.1);
-      gain2.gain.setValueAtTime(0, ctx.currentTime + 0.1);
-      gain2.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.15);
-      gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
-      osc2.connect(gain2);
-      gain2.connect(ctx.destination);
-      osc2.start(ctx.currentTime + 0.1);
-      osc2.stop(ctx.currentTime + 0.6);
-    } catch (e) {
-      console.warn("Audio error", e);
+        document.querySelectorAll(".nd-item.unread").forEach(item => {
+          item.classList.remove("unread");
+        });
+      } catch (err) {
+        console.error(err);
+      }
     }
-  };
 
-  function maybePlayLatestNotificationSound() {
-    const bellDot = document.getElementById("bell-dot");
-    if (!bellDot || bellDot.style.display === "none") return;
-
-    const firstItem = document.querySelector(".nd-item.unread");
-    if (!firstItem) return;
-
-    const latestId = firstItem.dataset.id || firstItem.querySelector(".nd-time")?.textContent || "latest";
-    const lastPlayedId = localStorage.getItem("lastPlayedNotifId");
-
-    if (lastPlayedId !== latestId) {
-      window.playNotificationSound();
-      localStorage.setItem("lastPlayedNotifId", latestId);
+    function setupMarkAllRead() {
+      const btn = document.getElementById("markAllReadBtn");
+      if (!btn) return;
+      btn.addEventListener("click", markAllAsRead);
     }
-  }
 
-  function initTopbar() {
-    console.log("[CVevo] Initializing Topbar UI...");
-    setTopbarUser();
-    setupRoleSearch();
-    setupNotificationDropdown();
-    setupMarkAllRead();
+    window.playNotificationSound = function () {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
 
-    setTimeout(() => {
-      maybePlayLatestNotificationSound();
-    }, 800);
-  }
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.type = "sine";
+        osc1.frequency.setValueAtTime(659.25, ctx.currentTime);
+        gain1.gain.setValueAtTime(0, ctx.currentTime);
+        gain1.gain.linearRampToValueAtTime(0.2, ctx.currentTime + 0.05);
+        gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+        osc1.connect(gain1);
+        gain1.connect(ctx.destination);
+        osc1.start(ctx.currentTime);
+        osc1.stop(ctx.currentTime + 0.3);
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initTopbar);
-  } else {
-    initTopbar();
-  }
-})();
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = "sine";
+        osc2.frequency.setValueAtTime(880, ctx.currentTime + 0.1);
+        gain2.gain.setValueAtTime(0, ctx.currentTime + 0.1);
+        gain2.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.15);
+        gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start(ctx.currentTime + 0.1);
+        osc2.stop(ctx.currentTime + 0.6);
+      } catch (e) {
+        console.warn("Audio error", e);
+      }
+    };
+
+    function initTopbar() {
+      console.log("[CVevo] Initializing Topbar UI...");
+      setTopbarUser();
+      setupRoleSearch();
+      setupMarkAllRead();
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initTopbar);
+    } else {
+      initTopbar();
+    }
+  })();
 </script>
