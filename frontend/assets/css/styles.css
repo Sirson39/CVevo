@@ -1,4 +1,4 @@
-/* CVevo Landing - clean SaaS style (matches your screenshots) */
+/* CVevo Landing -  */
 
 :root{
   --bg: #f5f7f8;
@@ -1016,10 +1016,10 @@ header nav a::after{
     margin-top: 8px;
   }
 }
-/* Contact form grid (premium) */
-/* =========================
-   Contact / Support (PRO)
-========================= */
+/*  
+/* 
+   Contact / Support
+*/
 .contact-pro {
   position: relative;
   overflow: hidden;

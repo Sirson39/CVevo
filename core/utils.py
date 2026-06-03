@@ -197,9 +197,9 @@ def calculate_general_score(resume_text, file_size, extension):
                 missing_keywords.append(skill.capitalize())
                 if len(missing_keywords) >= 8: break
     
-    # -------------------------
+    
     # 1. Contact Information (15 pts)
-    # -------------------------
+    
     contact_score = 0
     contact_details = []
     if re.search(r'[\w\.-]+@[\w\.-]+', resume_text):
@@ -226,9 +226,9 @@ def calculate_general_score(resume_text, file_size, extension):
     else:
         contact_details.append("Name might be missing or poorly formatted.")
 
-    # -------------------------
+   
     # 2. Professional Summary (10 pts)
-    # -------------------------
+   
     summary_score = 0
     summary_details = []
     summary_match = re.search(r'(?i)(summary|objective|profile|about)(.*?)(experience|education|skills|$)', text_lower, re.S)
@@ -245,9 +245,9 @@ def calculate_general_score(resume_text, file_size, extension):
         summary_details.append("No clear Summary or Objective section found.")
         recommendations.append("Add a 3-4 sentence professional summary at the top.")
 
-    # -------------------------
+    
     # 3. Section Completeness (20 pts)
-    # -------------------------
+   
     section_score = 0
     section_details = []
     core_sections = ["experience", "education", "skills", "projects"]
@@ -259,9 +259,9 @@ def calculate_general_score(resume_text, file_size, extension):
             section_details.append(f"Missing {s.capitalize()} section.")
             recommendations.append(f"Ensure you have a dedicated '{s.capitalize()}' section.")
 
-    # -------------------------
+    
     # 4. Grammar & Spelling (15 pts)
-    # -------------------------
+   
     grammar_score = 15
     grammar_details = []
     try:
@@ -295,9 +295,9 @@ def calculate_general_score(resume_text, file_size, extension):
         grammar_details.append("High usage of first-person pronouns.")
         recommendations.append("Use action-oriented language instead of first-person pronouns.")
 
-    # -------------------------
+    
     # 5. Formatting & Readability (15 pts)
-    # -------------------------
+    
     formatting_score = 10
     formatting_details = []
     try:
@@ -319,9 +319,9 @@ def calculate_general_score(resume_text, file_size, extension):
         formatting_details.append("Consider using bullet points for better structure.")
         recommendations.append("Use bullet points to break down your responsibilities.")
 
-    # -------------------------
+    
     # 6. Hyperlinks (5 pts)
-    # -------------------------
+   
     hyperlink_score = 0
     hyperlink_details = []
     links = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', resume_text)
@@ -336,9 +336,9 @@ def calculate_general_score(resume_text, file_size, extension):
         hyperlink_details.append("Missing professional links.")
         recommendations.append("Add a LinkedIn profile or portfolio link.")
 
-    # -------------------------
+   
     # 7. File Quality (10 pts)
-    # -------------------------
+   
     file_score = 0
     file_details = []
     if file_size < 3 * 1024 * 1024:
@@ -348,9 +348,9 @@ def calculate_general_score(resume_text, file_size, extension):
         file_score += 5
         file_details.append(f"Format: {extension.upper()}.")
 
-    # -------------------------
+    
     # 8. Content Quality (10 pts)
-    # -------------------------
+    
     content_score = 7
     content_details = []
     word_count = len(resume_text.split())

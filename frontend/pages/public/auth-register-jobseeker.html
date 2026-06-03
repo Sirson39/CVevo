@@ -100,7 +100,7 @@
 
             <button class="btn primary w100" type="submit">Create jobseeker account →</button>
 
-            <div id="formError" class="form-errors" style="display:none; margin-top: 1rem;"></div>
+            <div id="formError" class="form-errors" role="alert" aria-live="polite"></div>
 
             <p class="small center mt">
               Recruiting instead?
@@ -170,15 +170,60 @@
   </main>
 
   <script>
+    function getErrorMessage(data, fallback) {
+      if (!data) return fallback;
+      if (typeof data === "string") return data;
+      if (Array.isArray(data)) return data.filter(Boolean).join(" ");
+      return data.error || data.detail || data.message || data.password || data.non_field_errors || fallback;
+    }
+
+    function renderErrorBox(errorBox, message) {
+      const text = (message || "").toString().trim();
+      const parts = text
+        .split(".")
+        .map(s => s.trim())
+        .filter(Boolean);
+      const lowered = text.toLowerCase();
+      const title = lowered.includes("email already exists")
+        ? "Email already in use"
+        : lowered.includes("valid email")
+          ? "Invalid email"
+        : lowered.includes("password")
+          ? "Password needs attention"
+          : "Registration blocked";
+
+      errorBox.classList.add("is-visible");
+      if (parts.length > 1) {
+        errorBox.innerHTML = `
+          <div class="error-title">${title}</div>
+          <ul>${parts.map(part => `<li>${part}.</li>`).join("")}</ul>
+        `;
+        return;
+      }
+
+      errorBox.innerHTML = `
+        <div class="error-title">${title}</div>
+        <div>${text || "Registration failed."}</div>
+      `;
+    }
+
+    function renderSuccessBox(errorBox, message) {
+      errorBox.classList.add("is-visible", "is-success");
+      errorBox.innerHTML = `
+        <div class="error-title">Registration successful</div>
+        <div>${message}</div>
+      `;
+    }
+
     document.getElementById("registerForm").addEventListener("submit", async function(e) {
       e.preventDefault();
       const form = e.target;
       const errorBox = document.getElementById("formError");
-      errorBox.style.display = "none";
+      errorBox.classList.remove("is-visible", "is-success");
+      errorBox.innerHTML = "";
 
       if (form.password.value !== form.confirm_password.value) {
-        errorBox.style.display = "block";
-        errorBox.innerHTML = "Passwords do not match.";
+        renderErrorBox(errorBox, "Passwords do not match.");
         return;
       }
 
@@ -196,18 +241,20 @@
           body: JSON.stringify(payload)
         });
 
-        const data = await res.json();
+        const raw = await res.text();
+        let data = null;
+        try { data = raw ? JSON.parse(raw) : null; } catch (_) { data = raw; }
         if (!res.ok) {
-          errorBox.style.display = "block";
-          errorBox.innerHTML = data.detail || data.message || "Registration failed.";
+          renderErrorBox(errorBox, getErrorMessage(data, "Registration failed."));
           return;
         }
 
-        alert("Registration successful! Please login.");
-        window.location.href = "login.html";
+        renderSuccessBox(errorBox, "Your account was created successfully. Redirecting to login...");
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 1800);
       } catch (err) {
-        errorBox.style.display = "block";
-        errorBox.innerHTML = "Something went wrong. Please try again.";
+        renderErrorBox(errorBox, "Something went wrong. Please try again.");
       }
     });
   </script>

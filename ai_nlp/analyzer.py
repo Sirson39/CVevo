@@ -11,9 +11,9 @@ except Exception as e:
     sbert_model = None
 
 
-# -----------------------------
+
 # Config / Constants
-# -----------------------------
+
 
 STOP_WORDS = {
     "experience", "team", "work", "skills", "responsibilities",
@@ -42,9 +42,9 @@ CRITICAL_SKILL_HINTS = {
 }
 
 
-# -----------------------------
+
 # Helper Functions
-# -----------------------------
+
 
 def safe_divide(a: float, b: float) -> float:
     return a / b if b else 0.0
@@ -102,9 +102,8 @@ def get_semantic_similarity(text1: str, text2: str) -> float:
         return 0.0
 
 
-# -----------------------------
 # JD Parsing
-# -----------------------------
+
 
 def parse_job_description(jd_text: str) -> Dict:
     """
@@ -170,9 +169,9 @@ def parse_job_description(jd_text: str) -> Dict:
     }
 
 
-# -----------------------------
+
 # Resume Quality Analysis
-# -----------------------------
+
 
 def detect_resume_quality(resume_data: Dict) -> Dict:
     """
@@ -283,9 +282,9 @@ def detect_resume_quality(resume_data: Dict) -> Dict:
     }
 
 
-# -----------------------------
+
 # ATS Score Calculation
-# -----------------------------
+
 
 def calculate_ats_score(resume_data: Dict, jd_text: str = "", jd_fields: Dict = None) -> Dict:
     """

@@ -3,6 +3,9 @@ from django.http import FileResponse
 import json
 from io import BytesIO
 from datetime import datetime, timedelta
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email as django_validate_email
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
@@ -61,6 +64,39 @@ def _notify_hr(user, **kwargs):
     return _notify(user, target_role="hr", **kwargs)
 
 
+def _required_field_response(field_name):
+    pretty_name = field_name.replace('_', ' ').strip().capitalize()
+    return Response({ 'error': f'{pretty_name} is required.' }, status=400)
+
+
+def _valid_email_response(email):
+    if not email:
+        return _required_field_response('email')
+    try:
+        django_validate_email(email)
+    except ValidationError:
+        return Response({'error': 'Please enter a valid email address.'}, status=400)
+    return None
+
+
+def _weak_password_response(password, user=None):
+    if not password:
+        return _required_field_response('password')
+    try:
+        validate_password(password, user=user)
+    except ValidationError as exc:
+        message = ' '.join(exc.messages) if getattr(exc, 'messages', None) else 'Password is weak. Please use another password.'
+        return Response(
+            {
+                'error': message,
+                'detail': message,
+                'message': message,
+            },
+            status=400
+        )
+    return None
+
+
 def _job_to_jd_fields(job):
     if not job:
         return None
@@ -104,15 +140,31 @@ class AuthView(APIView):
                 return Response({'error': 'Invalid credentials'}, status=401)
             
             elif action_type == 'register-jobseeker':
-                email = request.data.get('email')
-                password = request.data.get('password')
-                full_name = request.data.get('full_name')
+                email = (request.data.get('email') or '').strip()
+                password = request.data.get('password') or ''
+                full_name = (request.data.get('full_name') or '').strip()
+                if not full_name:
+                    return _required_field_response('full_name')
+                invalid_email = _valid_email_response(email)
+                if invalid_email:
+                    return invalid_email
+                if not password:
+                    return _required_field_response('password')
                 if User.objects.filter(email=email).exists():
-                    return Response({'error': 'Email already exists'}, status=400)
+                    return Response({'error': 'Email already exists. Please use another email.'}, status=400)
+                weak_password = _weak_password_response(
+                    password,
+                    user=User(email=email, full_name=full_name, role='jobseeker')
+                )
+                if weak_password:
+                    return weak_password
                 user = User.objects.create_user(email=email, password=password, full_name=full_name, role='jobseeker')
-                JobseekerProfile.objects.get_or_create(user=user)
+                JobseekerProfile.objects.get_or_create(
+                    user=user,
+                    defaults={'full_name': full_name, 'email': email}
+                )
                 from django.contrib.auth import login
-                login(request, user)
+                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                 return Response({
                     'status': 'success', 
                     'user': {
@@ -124,17 +176,30 @@ class AuthView(APIView):
                 })
 
             elif action_type == 'register-hr':
-                email = request.data.get('email')
-                password = request.data.get('password')
-                full_name = request.data.get('full_name')
+                email = (request.data.get('email') or '').strip()
+                password = request.data.get('password') or ''
+                full_name = (request.data.get('full_name') or '').strip()
+                if not full_name:
+                    return _required_field_response('full_name')
+                invalid_email = _valid_email_response(email)
+                if invalid_email:
+                    return invalid_email
+                if not password:
+                    return _required_field_response('password')
                 company = request.data.get('company', 'Company')
                 if User.objects.filter(email=email).exists():
-                    return Response({'error': 'Email already exists'}, status=400)
+                    return Response({'error': 'Email already exists. Please use another email.'}, status=400)
                 role_title = request.data.get('role_title') or request.data.get('role') or 'HR Manager'
+                weak_password = _weak_password_response(
+                    password,
+                    user=User(email=email, full_name=full_name, role='hr')
+                )
+                if weak_password:
+                    return weak_password
                 user = User.objects.create_user(email=email, password=password, full_name=full_name, role='hr')
                 HRProfile.objects.get_or_create(user=user, defaults={'full_name': full_name, 'company': company, 'role': role_title})
                 from django.contrib.auth import login
-                login(request, user)
+                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                 return Response({
                     'status': 'success', 
                     'user': {
@@ -351,8 +416,17 @@ class AdminUsersView(APIView):
 
         if not email or not password or not full_name:
             return Response({'error': 'Full name, email, and password are required.'}, status=400)
+        invalid_email = _valid_email_response(email)
+        if invalid_email:
+            return invalid_email
         if User.objects.filter(email=email).exists():
-            return Response({'error': 'Email already exists.'}, status=400)
+            return Response({'error': 'Email already exists. Please use another email.'}, status=400)
+        weak_password = _weak_password_response(
+            password,
+            user=User(email=email, full_name=full_name, role=role)
+        )
+        if weak_password:
+            return weak_password
 
         user = User.objects.create_user(email=email, password=password, full_name=full_name, role=role)
 
@@ -1743,7 +1817,7 @@ class HRBulkUploadView(APIView):
         results = []
         for file in resumes:
             # 1. Save Resume (Transient Jobseeker for bulk upload)
-            # In a real app, we might create a shadow jobseeker or just save the file
+            
             resume = Resume.objects.create(
                 file=file,
                 filename=file.name

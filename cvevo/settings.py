@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 
+import environ
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,13 +22,28 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
+env = environ.Env(
+    DEBUG=(bool, True),
+)
+
+environ.Env.read_env(BASE_DIR / ".env")
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-6kdddu)&t+mq8o$q5c40zgwxeo&$974n0jma4@8i*gjf1@7-4-'
+SECRET_KEY = env(
+    "SECRET_KEY",
+    default="django-insecure-6kdddu)&t+mq8o$q5c40zgwxeo&$974n0jma4@8i*gjf1@7-4-",
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool("DEBUG", default=True)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
+
+render_host = os.getenv("RENDER_EXTERNAL_HOSTNAME", "").strip()
+if render_host:
+    ALLOWED_HOSTS.append(render_host)
+
+ALLOWED_HOSTS = list(dict.fromkeys(ALLOWED_HOSTS))
 
 
 # Application definition
@@ -56,7 +73,7 @@ JAZZMIN_SETTINGS = {
     "site_title": "CVevo Admin",
     "site_header": " ",
     "site_brand": " ",
-    "site_logo": "cvevo/img/admin_logo.svg",
+    "site_logo": "img/admin_logo.svg",
     "login_logo": None,
     "login_logo_dark": None,
     "site_logo_classes": "img-circle",
@@ -84,7 +101,7 @@ JAZZMIN_SETTINGS = {
     "default_icon_parents": "fas fa-folder",
     "default_icon_children": "fas fa-caret-right",
     "related_modal_active": True,
-    "custom_css": "admin/css/custom_admin.css",
+    "custom_css": "css/custom_admin.css",
     "custom_js": None,
     "show_sidebar": True,
     "navigation_expanded": True,
@@ -173,6 +190,7 @@ SOCIALACCOUNT_LOGIN_ON_GET = True
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -205,16 +223,23 @@ WSGI_APPLICATION = 'cvevo.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "cvevo_db",
-        "USER": "cvevo_user",
-        "PASSWORD": "sirson",
-        "HOST": "127.0.0.1",
-        "PORT": "5432",
+database_url = os.getenv("DATABASE_URL", "").strip()
+
+if database_url:
+    DATABASES = {
+        "default": env.db("DATABASE_URL"),
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": "cvevo_db",
+            "USER": "cvevo_user",
+            "PASSWORD": "sirson",
+            "HOST": "127.0.0.1",
+            "PORT": "5432",
+        }
+    }
 
 
 
@@ -252,10 +277,20 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
-    BASE_DIR / "cvevo" / "static",
+    BASE_DIR / "frontend" / "assets",
 ]
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 
 # Media files (Uploads)
@@ -275,7 +310,21 @@ REST_FRAMEWORK = {
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
-CSRF_TRUSTED_ORIGINS = [
-    "http://127.0.0.1",
-    "http://localhost",
-]
+CSRF_TRUSTED_ORIGINS = env.list(
+    "CSRF_TRUSTED_ORIGINS",
+    default=["http://127.0.0.1", "http://localhost"],
+)
+
+if render_host:
+    CSRF_TRUSTED_ORIGINS.append(f"https://{render_host}")
+
+CSRF_TRUSTED_ORIGINS = list(dict.fromkeys(CSRF_TRUSTED_ORIGINS))
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
