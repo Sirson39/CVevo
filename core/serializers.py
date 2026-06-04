@@ -171,6 +171,57 @@ class ATSResultSerializer(serializers.ModelSerializer):
         keywords = obj.matched_keywords.replace(';', ',').split(',')
         return [k.strip() for k in keywords if k.strip()]
 
+    def _fallback_breakdown(self, obj):
+        """
+        Rebuild a breakdown for older ATS results that were saved before
+        score_breakdown was populated consistently.
+        """
+        try:
+            from .utils import calculate_ats_score, extract_text_from_pdf, extract_text_from_docx
+        except Exception:
+            return {}
+
+        resume = getattr(obj, "resume", None)
+        job_post = getattr(obj, "job_post", None)
+        if not resume:
+            return {}
+
+        parsed_data = getattr(resume, "parsed_data", None)
+        text = getattr(parsed_data, "extracted_text", "") if parsed_data else ""
+
+        if not text:
+            try:
+                ext = (resume.filename or "").split(".")[-1].lower()
+                file_path = resume.file.path
+                text = extract_text_from_pdf(file_path) if ext == "pdf" else extract_text_from_docx(file_path)
+            except Exception:
+                text = ""
+
+        if not text:
+            return {}
+
+        jd_fields = None
+        jd_text = ""
+        if job_post:
+            jd_fields = {
+                "title": job_post.title or "",
+                "description": job_post.description or "",
+                "required_skills": job_post.required_skills or "",
+                "experience_requirements": job_post.experience_requirements or "",
+                "education_requirements": job_post.education_requirements or "",
+                "tools_and_technologies": job_post.tools_and_technologies or "",
+                "requirements": job_post.requirements or "",
+            }
+            jd_text = job_post.requirements or job_post.description or ""
+
+        analysis = calculate_ats_score(text, jd_text, jd_fields=jd_fields)
+        return {
+            "pillars": analysis.get("pillars", {}),
+            "suggestions": analysis.get("suggestions", []),
+            "strengths": analysis.get("strengths", []),
+            "recommendations": analysis.get("weaknesses", []),
+        }
+
     def get_missing_list(self, obj):
         if not obj.missing_keywords: return []
         keywords = obj.missing_keywords.replace(';', ',').split(',')
@@ -188,9 +239,16 @@ class ATSResultSerializer(serializers.ModelSerializer):
         try:
             import json
             data = json.loads(obj.score_breakdown)
-            return data.get('pillars', data) # Fallback to entire object if no pillars key
+            pillars = data.get('pillars', data) # Fallback to entire object if no pillars key
+            if pillars:
+                return pillars
         except:
-            return {}
+            pass
+
+        fallback = self._fallback_breakdown(obj)
+        if fallback.get("pillars"):
+            return fallback["pillars"]
+        return {}
 
     def get_strengths(self, obj):
         try:
@@ -198,7 +256,8 @@ class ATSResultSerializer(serializers.ModelSerializer):
             data = json.loads(obj.score_breakdown)
             return data.get('strengths', [])
         except:
-            return []
+            fallback = self._fallback_breakdown(obj)
+            return fallback.get("strengths", [])
 
     def get_recommendations(self, obj):
         try:
@@ -206,7 +265,8 @@ class ATSResultSerializer(serializers.ModelSerializer):
             data = json.loads(obj.score_breakdown)
             return data.get('recommendations', [])
         except:
-            return []
+            fallback = self._fallback_breakdown(obj)
+            return fallback.get("recommendations", [])
 
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
