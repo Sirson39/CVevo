@@ -2197,7 +2197,6 @@ def _jobseeker_dashboard_get(self, request):
         return Response(payload)
 
     profile, _ = JobseekerProfile.objects.get_or_create(user=request.user)
-
     profile_counts = (
         JobseekerProfile.objects.filter(pk=profile.pk)
         .annotate(
@@ -2205,17 +2204,8 @@ def _jobseeker_dashboard_get(self, request):
             experience_count=Count("experiences", distinct=True),
             skill_count=Count("skills", distinct=True),
             project_count=Count("projects", distinct=True),
-            certificate_count=Count("certificates", distinct=True),
-            reference_count=Count("references", distinct=True),
         )
-        .values(
-            "education_count",
-            "experience_count",
-            "skill_count",
-            "project_count",
-            "certificate_count",
-            "reference_count",
-        )
+        .values("education_count", "experience_count", "skill_count", "project_count")
         .first()
         or {}
     )
@@ -2223,22 +2213,20 @@ def _jobseeker_dashboard_get(self, request):
     latest_score_subquery = ATSResult.objects.filter(resume=OuterRef("pk")).order_by(
         "-analyzed_at", "-pk"
     )
-    resumes = list(
+    resumes_qs = (
         Resume.objects.filter(jobseeker=profile)
         .annotate(
             latest_score=Subquery(latest_score_subquery.values("score")[:1]),
-            latest_status=Subquery(latest_score_subquery.values("status")[:1]),
-            latest_job_title=Subquery(latest_score_subquery.values("job_post__title")[:1]),
             latest_analyzed_at=Subquery(latest_score_subquery.values("analyzed_at")[:1]),
         )
         .order_by("-uploaded_at")
     )
 
-    resume_ids = [resume.pk for resume in resumes]
+    resumes = list(resumes_qs[:5])
+    resume_count = resumes_qs.count()
+
     avg_score = (
-        ATSResult.objects.filter(resume__in=resume_ids).aggregate(avg=Avg("score"))["avg"]
-        if resume_ids
-        else 0
+        ATSResult.objects.filter(resume__jobseeker=profile).aggregate(avg=Avg("score"))["avg"]
     ) or 0
 
     start_of_month = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
@@ -2250,45 +2238,41 @@ def _jobseeker_dashboard_get(self, request):
     strength_score = min(
         100,
         (
-            (profile_counts.get("education_count") or 0) * 8
-            + (profile_counts.get("experience_count") or 0) * 10
-            + (profile_counts.get("skill_count") or 0) * 4
-            + (profile_counts.get("project_count") or 0) * 7
-            + (profile_counts.get("certificate_count") or 0) * 6
-            + (profile_counts.get("reference_count") or 0) * 5
+            (profile_counts.get("education_count") or 0) * 25
+            + (profile_counts.get("experience_count") or 0) * 25
+            + (profile_counts.get("skill_count") or 0) * 25
+            + (profile_counts.get("project_count") or 0) * 25
         ),
     )
 
-    recent_scans = list(
-        ATSResult.objects.filter(resume__jobseeker=profile)
-        .select_related("resume", "job_post")
-        .order_by("-analyzed_at")[:5]
-    )
+    if strength_score >= 75:
+        strength_label = "Advanced"
+    elif strength_score >= 50:
+        strength_label = "Improving"
+    elif strength_score >= 25:
+        strength_label = "Started"
+    else:
+        strength_label = "Low"
+
+    recent_resumes_data = []
+    for resume in resumes:
+        recent_resumes_data.append({
+            "id": resume.pk,
+            "filename": getattr(resume, "filename", "") or getattr(getattr(resume, "file", None), "name", ""),
+            "uploaded_at": resume.uploaded_at.strftime("%b %d, %Y") if getattr(resume, "uploaded_at", None) else "",
+            "latest_score": getattr(resume, "latest_score", None),
+            "file": getattr(getattr(resume, "file", None), "url", ""),
+        })
 
     payload = {
-        "profile": {
-            "id": profile.pk,
-            "name": _safe_name(request.user),
-        },
-        "stats": {
-            "average_score": round(float(avg_score or 0), 2),
-            "total_scans_month": total_scans_month,
-            "strength_score": strength_score,
-            "resumes_count": len(resumes),
-        },
-        "profile_counts": profile_counts,
-        "recent_resumes": [_serialize_resume_row(r) for r in resumes[:5]],
-        "recent_scans": [
-            {
-                "id": scan.pk,
-                "score": getattr(scan, "score", None),
-                "status": getattr(scan, "status", ""),
-                "analyzed_at": getattr(scan, "analyzed_at", None),
-                "resume_name": _safe_name(getattr(scan, "resume", scan)),
-                "job_title": _safe_name(getattr(scan, "job_post", scan)),
-            }
-            for scan in recent_scans
-        ],
+        "full_name": getattr(profile.user, "full_name", "") or _safe_name(request.user),
+        "email": profile.user.email,
+        "avg_score": round(float(avg_score or 0), 1),
+        "total_scans_month": total_scans_month,
+        "strength_score": strength_score,
+        "strength_label": strength_label,
+        "resume_count": resume_count,
+        "resumes": recent_resumes_data,
     }
 
     cache.set(cache_key, payload, 20)
