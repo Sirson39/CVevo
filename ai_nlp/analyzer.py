@@ -468,16 +468,6 @@ def calculate_ats_score(resume_data: Dict, jd_text: str = "", jd_fields: Dict = 
             f"You are missing critical skills like {', '.join(missing_critical_skills[:5])}."
         )
 
-    if not resume_sections.get("projects"):
-        feedback_parts.append(
-            "Adding a projects section could improve your relevance for technical roles."
-        )
-
-    if quality_result["issues"]:
-        feedback_parts.append(
-            "Key quality issues include: " + "; ".join(quality_result["issues"][:3])
-        )
-
     if not feedback_parts:
         feedback_parts.append("Your resume is reasonably aligned with the job description.")
 

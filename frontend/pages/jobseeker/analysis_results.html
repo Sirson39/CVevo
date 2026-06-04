@@ -604,22 +604,6 @@
             <div class="muted" style="font-size: 12px; margin-bottom: 1rem;">
               This ATS score combines keyword overlap with experience relevance, semantic similarity, resume completeness, and resume quality.
             </div>
-            ${item.suggestions && item.suggestions.length > 0 ? `
-              <div class="suggestions-list">
-                ${item.suggestions.map(s => `
-                  <div class="suggestion-item">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" style="margin-top:2px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                    <span>${s}</span>
-                  </div>
-                `).join('')}
-              </div>
-            ` : ''}
-            ${pillars.length > 0 ? `
-              <div class="section-title" style="margin-top: 1.25rem;">Score Breakdown</div>
-              <div class="pillars-grid">
-                ${pillars.map(([key, val]) => renderPillarCard(key, val)).join('')}
-              </div>
-            ` : ''}
           ` : `
             <div class="quality-summary-grid">
               <div class="quality-card strengths">
@@ -770,7 +754,6 @@
 </body>
 
 </html>
-
 
 
 
