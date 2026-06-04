@@ -380,10 +380,15 @@ function appConfirm(arg1, arg2, iconType = "warning", confirmText = "Confirm", c
 }
 
 async function initAppLayout({ pageKey, stepKey, title, subtitle }) {
-  if (!(await protectPage())) return;
+  // Let the chrome render while auth verification is still in flight.
+  const protectPromise = protectPage();
 
-  await loadPartial("#sidebarMount", "../../partials/sidebar.html");
-  await loadPartial("#topbarMount", "../../partials/topbar.html");
+  await Promise.all([
+    loadPartial("#sidebarMount", "../../partials/sidebar.html"),
+    loadPartial("#topbarMount", "../../partials/topbar.html")
+  ]);
+
+  if (!(await protectPromise)) return;
 
   configureSidebarByRole();
   setActiveSidebar(pageKey);
