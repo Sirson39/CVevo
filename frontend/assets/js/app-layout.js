@@ -419,7 +419,30 @@ function configureSidebarByRole() {
 }
 
 async function protectPage() {
-  // Always verify/sync user with backend on page load to prevent stale localStorage (e.g. after Google Login)
+  const cachedUser = getCurrentUser();
+
+  // If we already have a cached user, render immediately and refresh the cache in the background.
+  // This keeps the dashboard shell responsive on slower Render instances.
+  if (cachedUser) {
+    fetch("/api/users/me/", { credentials: "include" })
+      .then(async (res) => {
+        if (!res.ok) {
+          if (res.status === 401 || res.status === 403) {
+            localStorage.removeItem("currentUser");
+            window.location.replace("../public/login.html");
+          }
+          return;
+        }
+        const user = await res.json();
+        localStorage.setItem("currentUser", JSON.stringify(user));
+        configureSidebarByRole();
+        setUserUI();
+      })
+      .catch(() => {});
+    return true;
+  }
+
+  // Always verify/sync user with backend on page load when local state is missing.
   try {
     const res = await fetch("/api/users/me/", { credentials: "include" });
     if (res.ok) {
@@ -574,10 +597,16 @@ async function initAppLayout({ pageKey, stepKey, title, subtitle }) {
     };
   }
 
-  setTimeout(() => {
+  const startNotifications = () => {
     loadNotifications(true);
     startNotificationPolling();
-  }, 0);
+  };
+
+  if ("requestIdleCallback" in window) {
+    window.requestIdleCallback(startNotifications, { timeout: 1500 });
+  } else {
+    setTimeout(startNotifications, 300);
+  }
 
   window.addEventListener("pageshow", (event) => {
     if (event.persisted) {
