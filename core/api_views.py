@@ -8,7 +8,6 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email as django_validate_email
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from django.db import transaction
 
 from rest_framework import viewsets, permissions, status, authentication
 from rest_framework.views import APIView
@@ -16,9 +15,6 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import action
-from django.core.cache import cache
-from django.db.models import Avg, Count, Max, Min, Q, OuterRef, Subquery
-from django.db.models.functions import TruncMonth
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
     def enforce_csrf(self, request):
@@ -46,11 +42,6 @@ import docx
 
 NOTIF_SOUND_PRIORITY = {"high"}
 NOTIF_VISIBLE_LIMIT = 5
-DASHBOARD_CACHE_TTL = 15
-
-
-def _hr_cache_key(prefix, user, extra=""):
-    return f"{prefix}:{getattr(user, 'pk', 'anon')}:{extra}"
 
 def _notify(user, *, title, message, icon="info", notif_type="info", priority="medium", category="general", target_role=None, action_url="", metadata=None):
     return Notification.push(
@@ -268,90 +259,50 @@ class AdminDashboardView(APIView):
         return bool(user and user.is_authenticated and (user.role == 'admin' or user.is_staff or user.is_superuser))
 
     def get(self, request):
+        from django.db.models import Avg, Max, Min, Count
         from django.utils import timezone
         from django.utils.timesince import timesince
 
         if not self._is_admin(request.user):
             return Response({'error': 'Admin access only.'}, status=403)
 
-        cache_key = f"admin_dashboard:{request.user.pk}"
-        cached = cache.get(cache_key)
-        if cached is not None:
-            return Response(cached)
-
         now = timezone.localtime(timezone.now())
-        thirty_days_ago = now - timedelta(days=30)
-        six_months_ago = now - timedelta(days=180)
-
-        user_stats = User.objects.aggregate(
-            total_users=Count('id'),
-            jobseekers=Count('id', filter=Q(role='jobseeker')),
-            hr=Count('id', filter=Q(role='hr')),
-            admins=Count('id', filter=Q(role='admin')),
-            new_users_30d=Count('id', filter=Q(date_joined__gte=thirty_days_ago)),
-        )
-        resume_total = Resume.objects.count()
-        job_stats = JobPost.objects.aggregate(
-            active_jobs=Count('id', filter=Q(status='Open')),
-            total_jobs=Count('id'),
-        )
-        scan_stats = ATSResult.objects.aggregate(
-            total_scans=Count('id'),
-            scans_30d=Count('id', filter=Q(analyzed_at__gte=thirty_days_ago)),
-            avg_score=Avg('score'),
-            max_score=Max('score'),
-            min_score=Min('score'),
-            below_50=Count('id', filter=Q(score__lt=50)),
-            between_50_79=Count('id', filter=Q(score__gte=50, score__lt=80)),
-            above_80=Count('id', filter=Q(score__gte=80)),
-        )
+        total_users = User.objects.count()
+        jobseekers = User.objects.filter(role='jobseeker').count()
+        hr_users = User.objects.filter(role='hr').count()
+        admin_users = User.objects.filter(role='admin').count()
+        total_resumes = Resume.objects.count()
+        total_scans = ATSResult.objects.count()
+        active_jobs = JobPost.objects.filter(status='Open').count()
+        total_jobs = JobPost.objects.count()
+        new_users_30d = User.objects.filter(date_joined__gte=now - timedelta(days=30)).count()
+        scans_30d = ATSResult.objects.filter(analyzed_at__gte=now - timedelta(days=30)).count()
         pending_support = SupportRequest.objects.filter(is_resolved=False).count() + ContactMessage.objects.filter(is_resolved=False).count()
 
-        avg_score = round(scan_stats['avg_score'] or 0, 1)
-        max_score = round(scan_stats['max_score'] or 0, 1)
-        min_score = round(scan_stats['min_score'] or 0, 1)
+        avg_score_data = ATSResult.objects.aggregate(avg=Avg('score'), max_score=Max('score'), min_score=Min('score'))
+        avg_score = round(avg_score_data['avg'] or 0, 1)
+        max_score = round(avg_score_data['max_score'] or 0, 1)
+        min_score = round(avg_score_data['min_score'] or 0, 1)
+
+        score_buckets = {
+            'Below 50': ATSResult.objects.filter(score__lt=50).count(),
+            '50 - 79': ATSResult.objects.filter(score__gte=50, score__lt=80).count(),
+            '80+': ATSResult.objects.filter(score__gte=80).count(),
+        }
 
         growth_labels = []
-        month_starts = []
+        growth_jobseekers = []
+        growth_hr = []
+        growth_scans = []
         for offset in range(5, -1, -1):
             total_months = now.year * 12 + now.month - 1 - offset
             year = total_months // 12
             month = total_months % 12 + 1
-            month_start = datetime(year, month, 1)
-            month_starts.append(month_start)
-            growth_labels.append(month_start.strftime('%b %Y'))
-
-        user_growth_rows = User.objects.filter(date_joined__gte=six_months_ago).annotate(
-            month=TruncMonth('date_joined')
-        ).values('month').annotate(
-            jobseekers=Count('id', filter=Q(role='jobseeker')),
-            hr=Count('id', filter=Q(role='hr')),
-        ).order_by('month')
-        scan_growth_rows = ATSResult.objects.filter(analyzed_at__gte=six_months_ago).annotate(
-            month=TruncMonth('analyzed_at')
-        ).values('month').annotate(scans=Count('id')).order_by('month')
-
-        user_growth_map = {
-            row['month'].date().replace(day=1): row
-            for row in user_growth_rows
-            if row.get('month')
-        }
-        scan_growth_map = {
-            row['month'].date().replace(day=1): row
-            for row in scan_growth_rows
-            if row.get('month')
-        }
-
-        growth_jobseekers = []
-        growth_hr = []
-        growth_scans = []
-        for month_start in month_starts:
-            key = month_start.date()
-            user_row = user_growth_map.get(key, {})
-            scan_row = scan_growth_map.get(key, {})
-            growth_jobseekers.append(user_row.get('jobseekers', 0) or 0)
-            growth_hr.append(user_row.get('hr', 0) or 0)
-            growth_scans.append(scan_row.get('scans', 0) or 0)
+            label = datetime(year, month, 1).strftime('%b %Y')
+            growth_labels.append(label)
+            growth_jobseekers.append(User.objects.filter(role='jobseeker', date_joined__year=year, date_joined__month=month).count())
+            growth_hr.append(User.objects.filter(role='hr', date_joined__year=year, date_joined__month=month).count())
+            growth_scans.append(ATSResult.objects.filter(analyzed_at__year=year, analyzed_at__month=month).count())
 
         recent_scans = []
         for result in ATSResult.objects.select_related('resume', 'job_post', 'resume__jobseeker').order_by('-analyzed_at')[:6]:
@@ -366,33 +317,25 @@ class AdminDashboardView(APIView):
             })
 
         jobs = []
-        for job in JobPost.objects.select_related('hr').annotate(
-            num_applicants=Count('ats_results', distinct=True)
-        ).order_by('-created_at')[:5]:
+        for job in JobPost.objects.select_related('hr').order_by('-created_at')[:5]:
             jobs.append({
                 'title': job.title,
                 'company': job.hr.company if job.hr else '',
-                'num_applicants': job.num_applicants or 0,
+                'num_applicants': ATSResult.objects.filter(job_post=job).count(),
             })
 
-        score_buckets = {
-            'Below 50': scan_stats['below_50'] or 0,
-            '50 - 79': scan_stats['between_50_79'] or 0,
-            '80+': scan_stats['above_80'] or 0,
-        }
-
-        payload = {
+        return Response({
             'stats': {
-                'total_users': user_stats['total_users'] or 0,
-                'new_users_30d': user_stats['new_users_30d'] or 0,
-                'jobseekers': user_stats['jobseekers'] or 0,
-                'hr': user_stats['hr'] or 0,
-                'admins': user_stats['admins'] or 0,
-                'total_resumes': resume_total,
-                'total_scans': scan_stats['total_scans'] or 0,
-                'scans_30d': scan_stats['scans_30d'] or 0,
-                'active_jobs': job_stats['active_jobs'] or 0,
-                'total_jobs': job_stats['total_jobs'] or 0,
+                'total_users': total_users,
+                'new_users_30d': new_users_30d,
+                'jobseekers': jobseekers,
+                'hr': hr_users,
+                'admins': admin_users,
+                'total_resumes': total_resumes,
+                'total_scans': total_scans,
+                'scans_30d': scans_30d,
+                'active_jobs': active_jobs,
+                'total_jobs': total_jobs,
                 'pending_support': pending_support,
                 'avg_score': avg_score,
                 'max_score': max_score,
@@ -410,10 +353,7 @@ class AdminDashboardView(APIView):
             },
             'recent_scans': recent_scans,
             'jobs': jobs,
-        }
-
-        cache.set(cache_key, payload, DASHBOARD_CACHE_TTL)
-        return Response(payload)
+        })
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -1095,29 +1035,20 @@ class JobPostViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if hasattr(user, 'hr_profile'):
-            return (
-                JobPost.objects.filter(hr=user.hr_profile)
-                .select_related('hr')
-                .annotate(
-                    candidate_count=Count('ats_results', distinct=True),
-                    top_score=Max('ats_results__score'),
-                )
-                .order_by('-created_at')
-            )
+            return JobPost.objects.filter(hr=user.hr_profile).order_by('-created_at')
         # Jobseekers can see all open jobs
-        return JobPost.objects.filter(status='Open').select_related('hr').order_by('-created_at')
+        return JobPost.objects.filter(status='Open').order_by('-created_at')
 
     def list(self, request, *args, **kwargs):
-        cache_key = _hr_cache_key("hr_jobs", request.user, "manage")
-        cached = cache.get(cache_key)
-        if cached is not None:
-            return Response(cached)
-
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
-        payload = {'jobs': serializer.data}
-        cache.set(cache_key, payload, 20)
-        return Response(payload)
+        return Response({'jobs': serializer.data})
+
+        if hasattr(self.request.user, 'hr_profile'):
+            serializer.save(hr=self.request.user.hr_profile)
+            Notification.push(self.request.user, f"Job Post '{serializer.validated_data.get('title')}' is now live.", icon="job", notif_type="success")
+        else:
+            raise serializer.ValidationError({"error": "Only HR users can post jobs."})
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -1128,9 +1059,6 @@ class JobPostViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Only HR users can post jobs.'}, status=403)
 
         job = serializer.save(hr=request.user.hr_profile)
-        cache.delete(_hr_cache_key("hr_jobs", request.user, "manage"))
-        cache.delete(_hr_cache_key("hr_dashboard", request.user))
-        cache.delete(_hr_cache_key("hr_ranking", request.user))
         _notify_hr(
             request.user,
             title='Job post created',
@@ -1148,9 +1076,6 @@ class JobPostViewSet(viewsets.ModelViewSet):
         old_status = instance.status
         response = super().update(request, *args, **kwargs)
         updated_job = self.get_object()
-        cache.delete(_hr_cache_key("hr_jobs", request.user, "manage"))
-        cache.delete(_hr_cache_key("hr_dashboard", request.user))
-        cache.delete(_hr_cache_key("hr_ranking", request.user))
         title = 'Job post updated'
         message = f"'{updated_job.title}' was updated."
         notif_type = 'info'
@@ -1179,9 +1104,6 @@ class JobPostViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         title = instance.title
         response = super().destroy(request, *args, **kwargs)
-        cache.delete(_hr_cache_key("hr_jobs", request.user, "manage"))
-        cache.delete(_hr_cache_key("hr_dashboard", request.user))
-        cache.delete(_hr_cache_key("hr_ranking", request.user))
         _notify_hr(
             request.user,
             title='Job post closed',
@@ -1213,7 +1135,7 @@ class ResumeViewSet(viewsets.ModelViewSet):
         try:
             file_path = resume.file.path
             ext = file_path.split('.')[-1].lower()
-            text = extract_text_from_pdf(file_path) if ext == "pdf" else extract_text_from_docx(file_path)
+            text = extract_text_from_pdf(file_path) if ext == 'pdf' else extract_text_from_docx(file_path)
             if text:
                 parsed = parse_resume_text(text)
                 ParsedResumeData.objects.create(resume=resume, extracted_text=text, **parsed)
@@ -1853,7 +1775,6 @@ class HRUpdateStatusView(APIView):
             old_status = result.status
             result.status = new_status
             result.save()
-            cache.delete(_hr_cache_key("hr_detail", request.user, str(result_id or "")))
             candidate_user = result.resume.jobseeker.user if result.resume.jobseeker else None
             if candidate_user and old_status != new_status:
                 _notify_jobseeker(
@@ -1896,7 +1817,7 @@ class HRBulkUploadView(APIView):
         results = []
         for file in resumes:
             # 1. Save Resume (Transient Jobseeker for bulk upload)
-            
+            # In a real app, we might create a shadow jobseeker or just save the file
             resume = Resume.objects.create(
                 file=file,
                 filename=file.name
@@ -1949,9 +1870,6 @@ class HRBulkUploadView(APIView):
             category='resume',
             action_url=f"/pages/hr/hr_candidate_ranking.html?job_id={job.id}",
         )
-        cache.delete(_hr_cache_key("hr_dashboard", request.user))
-        cache.delete(_hr_cache_key("hr_jobs", request.user, "manage"))
-        cache.delete(_hr_cache_key("hr_ranking", request.user, f"{job_id}:"))
 
         return Response({
             'status': 'success', 
@@ -1974,22 +1892,10 @@ class HRCandidateRankingView(APIView):
             return Response({'error': 'Unauthorized'}, status=403)
             
         hr = request.user.hr_profile
-        job_posts = (
-            JobPost.objects.filter(hr=hr)
-            .select_related("hr")
-            .annotate(
-                candidate_count=Count("ats_results", distinct=True),
-                top_score=Max("ats_results__score"),
-            )
-            .order_by("-created_at")
-        )
+        job_posts = JobPost.objects.filter(hr=hr)
         
         job_id = request.query_params.get('job_id')
         min_score = request.query_params.get('min_score')
-        cache_key = _hr_cache_key("hr_ranking", request.user, f"{job_id or 'all'}:{min_score or ''}")
-        cached = cache.get(cache_key)
-        if cached is not None:
-            return Response(cached)
         
         data = {
             'job_posts': JobPostSerializer(job_posts, many=True).data,
@@ -2004,7 +1910,7 @@ class HRCandidateRankingView(APIView):
             data['selected_job']['required_skills'] = job.required_skills.split(',') if job.required_skills else []
             data['selected_job']['requirements_keywords'] = job.requirements.split(',') if job.requirements else []
             
-            results = ATSResult.objects.filter(job_post=job).select_related("resume__jobseeker", "job_post")
+            results = ATSResult.objects.filter(job_post=job)
             if min_score:
                 results = results.filter(score__gte=min_score)
             
@@ -2020,7 +1926,17 @@ class HRCandidateRankingView(APIView):
                     'score': r.score
                 })
             data['results'] = res_data
-        cache.set(cache_key, data, 20)
+            _notify_hr(
+                request.user,
+                title='Candidate ranking generated',
+                message=f"Ranking is ready for '{job.title}'.",
+                icon='rank',
+                notif_type='info',
+                priority='high',
+                category='ranking',
+                action_url=f"/pages/hr/hr_candidate_ranking.html?job_id={job.id}",
+            )
+            
         return Response(data)
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -2030,16 +1946,9 @@ class HRCandidateDetailView(APIView):
 
     def get(self, request):
         result_id = request.query_params.get('result_id')
-        cache_key = _hr_cache_key("hr_detail", request.user, str(result_id or ""))
-        cached = cache.get(cache_key)
-        if cached is not None:
-            return Response(cached)
-        result = get_object_or_404(
-            ATSResult.objects.select_related("resume__jobseeker", "job_post__hr"),
-            id=result_id,
-            job_post__hr=request.user.hr_profile
-        )
-        payload = {
+        result = get_object_or_404(ATSResult, id=result_id, job_post__hr=request.user.hr_profile)
+        
+        return Response({
             'result': {
                 'id': result.id,
                 'status': result.status,
@@ -2060,398 +1969,9 @@ class HRCandidateDetailView(APIView):
                     'requirements': result.job_post.requirements
                 }
             }
-        }
-        cache.set(cache_key, payload, 60)
-        return Response(payload)
-"""
-Fast dashboard overrides.
-
-These are appended at the end of the module so they can replace the existing
-dashboard `get()` handlers without having to rewrite the whole file. The goal is
-to reduce slow per-item queries and short-cache the payloads.
-"""
-
-from django.core.cache import cache
-from django.db.models import Avg, Count, Max, OuterRef, Q, Subquery
-from django.db.models.functions import TruncMonth
-from django.utils import timezone
-
-
-def _safe_name(obj):
-    return (
-        getattr(obj, "full_name", None)
-        or getattr(obj, "name", None)
-        or f"{getattr(obj, 'first_name', '')} {getattr(obj, 'last_name', '')}".strip()
-        or getattr(obj, "email", "")
-        or getattr(obj, "title", "")
-        or getattr(obj, "job_title", "")
-        or getattr(obj, "file_name", "")
-        or getattr(obj, "filename", "")
-        or str(getattr(obj, "pk", ""))
-    )
-
-
-def _serialize_resume_row(resume):
-    return {
-        "id": resume.pk,
-        "title": _safe_name(resume),
-        "uploaded_at": getattr(resume, "uploaded_at", None),
-        "file_name": getattr(getattr(resume, "file", None), "name", "") or getattr(resume, "filename", ""),
-        "score": getattr(resume, "computed_latest_score", getattr(resume, "latest_score", None)),
-        "latest_score": getattr(resume, "computed_latest_score", getattr(resume, "latest_score", None)),
-        "status": getattr(resume, "latest_status", None),
-        "job_title": getattr(resume, "latest_job_title", None),
-        "analyzed_at": getattr(resume, "computed_latest_analyzed_at", getattr(resume, "latest_analyzed_at", None)),
-    }
-
-
-def _serialize_job_row(job):
-    return {
-        "id": job.pk,
-        "title": _safe_name(job),
-        "status": getattr(job, "status", ""),
-        "created_at": getattr(job, "created_at", None),
-        "candidate_count": getattr(job, "candidate_count", 0),
-        "max_score": getattr(job, "max_score", 0),
-    }
-
-
-def _serialize_user_row(user):
-    return {
-        "id": user.pk,
-        "name": _safe_name(user),
-        "email": getattr(user, "email", ""),
-        "date_joined": getattr(user, "date_joined", None),
-        "is_active": getattr(user, "is_active", True),
-    }
-
-
-def _admin_dashboard_get(self, request):
-    from django.contrib.auth import get_user_model
-    from core.models import ATSResult, HRProfile, JobPost, JobseekerProfile, Resume
-    from rest_framework.response import Response
-
-    cache_key = f"admin_dashboard:{request.user.pk}"
-    payload = cache.get(cache_key)
-    if payload is not None:
-        return Response(payload)
-
-    User = get_user_model()
-    total_users = User.objects.count()
-    total_jobseekers = JobseekerProfile.objects.count()
-    total_hr = HRProfile.objects.count()
-    total_jobs = JobPost.objects.count()
-    open_jobs = JobPost.objects.filter(status__iexact="Open").count()
-    total_resumes = Resume.objects.count()
-
-    overall_avg = ATSResult.objects.aggregate(avg=Avg("score"))["avg"] or 0
-    scan_stats = ATSResult.objects.aggregate(
-        below_50=Count("id", filter=Q(score__lt=50)),
-        between_50_79=Count("id", filter=Q(score__gte=50, score__lt=80)),
-        above_80=Count("id", filter=Q(score__gte=80)),
-    )
-    score_buckets = {
-        "Below 50": scan_stats["below_50"] or 0,
-        "50 - 79": scan_stats["between_50_79"] or 0,
-        "80+": scan_stats["above_80"] or 0,
-    }
-
-    latest_score_subquery = ATSResult.objects.filter(resume=OuterRef("pk")).order_by(
-        "-analyzed_at", "-pk"
-    )
-
-    recent_resumes = list(
-        Resume.objects.select_related("jobseeker")
-        .annotate(
-            computed_latest_score=Subquery(latest_score_subquery.values("score")[:1]),
-            latest_status=Subquery(latest_score_subquery.values("status")[:1]),
-            latest_job_title=Subquery(latest_score_subquery.values("job_post__title")[:1]),
-            computed_latest_analyzed_at=Subquery(latest_score_subquery.values("analyzed_at")[:1]),
-        )
-        .order_by("-uploaded_at")[:5]
-    )
-
-    recent_jobs = list(
-        JobPost.objects.annotate(
-            candidate_count=Count("ats_results", distinct=True),
-            max_score=Max("ats_results__score"),
-        )
-        .order_by("-created_at")[:5]
-    )
-
-    recent_users = list(User.objects.order_by("-date_joined")[:5])
-
-    monthly_user_growth = [
-        {"month": item["month"].strftime("%b %Y"), "count": item["count"]}
-        for item in (
-            User.objects.annotate(month=TruncMonth("date_joined"))
-            .values("month")
-            .annotate(count=Count("id"))
-            .order_by("month")
-        )
-    ]
-
-    monthly_job_growth = [
-        {"month": item["month"].strftime("%b %Y"), "count": item["count"]}
-        for item in (
-            JobPost.objects.annotate(month=TruncMonth("created_at"))
-            .values("month")
-            .annotate(count=Count("id"))
-            .order_by("month")
-        )
-    ]
-
-    payload = {
-        "stats": {
-            "total_users": total_users,
-            "total_jobseekers": total_jobseekers,
-            "total_hr": total_hr,
-            "total_jobs": total_jobs,
-            "open_jobs": open_jobs,
-            "total_resumes": total_resumes,
-            "avg_score": round(float(overall_avg or 0), 2),
-        },
-        "score_buckets": score_buckets,
-        "recent_resumes": [_serialize_resume_row(r) for r in recent_resumes],
-        "recent_jobs": [_serialize_job_row(j) for j in recent_jobs],
-        "recent_users": [_serialize_user_row(u) for u in recent_users],
-        "growth": {
-            "users": monthly_user_growth,
-            "jobs": monthly_job_growth,
-        },
-    }
-
-    cache.set(cache_key, payload, 20)
-    return Response(payload)
-
-
-def _jobseeker_dashboard_get(self, request):
-    from core.models import ATSResult, JobseekerProfile, Resume
-    from rest_framework.response import Response
-
-    cache_key = f"jobseeker_dashboard:{request.user.pk}"
-    payload = cache.get(cache_key)
-    if payload is not None:
-        return Response(payload)
-
-    profile, _ = JobseekerProfile.objects.get_or_create(user=request.user)
-    profile_counts = (
-        JobseekerProfile.objects.filter(pk=profile.pk)
-        .annotate(
-            education_count=Count("educations", distinct=True),
-            experience_count=Count("experiences", distinct=True),
-            skill_count=Count("skills", distinct=True),
-            project_count=Count("projects", distinct=True),
-        )
-        .values("education_count", "experience_count", "skill_count", "project_count")
-        .first()
-        or {}
-    )
-
-    latest_score_subquery = ATSResult.objects.filter(resume=OuterRef("pk")).order_by(
-        "-analyzed_at", "-pk"
-    )
-    resumes_qs = (
-        Resume.objects.filter(jobseeker=profile)
-        .annotate(
-            computed_latest_score=Subquery(latest_score_subquery.values("score")[:1]),
-            computed_latest_analyzed_at=Subquery(latest_score_subquery.values("analyzed_at")[:1]),
-        )
-        .order_by("-uploaded_at")
-    )
-
-    resumes = list(resumes_qs[:5])
-    resume_count = resumes_qs.count()
-
-    avg_score = (
-        ATSResult.objects.filter(resume__jobseeker=profile).aggregate(avg=Avg("score"))["avg"]
-    ) or 0
-
-    start_of_month = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    total_scans_month = ATSResult.objects.filter(
-        resume__jobseeker=profile,
-        analyzed_at__gte=start_of_month,
-    ).count()
-
-    strength_score = min(
-        100,
-        (
-            (profile_counts.get("education_count") or 0) * 25
-            + (profile_counts.get("experience_count") or 0) * 25
-            + (profile_counts.get("skill_count") or 0) * 25
-            + (profile_counts.get("project_count") or 0) * 25
-        ),
-    )
-
-    if strength_score >= 75:
-        strength_label = "Advanced"
-    elif strength_score >= 50:
-        strength_label = "Improving"
-    elif strength_score >= 25:
-        strength_label = "Started"
-    else:
-        strength_label = "Low"
-
-    recent_resumes_data = []
-    for resume in resumes:
-        file_url = ""
-        file_obj = getattr(resume, "file", None)
-        if file_obj:
-            try:
-                file_url = file_obj.url
-            except Exception:
-                file_url = ""
-        recent_resumes_data.append({
-            "id": resume.pk,
-            "filename": getattr(resume, "filename", "") or getattr(getattr(resume, "file", None), "name", ""),
-            "uploaded_at": resume.uploaded_at.strftime("%b %d, %Y") if getattr(resume, "uploaded_at", None) else "",
-            "latest_score": getattr(resume, "computed_latest_score", getattr(resume, "latest_score", None)),
-            "file": file_url,
-            "file_url": file_url,
         })
 
-    payload = {
-        "full_name": getattr(profile.user, "full_name", "") or _safe_name(request.user),
-        "email": profile.user.email,
-        "avg_score": round(float(avg_score or 0), 1),
-        "total_scans_month": total_scans_month,
-        "strength_score": strength_score,
-        "strength_label": strength_label,
-        "resume_count": resume_count,
-        "resumes": recent_resumes_data,
-    }
-
-    cache.set(cache_key, payload, 20)
-    return Response(payload)
 
 
-def _hr_dashboard_get(self, request):
-    from core.models import ATSResult, JobPost
-    from rest_framework.response import Response
-
-    cache_key = f"hr_dashboard:{request.user.pk}"
-    payload = cache.get(cache_key)
-    if payload is not None:
-        return Response(payload)
-
-    hr = request.user.hr_profile
-    jobs = (
-        JobPost.objects.filter(hr=hr)
-        .select_related("hr")
-        .annotate(
-            candidate_count=Count("ats_results", distinct=True),
-            top_score=Max("ats_results__score"),
-        )
-        .order_by("-created_at")
-    )
-    applications = ATSResult.objects.filter(job_post__hr=hr)
-
-    total_candidates = applications.count()
-    shortlisted_count = applications.filter(status='Shortlisted').count()
-    avg_score_data = applications.aggregate(avg=Avg('score'))
-    avg_score = round(avg_score_data['avg'] or 0, 1)
-    open_jobs_count = jobs.filter(status='Open').count()
-    interviewing_count = applications.filter(status='Interviewing').count()
-
-    active_jobs_data = []
-    for job in jobs.filter(status='Open')[:5]:
-        active_jobs_data.append({
-            'id': job.id,
-            'title': job.title,
-            'status': job.status,
-            'created_at': job.created_at.strftime('%b %d, %Y') if job.created_at else '',
-            'candidate_count': getattr(job, 'candidate_count', 0) or 0,
-            'top_score': round(getattr(job, 'top_score', 0) or 0, 0),
-        })
-
-    funnel = {
-        'apps': 100 if total_candidates > 0 else 0,
-        'screening': round((shortlisted_count / total_candidates * 100), 0) if total_candidates > 0 else 0,
-        'interviewing': round((interviewing_count / total_candidates * 100), 0) if total_candidates > 0 else 0,
-    }
-
-    payload = {
-        'company': hr.company or "HR Overview",
-        'full_name': request.user.full_name,
-        'role': getattr(hr, 'role', 'HR Manager'),
-        'email': request.user.email,
-        'open_jobs_count': open_jobs_count,
-        'total_candidates': total_candidates,
-        'shortlisted_count': shortlisted_count,
-        'avg_score': avg_score,
-        'active_jobs': active_jobs_data,
-        'funnel': funnel,
-    }
-
-    cache.set(cache_key, payload, 20)
-    return Response(payload)
 
 
-AdminDashboardView.get = _admin_dashboard_get
-JobseekerDashboardView.get = _jobseeker_dashboard_get
-HRDashboardView.get = _hr_dashboard_get
-
-
-def _cached_user_payload(user):
-    return {
-        "id": user.pk,
-        "email": getattr(user, "email", ""),
-        "full_name": getattr(user, "full_name", "")
-        or f"{getattr(user, 'first_name', '')} {getattr(user, 'last_name', '')}".strip(),
-        "first_name": getattr(user, "first_name", ""),
-        "last_name": getattr(user, "last_name", ""),
-        "role": getattr(user, "role", ""),
-        "is_staff": getattr(user, "is_staff", False),
-        "is_superuser": getattr(user, "is_superuser", False),
-        "is_active": getattr(user, "is_active", True),
-        "date_joined": getattr(user, "date_joined", None),
-    }
-
-
-def _user_me_cached_get(self, request):
-    from rest_framework.response import Response
-
-    cache_key = f"user_me:{request.user.pk}"
-    payload = cache.get(cache_key)
-    if payload is None:
-        payload = _cached_user_payload(request.user)
-        cache.set(cache_key, payload, 60)
-    return Response(payload)
-
-
-def _notifications_cached_get(self, request):
-    from core.models import Notification
-    from rest_framework.response import Response
-
-    cache_key = f"notifications:{request.user.pk}"
-    payload = cache.get(cache_key)
-    if payload is None:
-        items = (
-            Notification.objects.filter(user=request.user)
-            .order_by("-created_at")[:20]
-        )
-        payload = [
-            {
-                "id": item.pk,
-                "message": getattr(item, "message", ""),
-                "title": getattr(item, "title", ""),
-                "type": getattr(item, "type", ""),
-                "is_read": getattr(item, "is_read", False),
-                "created_at": getattr(item, "created_at", None),
-                "link": getattr(item, "link", "") or getattr(item, "url", ""),
-            }
-            for item in items
-        ]
-        cache.set(cache_key, payload, 20)
-    return Response(payload)
-
-
-for _view_name in ("UserMeView", "MeView", "CurrentUserView"):
-    _view = globals().get(_view_name)
-    if _view is not None:
-        _view.get = _user_me_cached_get
-
-for _view_name in ("NotificationListView", "NotificationsView", "UserNotificationsView"):
-    _view = globals().get(_view_name)
-    if _view is not None:
-        _view.get = _notifications_cached_get

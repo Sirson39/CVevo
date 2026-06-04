@@ -98,16 +98,10 @@ class JobPostSerializer(serializers.ModelSerializer):
         read_only_fields = ('hr',)
 
     def get_candidate_count(self, obj):
-        annotated = getattr(obj, "candidate_count", None)
-        if annotated is not None:
-            return annotated
         return obj.ats_results.count()
 
     def get_top_score(self, obj):
         from django.db.models import Max
-        annotated = getattr(obj, "top_score", None)
-        if annotated is not None:
-            return round(annotated, 1) if annotated else 0
         top = obj.ats_results.aggregate(Max('score'))['score__max']
         return round(top, 1) if top else 0
 
