@@ -181,14 +181,35 @@ function applyDashboardChartDefaults() {
   applyDashboardChartDefaults._applied = true;
 }
 
+function getPartialCache(path) {
+  try {
+    return sessionStorage.getItem(`cvevo_partial:${path}`);
+  } catch (err) {
+    return null;
+  }
+}
+
+function setPartialCache(path, html) {
+  try {
+    sessionStorage.setItem(`cvevo_partial:${path}`, html);
+  } catch (err) {
+    // Ignore storage failures and fall back to network fetches.
+  }
+}
+
 // --- Rest of the layout logic ---
 
 async function loadPartial(selector, path) {
   const mount = document.querySelector(selector);
   if (!mount) return;
   try {
-    const res = await fetch(path);
-    const html = await res.text();
+    const cachedHtml = getPartialCache(path);
+    const html = cachedHtml ?? await (async () => {
+      const res = await fetch(path);
+      const fetchedHtml = await res.text();
+      setPartialCache(path, fetchedHtml);
+      return fetchedHtml;
+    })();
     mount.innerHTML = html;
     const scripts = mount.querySelectorAll("script");
     scripts.forEach(oldScript => {
