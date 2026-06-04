@@ -441,6 +441,12 @@ async function initAppLayout({ pageKey, stepKey, title, subtitle }) {
     loadPartial("#topbarMount", PARTIAL_TOPBAR_PATH)
   ]);
 
+  // Render from cached local user state immediately, then reconcile after auth sync.
+  configureSidebarByRole();
+  setActiveSidebar(pageKey);
+  setTopbar(title, subtitle);
+  setUserUI();
+
   if (!(await protectPromise)) return;
 
   configureSidebarByRole();
@@ -474,8 +480,10 @@ async function initAppLayout({ pageKey, stepKey, title, subtitle }) {
     };
   }
 
-  loadNotifications(true);
-  startNotificationPolling();
+  setTimeout(() => {
+    loadNotifications(true);
+    startNotificationPolling();
+  }, 0);
 
   window.addEventListener("pageshow", (event) => {
     if (event.persisted) {
