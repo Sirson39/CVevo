@@ -824,6 +824,11 @@ a:focus-visible, button:focus-visible, .btn:focus-visible{
     border-radius: 12px;
   }
 
+  .nav-links.open{
+    border-radius: 18px;
+    padding: 10px;
+  }
+
   .hero-title{
     font-size: clamp(28px, 11vw, 36px);
   }
@@ -842,6 +847,14 @@ a:focus-visible, button:focus-visible, .btn:focus-visible{
 
   .contact-item{
     align-items: flex-start;
+  }
+
+  .template-card{
+    width: 86vw;
+  }
+
+  .template-card img{
+    height: 290px;
   }
 }
 
@@ -1179,6 +1192,148 @@ header nav a::after{
     background: #f6f8fa;
     border: 1px solid var(--border);
     margin-top: 8px;
+  }
+}
+
+@media (max-width: 720px){
+  .site-header .nav{
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .brand{
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .nav-actions{
+    margin-left: auto;
+    gap: 10px;
+  }
+
+  .nav-actions .link{
+    display: none;
+  }
+
+  /* Re-enable the burger after the premium navbar block resets .nav-links */
+  .nav-links{
+    display: none;
+    order: 3;
+    width: 100%;
+    padding-top: 6px;
+  }
+
+  .burger{
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 0 0 auto;
+  }
+
+  .nav-links.open{
+    display: grid;
+    position: static;
+    left: auto;
+    right: auto;
+    top: auto;
+    width: 100%;
+    margin-top: 2px;
+    padding: 12px;
+    border-radius: 20px;
+  }
+
+  .nav-links.open a{
+    background: #f6f8fa;
+    border: 1px solid var(--border);
+  }
+
+  .hero-wrap{
+    padding-top: 20px;
+  }
+
+  .hero{
+    padding-top: 14px;
+  }
+
+  .hero-title{
+    font-size: clamp(30px, 9vw, 40px);
+    margin-top: 8px;
+  }
+
+  .hero-sub{
+    font-size: 15px;
+    margin: 12px auto 18px;
+    max-width: 32rem;
+  }
+
+  .hero-actions{
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .hero-actions .btn{
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .trust-row{
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .section{
+    padding: 44px 0;
+  }
+
+  .section-title{
+    font-size: clamp(24px, 7vw, 32px);
+  }
+
+  .section-sub{
+    font-size: 15px;
+    margin-bottom: 24px;
+  }
+
+  .template-shell{
+    margin-top: 12px;
+  }
+
+  .template-strip{
+    gap: 16px;
+    padding: 12px 2px 18px;
+  }
+
+  .template-card{
+    width: min(84vw, 340px);
+    border-radius: 24px;
+  }
+
+  .template-card img{
+    height: 320px;
+  }
+
+  .card-grid{
+    gap: 16px;
+  }
+
+  .card{
+    border-radius: 22px;
+    padding: 20px 18px;
+    min-height: auto;
+  }
+
+  .cta{
+    margin: 28px auto 56px;
+    padding: 12px;
+    border-radius: 28px;
+  }
+
+  .cta-inner{
+    padding: 34px 18px;
+    border-radius: 22px;
   }
 }
 /*  
