@@ -10,37 +10,40 @@
   <style>
     .results-layout {
       display: grid;
-      grid-template-columns: 1fr 340px;
-      gap: 2rem;
+      grid-template-columns: minmax(0, 1fr) 330px;
+      gap: 20px;
       align-items: start;
     }
 
     .history-card {
       background: #fff;
-      border: 1px solid #e2e8f0;
-      border-radius: 20px;
-      padding: 1.5rem 1.75rem;
-      margin-bottom: 1.25rem;
-      transition: all 0.3s ease;
+      border: 1px solid #7fd39a;
+      border-radius: 18px;
+      padding: 1.35rem 1.5rem 1.45rem;
+      margin-bottom: 0;
+      box-shadow: 0 1px 0 rgba(15, 23, 42, 0.02);
+      transition: border-color 0.2s ease, transform 0.2s ease;
       position: relative;
+      overflow: hidden;
     }
 
     .card-header {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 1.5rem;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 1.25rem;
     }
 
     .job-title {
-      font-size: 20px;
-      font-weight: 800;
+      font-size: 19px;
+      font-weight: 900;
       color: #0f172a;
       margin: 0 0 4px;
     }
 
     .job-meta {
-      font-size: 13px;
+      font-size: 12.5px;
       color: #64748b;
       margin-top: 2px;
     }
@@ -49,13 +52,13 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 4px 10px;
-      border-radius: 6px;
+      padding: 4px 9px;
+      border-radius: 8px;
       font-size: 10px;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .badge-ats {
@@ -70,10 +73,11 @@
 
     .score-box {
       text-align: right;
+      min-width: 96px;
     }
 
     .score-val {
-      font-size: 32px;
+      font-size: 30px;
       font-weight: 900;
       line-height: 1;
       display: block;
@@ -81,7 +85,7 @@
     }
 
     .score-label {
-      font-size: 10px;
+      font-size: 9.5px;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -94,21 +98,29 @@
       font-size: 13px;
       font-weight: 800;
       color: #1e293b;
-      margin: 1.25rem 0 0.75rem;
+      margin: 1.15rem 0 0.8rem;
       text-transform: uppercase;
-      letter-spacing: 0.3px;
+      letter-spacing: 0.35px;
+      text-align: center;
+    }
+
+    .feedback-p {
+      font-size: 14px;
+      color: #64748b;
+      line-height: 1.55;
+      margin: 0 0 1.2rem;
     }
 
     /* Keyword Containers */
     .keyword-layout {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      margin-bottom: 1.25rem;
+      gap: 12px;
+      margin-bottom: 1rem;
     }
 
     .keyword-box {
-      padding: 1.25rem;
+      padding: 1rem 1rem 0.95rem;
       border-radius: 12px;
       min-height: auto;
     }
@@ -128,7 +140,7 @@
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.65rem;
     }
 
     .box-title.matched {
@@ -141,8 +153,8 @@
 
     .tag {
       display: inline-block;
-      padding: 4px 10px;
-      border-radius: 6px;
+      padding: 4px 9px;
+      border-radius: 7px;
       font-size: 11px;
       font-weight: 600;
       margin: 0 4px 4px 0;
@@ -164,20 +176,20 @@
     .pillars-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
+      gap: 10px;
     }
 
     .pillar-card {
       background: #fff;
       border: 1px solid #eef2f6;
-      padding: 8px 12px;
+      padding: 8px 11px;
       border-radius: 10px;
       position: relative;
       overflow: hidden;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      min-height: 46px;
+      min-height: 44px;
       transition: transform 0.2s;
     }
 
@@ -232,10 +244,10 @@
     .info-card {
       background: #0f172a;
       color: #fff;
-      border-radius: 20px;
-      padding: 2rem;
+      border-radius: 18px;
+      padding: 1.85rem 1.8rem;
       position: sticky;
-      top: 2rem;
+      top: 1.6rem;
     }
 
     .info-h3 {
@@ -258,8 +270,8 @@
       color: #0f172a;
       text-align: center;
       padding: 12px;
-      border-radius: 10px;
-      font-weight: 700;
+      border-radius: 14px;
+      font-weight: 800;
       font-size: 13px;
       margin-top: 1.5rem;
     }
@@ -568,7 +580,7 @@
           </div>
 
           <div class="section-title">Feedback & Suggestions</div>
-          <p class="feedback-p" style="font-size: 14px; color: #64748b; margin-bottom: 1.5rem;">${feedbackSummary}</p>
+          <p class="feedback-p">${feedbackSummary}</p>
 
           ${!isQuick ? `
             <div class="keyword-layout">
@@ -758,8 +770,6 @@
 </body>
 
 </html>
-
-
 
 
 

@@ -23,6 +23,14 @@ STOP_WORDS = {
     "understanding", "including", "must", "should", "using"
 }
 
+GENERIC_PHRASE_BLOCKLIST = {
+    "we", "you", "our", "their", "the", "a", "an", "and", "or", "to", "for", "of", "in",
+    "looking", "seeking", "responsible", "responsibilities", "required", "preferred",
+    "candidate", "candidates", "developer", "developers", "design", "develop", "maintain",
+    "work", "team", "teams", "company", "role", "position", "project", "projects",
+    "application", "applications", "software", "solutions", "apis", "api", "system", "systems"
+}
+
 ACTION_VERBS = {
     "built", "developed", "created", "implemented", "designed",
     "led", "optimized", "improved", "managed", "delivered",
@@ -61,6 +69,55 @@ def normalize_list(values: List[str]) -> List[str]:
             seen.add(norm)
             cleaned.append(norm)
     return cleaned
+
+
+def _looks_like_skill_phrase(value: str) -> bool:
+    """
+    Keep short, skill-like phrases and drop sentence fragments / prose.
+    """
+    if not value:
+        return False
+
+    cleaned = clean_and_normalize_text(value).strip()
+    if not cleaned:
+        return False
+
+    words = cleaned.split()
+    if len(words) > 4 or len(cleaned) > 40:
+        return False
+
+    if all(word in GENERIC_PHRASE_BLOCKLIST for word in words):
+        return False
+
+    # Reject obvious prose-like fragments.
+    if cleaned.startswith(("we ", "you ", "our ", "the ", "a ", "an ")) and len(words) > 2:
+        return False
+
+    # Require at least one alpha character so symbols alone don't slip through.
+    return bool(re.search(r"[a-z]", cleaned))
+
+
+def extract_relevant_terms(text: str) -> List[str]:
+    """
+    Extract ATS-relevant terms from job text without turning full sentences into keywords.
+    """
+    if not text:
+        return []
+
+    terms = normalize_list(extract_skills(text))
+
+    # Add a few short noun phrases only if they look like actual skills or tools.
+    if nlp:
+        try:
+            doc = nlp(text)
+            for chunk in doc.noun_chunks:
+                phrase = clean_and_normalize_text(chunk.text)
+                if _looks_like_skill_phrase(phrase):
+                    terms.append(phrase)
+        except Exception:
+            pass
+
+    return normalize_list(terms)
 
 
 def extract_years_of_experience(text: str) -> List[int]:
@@ -126,21 +183,8 @@ def parse_job_description(jd_text: str) -> Dict:
     # Extract technical skills from parser skill list
     jd_skills = normalize_list(extract_skills(jd_text))
 
-    # Extract general keywords
-    keywords = set()
-    if nlp:
-        doc = nlp(jd_text)
-        for token in doc:
-            word = token.text.lower().strip()
-            if (
-                token.pos_ in ["NOUN", "PROPN"] and
-                len(word) > 2 and
-                word not in STOP_WORDS
-            ):
-                keywords.add(word)
-    else:
-        words = re.findall(r'\b[a-zA-Z][a-zA-Z0-9+.#-]{2,}\b', jd_text.lower())
-        keywords = {w for w in words if w not in STOP_WORDS}
+    # Extract general keywords, but keep them skill-like so we don't surface prose fragments.
+    keywords = set(extract_relevant_terms(jd_text))
 
     # Critical skills = important technical items from JD
     critical_skills = []
@@ -309,13 +353,18 @@ def calculate_ats_score(resume_data: Dict, jd_text: str = "", jd_fields: Dict = 
         
         # Override specific lists if HR provided them
         if jd_fields.get("required_skills"):
-            jd_data["critical_skills"] = normalize_list(extract_skills(jd_fields["required_skills"]))
+            required_skills = normalize_list(extract_skills(jd_fields["required_skills"]))
+            jd_data["critical_skills"] = required_skills
+            jd_data["skills"] = normalize_list(jd_data.get("skills", []) + required_skills)
         if jd_fields.get("tools_and_technologies"):
-            jd_data["skills"] = normalize_list(extract_skills(jd_fields["tools_and_technologies"])) + jd_data["critical_skills"]
+            tool_skills = normalize_list(extract_skills(jd_fields["tools_and_technologies"]))
+            jd_data["skills"] = normalize_list(jd_data.get("skills", []) + tool_skills + jd_data.get("critical_skills", []))
         if jd_fields.get("requirements"):
-            # Keywords from the specific "ATS scanning keywords" field
-            kws = [k.strip().lower() for k in jd_fields["requirements"].split(',') if k.strip()]
-            jd_data["keywords"] = normalize_list(kws)
+            # Keywords from the specific "ATS scanning keywords" field.
+            # Keep only skill-like terms so sentence fragments do not become missing keywords.
+            jd_data["keywords"] = normalize_list(
+                jd_data.get("keywords", []) + extract_relevant_terms(jd_fields["requirements"])
+            )
     else:
         jd_data = parse_job_description(jd_text)
         full_jd_text = jd_text

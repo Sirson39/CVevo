@@ -118,7 +118,23 @@ def calculate_ats_score(resume_text, job_requirements, **kwargs):
             "suggestions": []
         }
 
-    req_keywords = [k.strip().lower() for k in job_requirements.split(',') if k.strip()]
+    def _fallback_keyword_terms(text):
+        terms = []
+        for chunk in re.split(r"[,;\n•]+", text or ""):
+            cleaned = re.sub(r"\s+", " ", chunk.lower()).strip()
+            if not cleaned:
+                continue
+            words = cleaned.split()
+            if len(words) > 4 or len(cleaned) > 40:
+                continue
+            if cleaned.startswith(("we ", "you ", "our ", "the ", "a ", "an ")) and len(words) > 2:
+                continue
+            if cleaned in {"responsibilities", "requirements", "experience", "skills"}:
+                continue
+            terms.append(cleaned)
+        return terms
+
+    req_keywords = _fallback_keyword_terms(job_requirements)
     resume_text_lower = resume_text.lower()
 
     matched = []
