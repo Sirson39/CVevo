@@ -2428,4 +2428,3 @@ for _view_name in ("NotificationListView", "NotificationsView", "UserNotificatio
     _view = globals().get(_view_name)
     if _view is not None:
         _view.get = _notifications_cached_get
-*** End of File

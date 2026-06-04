@@ -239,6 +239,7 @@ else:
             "HOST": "127.0.0.1",
             "PORT": "5432",
         }
+    }
 
 CACHES = {
     "default": {
@@ -246,7 +247,6 @@ CACHES = {
         "LOCATION": "cvevo-local-cache",
     }
 }
-    }
 
 
 
