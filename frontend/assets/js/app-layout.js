@@ -1,5 +1,8 @@
 const NOTIF_SEEN_KEY = "cvevo_notif_seen_ids";
 const NOTIF_MAX_VISIBLE = 5;
+const PARTIAL_SIDEBAR_PATH = "../../partials/sidebar.html";
+const PARTIAL_TOPBAR_PATH = "../../partials/topbar.html";
+const PARTIAL_CONFIRM_PATH = "../../partials/confirm_modal.html";
 const NOTIFICATION_ICONS = {
   success: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>',
   info: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',
@@ -197,19 +200,48 @@ function setPartialCache(path, html) {
   }
 }
 
+const partialFetchCache = new Map();
+
+function prefetchPartial(path) {
+  if (!path) return Promise.resolve("");
+
+  if (partialFetchCache.has(path)) {
+    return partialFetchCache.get(path);
+  }
+
+  const cachedHtml = getPartialCache(path);
+  if (cachedHtml !== null) {
+    const resolved = Promise.resolve(cachedHtml);
+    partialFetchCache.set(path, resolved);
+    return resolved;
+  }
+
+  const promise = fetch(path)
+    .then((res) => res.text())
+    .then((html) => {
+      setPartialCache(path, html);
+      return html;
+    })
+    .catch((err) => {
+      partialFetchCache.delete(path);
+      throw err;
+    });
+
+  partialFetchCache.set(path, promise);
+  return promise;
+}
+
+// Start warming the shared chrome as soon as this script is parsed.
+prefetchPartial(PARTIAL_SIDEBAR_PATH);
+prefetchPartial(PARTIAL_TOPBAR_PATH);
+
 // --- Rest of the layout logic ---
 
 async function loadPartial(selector, path) {
   const mount = document.querySelector(selector);
   if (!mount) return;
   try {
-    const cachedHtml = getPartialCache(path);
-    const html = cachedHtml ?? await (async () => {
-      const res = await fetch(path);
-      const fetchedHtml = await res.text();
-      setPartialCache(path, fetchedHtml);
-      return fetchedHtml;
-    })();
+    const html = await prefetchPartial(path);
     mount.innerHTML = html;
     const scripts = mount.querySelectorAll("script");
     scripts.forEach(oldScript => {
@@ -405,8 +437,8 @@ async function initAppLayout({ pageKey, stepKey, title, subtitle }) {
   const protectPromise = protectPage();
 
   await Promise.all([
-    loadPartial("#sidebarMount", "../../partials/sidebar.html"),
-    loadPartial("#topbarMount", "../../partials/topbar.html")
+    loadPartial("#sidebarMount", PARTIAL_SIDEBAR_PATH),
+    loadPartial("#topbarMount", PARTIAL_TOPBAR_PATH)
   ]);
 
   if (!(await protectPromise)) return;
@@ -474,7 +506,7 @@ async function initAppLayout({ pageKey, stepKey, title, subtitle }) {
     const div = document.createElement("div");
     div.id = "confirmModalMount";
     document.body.appendChild(div);
-    await loadPartial("#confirmModalMount", "../../partials/confirm_modal.html");
+    await loadPartial("#confirmModalMount", PARTIAL_CONFIRM_PATH);
   }
 
   // Toast Container
