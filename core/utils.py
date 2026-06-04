@@ -1,7 +1,6 @@
 import re
 from pdfminer.high_level import extract_text as extract_pdf_text
 import docx
-import os
 from django.core.files.storage import FileSystemStorage
 
 class OverwriteStorage(FileSystemStorage):
@@ -13,19 +12,32 @@ class OverwriteStorage(FileSystemStorage):
             self.delete(name)
         return name
 
-# Import new AI/NLP module
-try:
-    from ai_nlp.pipeline import process_resume_against_jd
-    from ai_nlp.extractor import get_text_from_file, extract_text_from_pdf as new_extract_pdf, extract_text_from_docx as new_extract_docx
-    from ai_nlp.parser import parse_resume
-    from ai_nlp.analyzer import calculate_ats_score as new_ats_score
-    AI_NLP_AVAILABLE = True
-except ImportError:
-    AI_NLP_AVAILABLE = False
+def _load_ai_nlp_helpers():
+    """
+    Load the heavier AI/NLP modules only when a resume analysis function is used.
+    This keeps Django startup and migrations fast and avoids import-time failures.
+    """
+    try:
+        from ai_nlp.extractor import (
+            extract_text_from_pdf as new_extract_pdf,
+            extract_text_from_docx as new_extract_docx,
+        )
+        from ai_nlp.parser import parse_resume
+        from ai_nlp.analyzer import calculate_ats_score as new_ats_score
+        return {
+            "available": True,
+            "extract_pdf": new_extract_pdf,
+            "extract_docx": new_extract_docx,
+            "parse_resume": parse_resume,
+            "calculate_ats_score": new_ats_score,
+        }
+    except Exception:
+        return {"available": False}
 
 def extract_text_from_pdf(file_path):
-    if AI_NLP_AVAILABLE:
-        return new_extract_pdf(file_path)
+    helpers = _load_ai_nlp_helpers()
+    if helpers["available"]:
+        return helpers["extract_pdf"](file_path)
     try:
         return extract_pdf_text(file_path)
     except Exception as e:
@@ -33,8 +45,9 @@ def extract_text_from_pdf(file_path):
         return ""
 
 def extract_text_from_docx(file_path):
-    if AI_NLP_AVAILABLE:
-        return new_extract_docx(file_path)
+    helpers = _load_ai_nlp_helpers()
+    if helpers["available"]:
+        return helpers["extract_docx"](file_path)
     try:
         doc = docx.Document(file_path)
         return "\n".join([para.text for para in doc.paragraphs])
@@ -46,8 +59,9 @@ def parse_resume_text(text):
     """
     Enhanced parsing using the new AI/NLP module.
     """
-    if AI_NLP_AVAILABLE:
-        parsed = parse_resume(text)
+    helpers = _load_ai_nlp_helpers()
+    if helpers["available"]:
+        parsed = helpers["parse_resume"](text)
         # Map to the format expected by views if different
         contact = parsed.get("contact", {})
         return {
@@ -94,9 +108,10 @@ def calculate_ats_score(resume_text, job_requirements, **kwargs):
     Enhanced scoring using the new AI/NLP module.
     """
     jd_fields = kwargs.get('jd_fields')
-    if AI_NLP_AVAILABLE:
-        parsed_data = parse_resume(resume_text)
-        result = new_ats_score(parsed_data, jd_text=job_requirements, jd_fields=jd_fields)
+    helpers = _load_ai_nlp_helpers()
+    if helpers["available"]:
+        parsed_data = helpers["parse_resume"](resume_text)
+        result = helpers["calculate_ats_score"](parsed_data, jd_text=job_requirements, jd_fields=jd_fields)
         # Extract the fields expected by the caller as a tuple
         return {
             "ats_score": result.get("final_score", 0),
