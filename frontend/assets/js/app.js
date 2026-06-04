@@ -9,6 +9,17 @@
 
     if (!burger || !links) return;
 
+    if (!burger.dataset.iconized) {
+      burger.innerHTML = `
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="4" y1="6" x2="20" y2="6"></line>
+          <line x1="7" y1="12" x2="20" y2="12"></line>
+          <line x1="10" y1="18" x2="20" y2="18"></line>
+        </svg>
+      `;
+      burger.dataset.iconized = "1";
+    }
+
     burger.addEventListener("click", () => {
       const open = links.classList.toggle("open");
       burger.setAttribute("aria-expanded", String(open));
