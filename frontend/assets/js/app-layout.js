@@ -278,13 +278,37 @@ function getCurrentUser() {
   catch (err) { return null; }
 }
 
-function setUserUI() {
-  const user = getCurrentUser();
-  if (!user) return;
+function getUserProfileHref(user) {
+  if (!user) return "../public/login.html";
+  if (user.role === "admin") return "../admin/super_admin_dashboard.html";
+  if (user.role === "hr") return "../hr/hr_profile_settings.html";
+  return "../jobseeker/profile_settings.html";
+}
+
+function setUserUI(user = null) {
+  const currentUser = user || getCurrentUser();
   const avatar = document.getElementById("topbarAvatar");
   const name = document.getElementById("topbarUserName");
-  let label = user.full_name || user.email || "User";
-  if (user.role === "hr" && user.company) label = user.company;
+  const userBtn = document.getElementById("topbarUserBtn");
+  const guestActions = document.getElementById("topbarGuestActions");
+
+  if (!currentUser) {
+    if (userBtn) userBtn.style.display = "none";
+    if (guestActions) guestActions.style.display = "flex";
+    return;
+  }
+
+  if (userBtn) {
+    userBtn.style.display = "inline-flex";
+    userBtn.onclick = () => {
+      window.location.href = getUserProfileHref(currentUser);
+    };
+  }
+  if (guestActions) guestActions.style.display = "none";
+
+  let label = currentUser.full_name || currentUser.email || "User";
+  if (currentUser.role === "hr" && currentUser.company) label = currentUser.company;
+  if (currentUser.role === "admin") label = currentUser.full_name || "Admin";
   if (name) name.textContent = label.slice(0, 15);
   if (avatar) avatar.textContent = label.slice(0, 1).toUpperCase();
 }

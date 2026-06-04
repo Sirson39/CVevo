@@ -230,9 +230,14 @@
       }
     }
 
-    function setTopbarUser() {
-      const user = getCurrentUser();
+    function getUserProfileHref(user) {
+      if (!user) return "../public/login.html";
+      if (user.role === "admin") return "../admin/super_admin_dashboard.html";
+      if (user.role === "hr") return "../hr/hr_profile_settings.html";
+      return "../jobseeker/profile_settings.html";
+    }
 
+    function renderTopbarUser(user) {
       const avatar = document.getElementById("topbarAvatar");
       const name = document.getElementById("topbarUserName");
       const userBtn = document.getElementById("topbarUserBtn");
@@ -244,16 +249,44 @@
         return;
       }
 
-      if (userBtn) userBtn.style.display = "inline-flex";
+      if (userBtn) {
+        userBtn.style.display = "inline-flex";
+        userBtn.onclick = function () {
+          window.location.href = getUserProfileHref(user);
+        };
+      }
       if (guestActions) guestActions.style.display = "none";
 
       let label = user.full_name || user.email || "User";
       if (user.role === "hr" && user.company) {
         label = user.company;
+      } else if (user.role === "admin") {
+        label = user.full_name || "Admin";
       }
 
       if (name) name.textContent = label.slice(0, 15);
       if (avatar) avatar.textContent = label.slice(0, 1).toUpperCase();
+    }
+
+    async function setTopbarUser() {
+      const cached = getCurrentUser();
+      if (cached) {
+        renderTopbarUser(cached);
+        return;
+      }
+
+      renderTopbarUser(null);
+
+      try {
+        const res = await fetch("/api/users/me/", { credentials: "include" });
+        if (!res.ok) return;
+
+        const user = await res.json();
+        localStorage.setItem("currentUser", JSON.stringify(user));
+        renderTopbarUser(user);
+      } catch (err) {
+        console.warn("Unable to sync topbar user", err);
+      }
     }
 
     function setupRoleSearch() {
