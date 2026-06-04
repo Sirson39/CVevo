@@ -114,27 +114,28 @@ a{ color: inherit; text-decoration: none; }
 
 .burger{
   display: none;
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border: 1px solid rgba(230,234,238,.95);
-  background: rgba(255,255,255,.96);
-  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(247,249,250,.96));
+  border-radius: 15px;
   padding: 0;
   cursor: pointer;
   align-items: center;
   justify-content: center;
   box-shadow: 0 10px 22px rgba(15,23,42,.08);
   color: #1e293b;
-  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease, background .16s ease, color .16s ease;
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease, background .16s ease, color .16s ease, opacity .16s ease;
 }
 .burger:hover{
   transform: translateY(-1px);
   box-shadow: 0 14px 28px rgba(15,23,42,.12);
 }
 .burger.is-open{
-  background: linear-gradient(180deg, rgba(47,143,122,.10), rgba(47,143,122,.04));
-  border-color: rgba(47,143,122,.28);
-  color: var(--green);
+  background: linear-gradient(135deg, var(--green), #4fbaa6);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 14px 30px rgba(61,158,141,.28);
 }
 .burger span{
   display: block;
@@ -613,25 +614,34 @@ html.js .reveal:nth-child(3){ transition-delay: .18s; }
 
 @media (max-width: 720px){
   .nav-links{ display: none; }
-  .burger{ display: inline-flex; flex-direction: column; justify-content: center; }
+  .burger{
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+  }
   .nav-links.open{
     display: grid;
-    position: absolute;
-    left: 24px;
-    right: 24px;
-    top: 72px;
+    position: static;
+    left: auto;
+    right: auto;
+    top: auto;
+    width: 100%;
+    margin-top: 10px;
     background: rgba(255,255,255,.98);
     border: 1px solid rgba(230,234,238,.95);
     border-radius: 22px;
     padding: 12px;
-    gap: 8px;
+    gap: 10px;
     box-shadow: 0 24px 60px rgba(15,23,42,.14);
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(14px);
   }
   .nav-links.open a{
-    padding: 12px 12px;
-    border-radius: 14px;
+    padding: 12px 14px;
+    border-radius: 16px;
     background: #f6f8fa;
+    text-align: center;
   }
   .card-grid{ grid-template-columns: 1fr; }
   .hero-sub{ font-size: 16.5px; }
@@ -842,20 +852,20 @@ a:focus-visible, button:focus-visible, .btn:focus-visible{
   }
 
   .nav-actions .link{
-    padding: 7px 9px;
-    font-size: 11px;
-    border-radius: 11px;
+    padding: 9px 12px;
+    font-size: 12px;
+    border-radius: 14px;
   }
 
   .nav-actions .btn{
-    padding: 9px 11px;
-    border-radius: 12px;
+    padding: 10px 12px;
+    border-radius: 14px;
     font-size: 12px;
   }
 
   .nav-links.open{
-    border-radius: 18px;
-    padding: 10px;
+    border-radius: 20px;
+    padding: 12px;
   }
 
   .hero-title{
@@ -887,8 +897,9 @@ a:focus-visible, button:focus-visible, .btn:focus-visible{
   }
 
   .burger{
-    width: 38px;
-    height: 38px;
+    width: 44px;
+    height: 44px;
+    border-radius: 15px;
   }
 }
 
@@ -1250,8 +1261,8 @@ header nav a::after{
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 9px 11px;
-    border-radius: 12px;
+    padding: 9px 12px;
+    border-radius: 14px;
     border: 1px solid rgba(230,234,238,.95);
     background: rgba(255,255,255,.92);
     color: #1f2a44;
@@ -1274,9 +1285,9 @@ header nav a::after{
     flex-direction: column;
     justify-content: center;
     flex: 0 0 auto;
-    width: 40px;
-    height: 40px;
-    border-radius: 13px;
+    width: 46px;
+    height: 46px;
+    border-radius: 15px;
   }
 
   .nav-links.open{
@@ -1286,19 +1297,22 @@ header nav a::after{
     right: auto;
     top: auto;
     width: 100%;
-    margin-top: 2px;
-    padding: 10px;
-    gap: 8px;
-    border-radius: 22px;
+    margin-top: 10px;
+    padding: 12px;
+    gap: 10px;
+    border-radius: 20px;
     background: rgba(255,255,255,.98);
     border: 1px solid rgba(230,234,238,.95);
     box-shadow: 0 22px 60px rgba(15,23,42,.12);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(14px);
   }
 
   .nav-links.open a{
     background: #f6f8fa;
     border: 1px solid var(--border);
+    text-align: center;
+    padding: 12px 14px;
+    border-radius: 16px;
   }
 
   .hero-wrap{
