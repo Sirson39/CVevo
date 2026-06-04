@@ -1,11 +1,27 @@
 import re
+from functools import lru_cache
+
 import spacy
 from spacy.matcher import PhraseMatcher
 
-try:
-    nlp = spacy.load("en_core_web_sm")
-except OSError:
-    nlp = None
+@lru_cache(maxsize=1)
+def get_nlp():
+    try:
+        return spacy.load("en_core_web_sm")
+    except OSError:
+        return None
+
+
+@lru_cache(maxsize=1)
+def get_skill_matcher():
+    model = get_nlp()
+    if not model:
+        return None
+
+    matcher = PhraseMatcher(model.vocab, attr="LOWER")
+    patterns = [model.make_doc(skill) for skill in DEFAULT_SKILLS]
+    matcher.add("SKILLS", patterns)
+    return matcher
 
 SYNONYM_MAP = {
     "js": "javascript",
@@ -93,13 +109,17 @@ def extract_skills(text: str, skills_list=None) -> list:
     if not text:
         return []
 
-    if nlp:
-        matcher = PhraseMatcher(nlp.vocab, attr="LOWER")
-        patterns = [nlp.make_doc(skill) for skill in skills_list]
-        matcher.add("SKILLS", patterns)
+    model = get_nlp()
+    if model:
+        if skills_list is DEFAULT_SKILLS:
+            matcher = get_skill_matcher()
+        else:
+            matcher = PhraseMatcher(model.vocab, attr="LOWER")
+            patterns = [model.make_doc(skill) for skill in skills_list]
+            matcher.add("SKILLS", patterns)
 
-        doc = nlp(text)
-        matches = matcher(doc)
+        doc = model(text)
+        matches = matcher(doc) if matcher else []
         found = {doc[start:end].text.strip() for _, start, end in matches}
         return sorted(found)
 
