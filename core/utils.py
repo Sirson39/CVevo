@@ -97,17 +97,25 @@ def calculate_ats_score(resume_text, job_requirements, **kwargs):
     if AI_NLP_AVAILABLE:
         parsed_data = parse_resume(resume_text)
         result = new_ats_score(parsed_data, jd_text=job_requirements, jd_fields=jd_fields)
-        # Extract the fields expected by the caller as a tuple
-        score_val = result.get("final_score", 0)
-        matched_val = result.get("matched_skills", [])
-        missing_val = result.get("missing_skills", [])
-        feedback_val = result.get("feedback", "")
-        pillars_val = result.get("pillars", {})
-        return score_val, matched_val, missing_val, feedback_val, pillars_val
+        return {
+            "ats_score": result.get("final_score", 0),
+            "matched_keywords": result.get("matched_skills", []),
+            "missing_skills": result.get("missing_skills", []),
+            "feedback": result.get("feedback", ""),
+            "pillars": result.get("pillars", {}),
+            "suggestions": result.get("suggestions", []),
+        }
 
     # Basic logic as fallback
     if not job_requirements:
-        return 0, [], [], "No requirements provided for comparison.", {}
+        return {
+            "ats_score": 0,
+            "matched_keywords": [],
+            "missing_skills": [],
+            "feedback": "No requirements provided for comparison.",
+            "pillars": {},
+            "suggestions": [],
+        }
 
     req_keywords = [k.strip().lower() for k in job_requirements.split(',') if k.strip()]
     resume_text_lower = resume_text.lower()
@@ -131,7 +139,14 @@ def calculate_ats_score(resume_text, job_requirements, **kwargs):
     else:
         feedback += " Excellent match with all requirements!"
 
-    return round(score, 2), matched, missing, feedback, {}
+    return {
+        "ats_score": round(score, 2),
+        "matched_keywords": matched,
+        "missing_skills": missing,
+        "feedback": feedback,
+        "pillars": {},
+        "suggestions": [],
+    }
 
 
 def calculate_general_score(resume_text, file_size, extension):
