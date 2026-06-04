@@ -1,9 +1,8 @@
 from .extractor import get_text_from_file
 from .parser import parse_resume
+from .analyzer import calculate_ats_score
 
 def process_resume_against_jd(resume_file_path, jd_text):
-    from .analyzer import calculate_ats_score
-
     text = get_text_from_file(resume_file_path)
     if not text:
         return None, "Failed to extract text from the resume file."

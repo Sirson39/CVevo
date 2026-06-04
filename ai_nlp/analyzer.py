@@ -1,20 +1,19 @@
 import re
-from functools import lru_cache
 from typing import Dict, List, Set
 from sklearn.metrics.pairwise import cosine_similarity
-from .parser import get_nlp, clean_and_normalize_text, extract_skills
+from .parser import nlp, clean_and_normalize_text, extract_skills
 
-@lru_cache(maxsize=1)
-def get_sbert_model():
-    try:
-        from sentence_transformers import SentenceTransformer
-        return SentenceTransformer("all-MiniLM-L6-v2")
-    except Exception as e:
-        print(f"Warning: Could not load sentence-transformers model: {e}")
-        return None
+try:
+    from sentence_transformers import SentenceTransformer
+    sbert_model = SentenceTransformer("all-MiniLM-L6-v2")
+except Exception as e:
+    print(f"Warning: Could not load sentence-transformers model: {e}")
+    sbert_model = None
 
 
+# -----------------------------
 # Config / Constants
+# -----------------------------
 
 
 STOP_WORDS = {
@@ -45,7 +44,9 @@ CRITICAL_SKILL_HINTS = {
 
 
 
+# -----------------------------
 # Helper Functions
+# -----------------------------
 
 
 def safe_divide(a: float, b: float) -> float:
@@ -93,19 +94,20 @@ def get_semantic_similarity(text1: str, text2: str) -> float:
     Calculate semantic similarity using sentence-transformers.
     Returns a value between 0.0 and 1.0 approximately.
     """
-    model = get_sbert_model()
-    if not model or not text1 or not text2:
+    if not sbert_model or not text1 or not text2:
         return 0.0
 
     try:
-        embeddings = model.encode([text1, text2])
+        embeddings = sbert_model.encode([text1, text2])
         similarity = cosine_similarity([embeddings[0]], [embeddings[1]])[0][0]
         return float(max(0.0, min(1.0, similarity)))
     except Exception:
         return 0.0
 
 
+# -----------------------------
 # JD Parsing
+# -----------------------------
 
 
 def parse_job_description(jd_text: str) -> Dict:
@@ -130,7 +132,6 @@ def parse_job_description(jd_text: str) -> Dict:
 
     # Extract general keywords
     keywords = set()
-    nlp = get_nlp()
     if nlp:
         doc = nlp(jd_text)
         for token in doc:
@@ -174,7 +175,9 @@ def parse_job_description(jd_text: str) -> Dict:
 
 
 
+# -----------------------------
 # Resume Quality Analysis
+# -----------------------------
 
 
 def detect_resume_quality(resume_data: Dict) -> Dict:
@@ -287,7 +290,9 @@ def detect_resume_quality(resume_data: Dict) -> Dict:
 
 
 
+# -----------------------------
 # ATS Score Calculation
+# -----------------------------
 
 
 def calculate_ats_score(resume_data: Dict, jd_text: str = "", jd_fields: Dict = None) -> Dict:
@@ -398,41 +403,9 @@ def calculate_ats_score(resume_data: Dict, jd_text: str = "", jd_fields: Dict = 
                 education_score = 10
 
     # 6. Semantic Similarity (10)
-    semantic_model = get_sbert_model()
-    job_embedding = None
-    if semantic_model and full_jd_text:
-        try:
-            job_embedding = semantic_model.encode([full_jd_text])[0]
-        except Exception:
-            job_embedding = None
-
-    semantic_summary = 0.0
-    semantic_experience = 0.0
-    semantic_projects = 0.0
-    semantic_inputs = [
-        ("summary", summary_text),
-        ("experience", resume_sections.get("experience", "")),
-        ("projects", resume_sections.get("projects", "")),
-    ]
-    semantic_texts = [text for _, text in semantic_inputs if semantic_model and text and job_embedding is not None]
-    if semantic_model and job_embedding is not None and semantic_texts:
-        try:
-            embeddings = semantic_model.encode(semantic_texts)
-            embedding_index = 0
-            semantic_scores = {}
-            for key, text in semantic_inputs:
-                if not text:
-                    semantic_scores[key] = 0.0
-                    continue
-                embedding = embeddings[embedding_index]
-                embedding_index += 1
-                similarity = cosine_similarity([embedding], [job_embedding])[0][0]
-                semantic_scores[key] = float(max(0.0, min(1.0, similarity)))
-            semantic_summary = semantic_scores.get("summary", 0.0)
-            semantic_experience = semantic_scores.get("experience", 0.0)
-            semantic_projects = semantic_scores.get("projects", 0.0)
-        except Exception:
-            semantic_summary = semantic_experience = semantic_projects = 0.0
+    semantic_summary = get_semantic_similarity(summary_text, full_jd_text)
+    semantic_experience = get_semantic_similarity(resume_sections.get("experience", ""), full_jd_text)
+    semantic_projects = get_semantic_similarity(resume_sections.get("projects", ""), full_jd_text)
 
     semantic_score = (
         (semantic_summary * 0.40) +
