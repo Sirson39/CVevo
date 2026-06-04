@@ -1,6 +1,7 @@
 import re
 from pdfminer.high_level import extract_text as extract_pdf_text
 import docx
+import os
 from django.core.files.storage import FileSystemStorage
 
 class OverwriteStorage(FileSystemStorage):
@@ -12,32 +13,19 @@ class OverwriteStorage(FileSystemStorage):
             self.delete(name)
         return name
 
-def _load_ai_nlp_helpers():
-    """
-    Load the heavier AI/NLP modules only when a resume analysis function is used.
-    This keeps Django startup and migrations fast and avoids import-time failures.
-    """
-    try:
-        from ai_nlp.extractor import (
-            extract_text_from_pdf as new_extract_pdf,
-            extract_text_from_docx as new_extract_docx,
-        )
-        from ai_nlp.parser import parse_resume
-        from ai_nlp.analyzer import calculate_ats_score as new_ats_score
-        return {
-            "available": True,
-            "extract_pdf": new_extract_pdf,
-            "extract_docx": new_extract_docx,
-            "parse_resume": parse_resume,
-            "calculate_ats_score": new_ats_score,
-        }
-    except Exception:
-        return {"available": False}
+# Import new AI/NLP module
+try:
+    from ai_nlp.pipeline import process_resume_against_jd
+    from ai_nlp.extractor import get_text_from_file, extract_text_from_pdf as new_extract_pdf, extract_text_from_docx as new_extract_docx
+    from ai_nlp.parser import parse_resume
+    from ai_nlp.analyzer import calculate_ats_score as new_ats_score
+    AI_NLP_AVAILABLE = True
+except ImportError:
+    AI_NLP_AVAILABLE = False
 
 def extract_text_from_pdf(file_path):
-    helpers = _load_ai_nlp_helpers()
-    if helpers["available"]:
-        return helpers["extract_pdf"](file_path)
+    if AI_NLP_AVAILABLE:
+        return new_extract_pdf(file_path)
     try:
         return extract_pdf_text(file_path)
     except Exception as e:
@@ -45,9 +33,8 @@ def extract_text_from_pdf(file_path):
         return ""
 
 def extract_text_from_docx(file_path):
-    helpers = _load_ai_nlp_helpers()
-    if helpers["available"]:
-        return helpers["extract_docx"](file_path)
+    if AI_NLP_AVAILABLE:
+        return new_extract_docx(file_path)
     try:
         doc = docx.Document(file_path)
         return "\n".join([para.text for para in doc.paragraphs])
@@ -59,9 +46,8 @@ def parse_resume_text(text):
     """
     Enhanced parsing using the new AI/NLP module.
     """
-    helpers = _load_ai_nlp_helpers()
-    if helpers["available"]:
-        parsed = helpers["parse_resume"](text)
+    if AI_NLP_AVAILABLE:
+        parsed = parse_resume(text)
         # Map to the format expected by views if different
         contact = parsed.get("contact", {})
         return {
@@ -108,30 +94,20 @@ def calculate_ats_score(resume_text, job_requirements, **kwargs):
     Enhanced scoring using the new AI/NLP module.
     """
     jd_fields = kwargs.get('jd_fields')
-    helpers = _load_ai_nlp_helpers()
-    if helpers["available"]:
-        parsed_data = helpers["parse_resume"](resume_text)
-        result = helpers["calculate_ats_score"](parsed_data, jd_text=job_requirements, jd_fields=jd_fields)
+    if AI_NLP_AVAILABLE:
+        parsed_data = parse_resume(resume_text)
+        result = new_ats_score(parsed_data, jd_text=job_requirements, jd_fields=jd_fields)
         # Extract the fields expected by the caller as a tuple
-        return {
-            "ats_score": result.get("final_score", 0),
-            "matched_keywords": result.get("matched_skills", []),
-            "missing_skills": result.get("missing_skills", []),
-            "feedback": result.get("feedback", ""),
-            "pillars": result.get("pillars", {}),
-            "suggestions": result.get("suggestions", [])
-        }
+        score_val = result.get("final_score", 0)
+        matched_val = result.get("matched_skills", [])
+        missing_val = result.get("missing_skills", [])
+        feedback_val = result.get("feedback", "")
+        pillars_val = result.get("pillars", {})
+        return score_val, matched_val, missing_val, feedback_val, pillars_val
 
     # Basic logic as fallback
     if not job_requirements:
-        return {
-            "ats_score": 0,
-            "matched_keywords": [],
-            "missing_skills": [],
-            "feedback": "No requirements provided for comparison.",
-            "pillars": {},
-            "suggestions": []
-        }
+        return 0, [], [], "No requirements provided for comparison.", {}
 
     req_keywords = [k.strip().lower() for k in job_requirements.split(',') if k.strip()]
     resume_text_lower = resume_text.lower()
@@ -155,14 +131,7 @@ def calculate_ats_score(resume_text, job_requirements, **kwargs):
     else:
         feedback += " Excellent match with all requirements!"
 
-    return {
-        "ats_score": round(score, 2),
-        "matched_keywords": matched,
-        "missing_skills": missing,
-        "feedback": feedback,
-        "pillars": {},
-        "suggestions": []
-    }
+    return round(score, 2), matched, missing, feedback, {}
 
 
 def calculate_general_score(resume_text, file_size, extension):
@@ -175,46 +144,9 @@ def calculate_general_score(resume_text, file_size, extension):
     text_lower = resume_text.lower()
     recommendations = []
     
-    # Massive Technical & Professional Skill Library
-    tech_library = [
-        # Programming & Web
-        "python", "java", "javascript", "react", "django", "nodejs", "git", "sql", "aws", "docker",
-        "kubernetes", "html", "css", "mongodb", "postgresql", "rest api", "azure", "typescript",
-        "angular", "vue", "php", "laravel", "c++", "c#", "flutter", "dart", "ruby", "rails", "go",
-        "rust", "swift", "ios", "android", "kotlin", "spring", "flask", "webpack", "babel",
-        # Data & AI
-        "machine learning", "data science", "nlp", "tensorflow", "pytorch", "pandas", "numpy", 
-        "tableau", "power bi", "big data", "hadoop", "spark", "r", "sas", "deep learning",
-        # Cyber & DevOps
-        "cybersecurity", "network", "security", "linux", "unix", "bash", "jenkins", "terraform",
-        "ansible", "cloud", "firebase", "mysql", "sqlite", "oracle", "grafana", "prometheus",
-        # Design & Soft Skills
-        "figma", "ui", "ux", "adobe", "photoshop", "illustrator", "sketch", "management", 
-        "leadership", "communication", "agile", "scrum", "devops", "marketing", "sales", 
-        "finance", "accounting", "hr", "operations", "project management", "quality assurance",
-        "testing", "automated testing", "selenium", "cypress", "api", "backend", "frontend",
-        "fullstack", "mobile development", "seo", "content writing", "copywriting",
-        # High-Value Buzzwords
-        "problem solving", "critical thinking", "collaboration", "teamwork", "analytical",
-        "deadline oriented", "results driven", "innovation", "creativity"
-    ]
-    
-    found_keywords = []
-    for skill in tech_library:
-        if re.search(rf'\b{re.escape(skill)}\b', text_lower):
-            found_keywords.append(skill.capitalize())
-    
-    # Identify popular missing ones if found count is low
-    missing_keywords = []
-    if len(found_keywords) < 8:
-        for skill in tech_library:
-            if skill.capitalize() not in found_keywords:
-                missing_keywords.append(skill.capitalize())
-                if len(missing_keywords) >= 8: break
-    
-    
+    # -------------------------
     # 1. Contact Information (15 pts)
-    
+    # -------------------------
     contact_score = 0
     contact_details = []
     if re.search(r'[\w\.-]+@[\w\.-]+', resume_text):
@@ -241,9 +173,9 @@ def calculate_general_score(resume_text, file_size, extension):
     else:
         contact_details.append("Name might be missing or poorly formatted.")
 
-   
+    # -------------------------
     # 2. Professional Summary (10 pts)
-   
+    # -------------------------
     summary_score = 0
     summary_details = []
     summary_match = re.search(r'(?i)(summary|objective|profile|about)(.*?)(experience|education|skills|$)', text_lower, re.S)
@@ -260,9 +192,9 @@ def calculate_general_score(resume_text, file_size, extension):
         summary_details.append("No clear Summary or Objective section found.")
         recommendations.append("Add a 3-4 sentence professional summary at the top.")
 
-    
+    # -------------------------
     # 3. Section Completeness (20 pts)
-   
+    # -------------------------
     section_score = 0
     section_details = []
     core_sections = ["experience", "education", "skills", "projects"]
@@ -274,9 +206,9 @@ def calculate_general_score(resume_text, file_size, extension):
             section_details.append(f"Missing {s.capitalize()} section.")
             recommendations.append(f"Ensure you have a dedicated '{s.capitalize()}' section.")
 
-    
+    # -------------------------
     # 4. Grammar & Spelling (15 pts)
-   
+    # -------------------------
     grammar_score = 15
     grammar_details = []
     try:
@@ -310,9 +242,9 @@ def calculate_general_score(resume_text, file_size, extension):
         grammar_details.append("High usage of first-person pronouns.")
         recommendations.append("Use action-oriented language instead of first-person pronouns.")
 
-    
+    # -------------------------
     # 5. Formatting & Readability (15 pts)
-    
+    # -------------------------
     formatting_score = 10
     formatting_details = []
     try:
@@ -334,9 +266,9 @@ def calculate_general_score(resume_text, file_size, extension):
         formatting_details.append("Consider using bullet points for better structure.")
         recommendations.append("Use bullet points to break down your responsibilities.")
 
-    
+    # -------------------------
     # 6. Hyperlinks (5 pts)
-   
+    # -------------------------
     hyperlink_score = 0
     hyperlink_details = []
     links = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', resume_text)
@@ -351,9 +283,9 @@ def calculate_general_score(resume_text, file_size, extension):
         hyperlink_details.append("Missing professional links.")
         recommendations.append("Add a LinkedIn profile or portfolio link.")
 
-   
+    # -------------------------
     # 7. File Quality (10 pts)
-   
+    # -------------------------
     file_score = 0
     file_details = []
     if file_size < 3 * 1024 * 1024:
@@ -363,9 +295,9 @@ def calculate_general_score(resume_text, file_size, extension):
         file_score += 5
         file_details.append(f"Format: {extension.upper()}.")
 
-    
+    # -------------------------
     # 8. Content Quality (10 pts)
-    
+    # -------------------------
     content_score = 7
     content_details = []
     word_count = len(resume_text.split())
@@ -405,9 +337,7 @@ def calculate_general_score(resume_text, file_size, extension):
         },
         "strengths": [d for d in contact_details + summary_details + section_details + formatting_details if "detected" in d.lower() or "found" in d.lower() or "optimal" in d.lower() or "effective" in d.lower() or "strong" in d.lower()],
         "issues_found": [d for d in contact_details + summary_details + section_details if "missing" in d.lower() or "unclear" in d.lower()],
-        "recommendations": recommendations,
-        "found_keywords": found_keywords,
-        "missing_keywords": missing_keywords
+        "recommendations": recommendations
     }
 
     return result

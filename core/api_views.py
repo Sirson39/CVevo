@@ -1,5 +1,3 @@
-from concurrent.futures import ThreadPoolExecutor
-
 from django.shortcuts import get_object_or_404
 from django.http import FileResponse
 import json
@@ -10,7 +8,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email as django_validate_email
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from django.db import transaction, close_old_connections
+from django.db import transaction
 
 from rest_framework import viewsets, permissions, status, authentication
 from rest_framework.views import APIView
@@ -73,50 +71,6 @@ def _notify_jobseeker(user, **kwargs):
 
 def _notify_hr(user, **kwargs):
     return _notify(user, target_role="hr", **kwargs)
-
-
-_resume_parse_executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="cvevo-resume-parse")
-
-
-def _parse_resume_background(resume_id):
-    close_old_connections()
-    try:
-        resume = Resume.objects.only("id", "file", "filename").get(pk=resume_id)
-        if ParsedResumeData.objects.filter(resume_id=resume_id).exists():
-            return
-
-        file_path = resume.file.path
-        ext = file_path.rsplit(".", 1)[-1].lower()
-        text = extract_text_from_pdf(file_path) if ext == "pdf" else extract_text_from_docx(file_path)
-        if not text:
-            return
-
-        parsed = parse_resume_text(text) or {}
-        ParsedResumeData.objects.update_or_create(
-            resume=resume,
-            defaults={
-                "extracted_text": text,
-                "name": parsed.get("name", ""),
-                "email": parsed.get("email", ""),
-                "phone": parsed.get("phone", ""),
-                "summary": parsed.get("summary", ""),
-                "skills": parsed.get("skills", ""),
-                "experience": parsed.get("experience", ""),
-                "education": parsed.get("education", ""),
-                "projects": parsed.get("projects", ""),
-                "certifications": parsed.get("certifications", ""),
-            },
-        )
-    except Exception as exc:
-        print(f"Background resume parse error ({resume_id}): {exc}")
-    finally:
-        close_old_connections()
-
-
-def _queue_resume_parse(resume_id):
-    if not resume_id:
-        return
-    _resume_parse_executor.submit(_parse_resume_background, resume_id)
 
 
 def _required_field_response(field_name):
@@ -1255,7 +1209,16 @@ class ResumeViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         resume = serializer.save(jobseeker=self.request.user.jobseeker_profile)
-        transaction.on_commit(lambda resume_id=resume.pk: _queue_resume_parse(resume_id))
+        # Auto-parse logic
+        try:
+            file_path = resume.file.path
+            ext = file_path.split('.')[-1].lower()
+            text = extract_text_from_pdf(file_path) if ext == "pdf" else extract_text_from_docx(file_path)
+            if text:
+                parsed = parse_resume_text(text)
+                ParsedResumeData.objects.create(resume=resume, extracted_text=text, **parsed)
+        except Exception as e:
+            print("Auto-parse error:", e)
         _notify_jobseeker(
             self.request.user,
             title='Resume uploaded',

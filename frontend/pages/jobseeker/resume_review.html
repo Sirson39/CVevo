@@ -85,23 +85,6 @@
 
     const urlParams = new URLSearchParams(window.location.search);
     const resumeId = urlParams.get('resume_id');
-    const MAX_PARSE_ATTEMPTS = 8;
-    let parseAttempts = 0;
-
-    function showParsingState() {
-      const warning = document.getElementById("formattingWarning");
-      if (warning) {
-        warning.style.display = "block";
-        warning.innerHTML = "<strong>⏳ Parsing in progress:</strong> We are still extracting your resume details. This page will refresh automatically.";
-      }
-
-      document.getElementById("parsedName").textContent = "Processing...";
-      document.getElementById("parsedRole").textContent = "Processing...";
-      document.getElementById("parsedEmail").textContent = "Processing...";
-      document.getElementById("parsedEdu").textContent = "Please wait while your education details are extracted.";
-      document.getElementById("parsedExp").textContent = "Please wait while your experience details are extracted.";
-      document.getElementById("parsedSkills").textContent = "Parsing...";
-    }
 
     async function loadParsedData() {
       if (!resumeId) return;
@@ -110,15 +93,6 @@
         const res = await fetch(`/api/resumes/${resumeId}/`);
         const resume = await res.json();
         const data = resume.parsed_data || {};
-
-        if (!data.name && !data.email && !data.skills && !data.education && !data.experience) {
-          if (parseAttempts < MAX_PARSE_ATTEMPTS) {
-            parseAttempts += 1;
-            showParsingState();
-            setTimeout(loadParsedData, 1500);
-            return;
-          }
-        }
 
         document.getElementById("parsedName").textContent = data.name || "Not found";
         document.getElementById("parsedRole").textContent = data.role || "--";
