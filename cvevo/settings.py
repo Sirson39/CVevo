@@ -239,6 +239,13 @@ else:
             "HOST": "127.0.0.1",
             "PORT": "5432",
         }
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "cvevo-local-cache",
+    }
+}
     }
 
 

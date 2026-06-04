@@ -680,6 +680,171 @@ a:focus-visible, button:focus-visible, .btn:focus-visible{
   *{ transition:none !important; }
 }
 
+/* Mobile-first landing overrides */
+@media (max-width: 860px){
+  .nav-links{ display:none; }
+  .burger{ display:inline-flex; flex-direction: column; justify-content: center; }
+  .nav-actions{ gap: 10px; }
+}
+
+@media (max-width: 720px){
+  .container{
+    width: min(100%, calc(100% - 24px));
+  }
+
+  .site-header .nav{
+    padding: 12px 0;
+    align-items: center;
+  }
+
+  .nav-actions{
+    gap: 10px;
+  }
+
+  .link{
+    display:none;
+  }
+
+  .hero-wrap{
+    padding: 28px 0 12px;
+  }
+
+  .hero{
+    padding: 18px 0 0;
+  }
+
+  .hero-title{
+    font-size: clamp(30px, 9vw, 40px);
+    margin-top: 14px;
+  }
+
+  .hero-sub{
+    font-size: 15px;
+    margin: 12px auto 20px;
+  }
+
+  .hero-actions{
+    gap: 12px;
+  }
+
+  .btn, .btn-lg{
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .trust-row{
+    gap: 12px;
+    justify-content: flex-start;
+    font-size: 14px;
+  }
+
+  .section{
+    padding: 40px 0;
+  }
+
+  .section-title{
+    font-size: clamp(24px, 7vw, 32px);
+  }
+
+  .section-sub{
+    font-size: 15px;
+    margin-bottom: 24px;
+  }
+
+  .card-grid{
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .card{
+    border-radius: 22px;
+    padding: 20px 18px;
+  }
+
+  .steps{
+    grid-template-columns: 1fr;
+  }
+
+  .steps-line{
+    display: none;
+  }
+
+  .pricing-grid{
+    grid-template-columns: 1fr;
+  }
+
+  .footer-top,
+  .footer-cols,
+  .contact-grid,
+  .org-hero-grid,
+  .org-features{
+    grid-template-columns: 1fr;
+  }
+
+  .org-hero,
+  .org-dark{
+    padding: 34px 0;
+  }
+
+  .org-title{
+    font-size: clamp(30px, 8vw, 42px);
+  }
+
+  .org-sub{
+    font-size: 15px;
+  }
+
+  .org-hero-card,
+  .org-preview,
+  .contact-card,
+  .contact-form-card{
+    border-radius: 22px;
+  }
+
+  .org-preview{
+    min-height: 280px;
+  }
+}
+
+@media (max-width: 560px){
+  .site-header .nav{
+    padding: 10px 0;
+  }
+
+  .brand{
+    gap: 8px;
+  }
+
+  .brand-text{
+    font-size: 18px;
+  }
+
+  .nav-actions .btn{
+    padding: 10px 14px;
+    border-radius: 12px;
+  }
+
+  .hero-title{
+    font-size: clamp(28px, 11vw, 36px);
+  }
+
+  .hero-actions .btn{
+    max-width: 100%;
+  }
+
+  .footer-bottom{
+    flex-direction: column;
+  }
+
+  .card h3{
+    font-size: 17px;
+  }
+
+  .contact-item{
+    align-items: flex-start;
+  }
+}
+
 /* ---------- Typography upgrade ---------- */
 h1, h2, h3, h4, h5, .hero-title, .section-title{
   font-family: var(--font-heading);

@@ -3,6 +3,7 @@ const NOTIF_MAX_VISIBLE = 5;
 const PARTIAL_SIDEBAR_PATH = "../../partials/sidebar.html";
 const PARTIAL_TOPBAR_PATH = "../../partials/topbar.html";
 const PARTIAL_CONFIRM_PATH = "../../partials/confirm_modal.html";
+const MOBILE_SIDEBAR_QUERY = "(max-width: 920px)";
 const NOTIFICATION_ICONS = {
   success: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>',
   info: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',
@@ -288,6 +289,97 @@ function setUserUI() {
   if (avatar) avatar.textContent = label.slice(0, 1).toUpperCase();
 }
 
+function ensureMobileSidebarChrome() {
+  const topbarRight = document.querySelector(".topbar-right");
+  if (!topbarRight) return;
+
+  let toggleBtn = document.getElementById("sidebarToggleBtn");
+  if (!toggleBtn) {
+    toggleBtn = document.createElement("button");
+    toggleBtn.type = "button";
+    toggleBtn.id = "sidebarToggleBtn";
+    toggleBtn.className = "sidebar-toggle-btn";
+    toggleBtn.setAttribute("aria-label", "Open sidebar");
+    toggleBtn.setAttribute("aria-expanded", "false");
+    toggleBtn.innerHTML = `
+      <span></span>
+      <span></span>
+      <span></span>
+    `;
+    topbarRight.insertBefore(toggleBtn, topbarRight.firstChild);
+  }
+
+  let overlay = document.getElementById("sidebarBackdrop");
+  if (!overlay) {
+    overlay = document.createElement("button");
+    overlay.type = "button";
+    overlay.id = "sidebarBackdrop";
+    overlay.className = "sidebar-backdrop";
+    overlay.setAttribute("aria-label", "Close sidebar");
+    document.body.appendChild(overlay);
+  }
+
+  const sidebar = document.querySelector(".sidebar");
+  if (!sidebar) return;
+
+  const closeSidebar = () => {
+    document.body.classList.remove("sidebar-open");
+    toggleBtn.setAttribute("aria-expanded", "false");
+    overlay.setAttribute("aria-hidden", "true");
+  };
+
+  const openSidebar = () => {
+    document.body.classList.add("sidebar-open");
+    toggleBtn.setAttribute("aria-expanded", "true");
+    overlay.setAttribute("aria-hidden", "false");
+  };
+
+  const sync = () => {
+    if (window.matchMedia(MOBILE_SIDEBAR_QUERY).matches) {
+      toggleBtn.style.display = "inline-flex";
+      overlay.style.display = "block";
+      if (document.body.classList.contains("sidebar-open")) {
+        overlay.setAttribute("aria-hidden", "false");
+      } else {
+        overlay.setAttribute("aria-hidden", "true");
+      }
+    } else {
+      toggleBtn.style.display = "none";
+      document.body.classList.remove("sidebar-open");
+      overlay.setAttribute("aria-hidden", "true");
+    }
+  };
+
+  if (!toggleBtn.dataset.bound) {
+    toggleBtn.addEventListener("click", () => {
+      if (document.body.classList.contains("sidebar-open")) {
+        closeSidebar();
+      } else {
+        openSidebar();
+      }
+    });
+
+    overlay.addEventListener("click", closeSidebar);
+
+    sidebar.querySelectorAll(".nav-item, .logout, a").forEach((link) => {
+      link.addEventListener("click", () => {
+        if (window.matchMedia(MOBILE_SIDEBAR_QUERY).matches) {
+          closeSidebar();
+        }
+      });
+    });
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeSidebar();
+    });
+
+    window.addEventListener("resize", sync);
+    toggleBtn.dataset.bound = "1";
+  }
+
+  sync();
+}
+
 function configureSidebarByRole() {
   const user = getCurrentUser();
   if (!user) return;
@@ -446,6 +538,7 @@ async function initAppLayout({ pageKey, stepKey, title, subtitle }) {
   setActiveSidebar(pageKey);
   setTopbar(title, subtitle);
   setUserUI();
+  ensureMobileSidebarChrome();
 
   if (!(await protectPromise)) return;
 
@@ -453,6 +546,7 @@ async function initAppLayout({ pageKey, stepKey, title, subtitle }) {
   setActiveSidebar(pageKey);
   setTopbar(title, subtitle);
   setUserUI();
+  ensureMobileSidebarChrome();
 
   if (String(pageKey || "").startsWith("admin_") || pageKey === "super_admin_dashboard") {
     const searchForm = document.getElementById("topbarSearchForm");
