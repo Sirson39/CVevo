@@ -253,6 +253,9 @@
         const res = await fetch("/api/jobseeker/dashboard/", {
           credentials: "include"
         });
+        if (!res.ok) {
+          throw new Error(`Dashboard request failed with status ${res.status}`);
+        }
         const data = await res.json();
 
         document.getElementById("welcomeTitle").textContent = `Welcome back, ${data.full_name || data.email || "User"}`;
@@ -285,7 +288,7 @@
           }
             </td>
             <td class="td-right" style="padding: 12px 0;">
-              <a href="${escapeHtml(resume.file_url)}" class="ticon" title="View" target="_blank" style="color: #94a3b8; margin-left: 8px;">
+              <a href="${escapeHtml(resume.file_url || resume.file)}" class="ticon" title="View" target="_blank" style="color: #94a3b8; margin-left: 8px;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px;">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                   <circle cx="12" cy="12" r="3" />

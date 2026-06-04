@@ -47,6 +47,10 @@ NOTIF_SOUND_PRIORITY = {"high"}
 NOTIF_VISIBLE_LIMIT = 5
 DASHBOARD_CACHE_TTL = 15
 
+
+def _hr_cache_key(prefix, user, extra=""):
+    return f"{prefix}:{getattr(user, 'pk', 'anon')}:{extra}"
+
 def _notify(user, *, title, message, icon="info", notif_type="info", priority="medium", category="general", target_role=None, action_url="", metadata=None):
     return Notification.push(
         user=user,
@@ -1090,20 +1094,29 @@ class JobPostViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if hasattr(user, 'hr_profile'):
-            return JobPost.objects.filter(hr=user.hr_profile).order_by('-created_at')
+            return (
+                JobPost.objects.filter(hr=user.hr_profile)
+                .select_related('hr')
+                .annotate(
+                    candidate_count=Count('ats_results', distinct=True),
+                    top_score=Max('ats_results__score'),
+                )
+                .order_by('-created_at')
+            )
         # Jobseekers can see all open jobs
-        return JobPost.objects.filter(status='Open').order_by('-created_at')
+        return JobPost.objects.filter(status='Open').select_related('hr').order_by('-created_at')
 
     def list(self, request, *args, **kwargs):
+        cache_key = _hr_cache_key("hr_jobs", request.user, "manage")
+        cached = cache.get(cache_key)
+        if cached is not None:
+            return Response(cached)
+
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
-        return Response({'jobs': serializer.data})
-
-        if hasattr(self.request.user, 'hr_profile'):
-            serializer.save(hr=self.request.user.hr_profile)
-            Notification.push(self.request.user, f"Job Post '{serializer.validated_data.get('title')}' is now live.", icon="job", notif_type="success")
-        else:
-            raise serializer.ValidationError({"error": "Only HR users can post jobs."})
+        payload = {'jobs': serializer.data}
+        cache.set(cache_key, payload, 20)
+        return Response(payload)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -1114,6 +1127,9 @@ class JobPostViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Only HR users can post jobs.'}, status=403)
 
         job = serializer.save(hr=request.user.hr_profile)
+        cache.delete(_hr_cache_key("hr_jobs", request.user, "manage"))
+        cache.delete(_hr_cache_key("hr_dashboard", request.user))
+        cache.delete(_hr_cache_key("hr_ranking", request.user))
         _notify_hr(
             request.user,
             title='Job post created',
@@ -1131,6 +1147,9 @@ class JobPostViewSet(viewsets.ModelViewSet):
         old_status = instance.status
         response = super().update(request, *args, **kwargs)
         updated_job = self.get_object()
+        cache.delete(_hr_cache_key("hr_jobs", request.user, "manage"))
+        cache.delete(_hr_cache_key("hr_dashboard", request.user))
+        cache.delete(_hr_cache_key("hr_ranking", request.user))
         title = 'Job post updated'
         message = f"'{updated_job.title}' was updated."
         notif_type = 'info'
@@ -1159,6 +1178,9 @@ class JobPostViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         title = instance.title
         response = super().destroy(request, *args, **kwargs)
+        cache.delete(_hr_cache_key("hr_jobs", request.user, "manage"))
+        cache.delete(_hr_cache_key("hr_dashboard", request.user))
+        cache.delete(_hr_cache_key("hr_ranking", request.user))
         _notify_hr(
             request.user,
             title='Job post closed',
@@ -1830,6 +1852,7 @@ class HRUpdateStatusView(APIView):
             old_status = result.status
             result.status = new_status
             result.save()
+            cache.delete(_hr_cache_key("hr_detail", request.user, str(result_id or "")))
             candidate_user = result.resume.jobseeker.user if result.resume.jobseeker else None
             if candidate_user and old_status != new_status:
                 _notify_jobseeker(
@@ -1925,6 +1948,9 @@ class HRBulkUploadView(APIView):
             category='resume',
             action_url=f"/pages/hr/hr_candidate_ranking.html?job_id={job.id}",
         )
+        cache.delete(_hr_cache_key("hr_dashboard", request.user))
+        cache.delete(_hr_cache_key("hr_jobs", request.user, "manage"))
+        cache.delete(_hr_cache_key("hr_ranking", request.user, f"{job_id}:"))
 
         return Response({
             'status': 'success', 
@@ -1947,10 +1973,22 @@ class HRCandidateRankingView(APIView):
             return Response({'error': 'Unauthorized'}, status=403)
             
         hr = request.user.hr_profile
-        job_posts = JobPost.objects.filter(hr=hr)
+        job_posts = (
+            JobPost.objects.filter(hr=hr)
+            .select_related("hr")
+            .annotate(
+                candidate_count=Count("ats_results", distinct=True),
+                top_score=Max("ats_results__score"),
+            )
+            .order_by("-created_at")
+        )
         
         job_id = request.query_params.get('job_id')
         min_score = request.query_params.get('min_score')
+        cache_key = _hr_cache_key("hr_ranking", request.user, f"{job_id or 'all'}:{min_score or ''}")
+        cached = cache.get(cache_key)
+        if cached is not None:
+            return Response(cached)
         
         data = {
             'job_posts': JobPostSerializer(job_posts, many=True).data,
@@ -1965,7 +2003,7 @@ class HRCandidateRankingView(APIView):
             data['selected_job']['required_skills'] = job.required_skills.split(',') if job.required_skills else []
             data['selected_job']['requirements_keywords'] = job.requirements.split(',') if job.requirements else []
             
-            results = ATSResult.objects.filter(job_post=job)
+            results = ATSResult.objects.filter(job_post=job).select_related("resume__jobseeker", "job_post")
             if min_score:
                 results = results.filter(score__gte=min_score)
             
@@ -1981,17 +2019,7 @@ class HRCandidateRankingView(APIView):
                     'score': r.score
                 })
             data['results'] = res_data
-            _notify_hr(
-                request.user,
-                title='Candidate ranking generated',
-                message=f"Ranking is ready for '{job.title}'.",
-                icon='rank',
-                notif_type='info',
-                priority='high',
-                category='ranking',
-                action_url=f"/pages/hr/hr_candidate_ranking.html?job_id={job.id}",
-            )
-            
+        cache.set(cache_key, data, 20)
         return Response(data)
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -2001,9 +2029,16 @@ class HRCandidateDetailView(APIView):
 
     def get(self, request):
         result_id = request.query_params.get('result_id')
-        result = get_object_or_404(ATSResult, id=result_id, job_post__hr=request.user.hr_profile)
-        
-        return Response({
+        cache_key = _hr_cache_key("hr_detail", request.user, str(result_id or ""))
+        cached = cache.get(cache_key)
+        if cached is not None:
+            return Response(cached)
+        result = get_object_or_404(
+            ATSResult.objects.select_related("resume__jobseeker", "job_post__hr"),
+            id=result_id,
+            job_post__hr=request.user.hr_profile
+        )
+        payload = {
             'result': {
                 'id': result.id,
                 'status': result.status,
@@ -2024,7 +2059,9 @@ class HRCandidateDetailView(APIView):
                     'requirements': result.job_post.requirements
                 }
             }
-        })
+        }
+        cache.set(cache_key, payload, 60)
+        return Response(payload)
 """
 Fast dashboard overrides.
 
@@ -2059,11 +2096,11 @@ def _serialize_resume_row(resume):
         "title": _safe_name(resume),
         "uploaded_at": getattr(resume, "uploaded_at", None),
         "file_name": getattr(getattr(resume, "file", None), "name", "") or getattr(resume, "filename", ""),
-        "score": getattr(resume, "latest_score", None),
-        "latest_score": getattr(resume, "latest_score", None),
+        "score": getattr(resume, "computed_latest_score", getattr(resume, "latest_score", None)),
+        "latest_score": getattr(resume, "computed_latest_score", getattr(resume, "latest_score", None)),
         "status": getattr(resume, "latest_status", None),
         "job_title": getattr(resume, "latest_job_title", None),
-        "analyzed_at": getattr(resume, "latest_analyzed_at", None),
+        "analyzed_at": getattr(resume, "computed_latest_analyzed_at", getattr(resume, "latest_analyzed_at", None)),
     }
 
 
@@ -2125,10 +2162,10 @@ def _admin_dashboard_get(self, request):
     recent_resumes = list(
         Resume.objects.select_related("jobseeker")
         .annotate(
-            latest_score=Subquery(latest_score_subquery.values("score")[:1]),
+            computed_latest_score=Subquery(latest_score_subquery.values("score")[:1]),
             latest_status=Subquery(latest_score_subquery.values("status")[:1]),
             latest_job_title=Subquery(latest_score_subquery.values("job_post__title")[:1]),
-            latest_analyzed_at=Subquery(latest_score_subquery.values("analyzed_at")[:1]),
+            computed_latest_analyzed_at=Subquery(latest_score_subquery.values("analyzed_at")[:1]),
         )
         .order_by("-uploaded_at")[:5]
     )
@@ -2216,8 +2253,8 @@ def _jobseeker_dashboard_get(self, request):
     resumes_qs = (
         Resume.objects.filter(jobseeker=profile)
         .annotate(
-            latest_score=Subquery(latest_score_subquery.values("score")[:1]),
-            latest_analyzed_at=Subquery(latest_score_subquery.values("analyzed_at")[:1]),
+            computed_latest_score=Subquery(latest_score_subquery.values("score")[:1]),
+            computed_latest_analyzed_at=Subquery(latest_score_subquery.values("analyzed_at")[:1]),
         )
         .order_by("-uploaded_at")
     )
@@ -2256,12 +2293,20 @@ def _jobseeker_dashboard_get(self, request):
 
     recent_resumes_data = []
     for resume in resumes:
+        file_url = ""
+        file_obj = getattr(resume, "file", None)
+        if file_obj:
+            try:
+                file_url = file_obj.url
+            except Exception:
+                file_url = ""
         recent_resumes_data.append({
             "id": resume.pk,
             "filename": getattr(resume, "filename", "") or getattr(getattr(resume, "file", None), "name", ""),
             "uploaded_at": resume.uploaded_at.strftime("%b %d, %Y") if getattr(resume, "uploaded_at", None) else "",
-            "latest_score": getattr(resume, "latest_score", None),
-            "file": getattr(getattr(resume, "file", None), "url", ""),
+            "latest_score": getattr(resume, "computed_latest_score", getattr(resume, "latest_score", None)),
+            "file": file_url,
+            "file_url": file_url,
         })
 
     payload = {
@@ -2289,55 +2334,52 @@ def _hr_dashboard_get(self, request):
         return Response(payload)
 
     hr = request.user.hr_profile
-    jobs = JobPost.objects.filter(hr=hr)
+    jobs = (
+        JobPost.objects.filter(hr=hr)
+        .select_related("hr")
+        .annotate(
+            candidate_count=Count("ats_results", distinct=True),
+            top_score=Max("ats_results__score"),
+        )
+        .order_by("-created_at")
+    )
     applications = ATSResult.objects.filter(job_post__hr=hr)
 
-    stats = applications.aggregate(
-        total_candidates=Count("id", distinct=True),
-        avg_score=Avg("score"),
-    )
+    total_candidates = applications.count()
+    shortlisted_count = applications.filter(status='Shortlisted').count()
+    avg_score_data = applications.aggregate(avg=Avg('score'))
+    avg_score = round(avg_score_data['avg'] or 0, 1)
+    open_jobs_count = jobs.filter(status='Open').count()
+    interviewing_count = applications.filter(status='Interviewing').count()
 
-    open_jobs_count = jobs.filter(status__iexact="Open").count()
-    shortlisted_count = applications.filter(status__icontains="short").count()
-    interviewing_count = applications.filter(status__icontains="interview").count()
+    active_jobs_data = []
+    for job in jobs.filter(status='Open')[:5]:
+        active_jobs_data.append({
+            'id': job.id,
+            'title': job.title,
+            'status': job.status,
+            'created_at': job.created_at.strftime('%b %d, %Y') if job.created_at else '',
+            'candidate_count': getattr(job, 'candidate_count', 0) or 0,
+            'top_score': round(getattr(job, 'top_score', 0) or 0, 0),
+        })
 
-    recent_jobs = list(
-        jobs.annotate(
-            candidate_count=Count("ats_results", distinct=True),
-            max_score=Max("ats_results__score"),
-        )
-        .order_by("-created_at")[:5]
-    )
-
-    recent_candidates = list(
-        applications.select_related("resume", "job_post")
-        .order_by("-analyzed_at")[:5]
-    )
+    funnel = {
+        'apps': 100 if total_candidates > 0 else 0,
+        'screening': round((shortlisted_count / total_candidates * 100), 0) if total_candidates > 0 else 0,
+        'interviewing': round((interviewing_count / total_candidates * 100), 0) if total_candidates > 0 else 0,
+    }
 
     payload = {
-        "hr_profile": {
-            "id": hr.pk,
-            "name": _safe_name(request.user),
-        },
-        "stats": {
-            "open_jobs": open_jobs_count,
-            "total_candidates": stats["total_candidates"] or 0,
-            "shortlisted_candidates": shortlisted_count,
-            "interviewing_candidates": interviewing_count,
-            "average_score": round(float(stats["avg_score"] or 0), 2),
-        },
-        "recent_jobs": [_serialize_job_row(job) for job in recent_jobs],
-        "recent_candidates": [
-            {
-                "id": candidate.pk,
-                "score": getattr(candidate, "score", None),
-                "status": getattr(candidate, "status", ""),
-                "analyzed_at": getattr(candidate, "analyzed_at", None),
-                "resume_name": _safe_name(getattr(candidate, "resume", candidate)),
-                "job_title": _safe_name(getattr(candidate, "job_post", candidate)),
-            }
-            for candidate in recent_candidates
-        ],
+        'company': hr.company or "HR Overview",
+        'full_name': request.user.full_name,
+        'role': getattr(hr, 'role', 'HR Manager'),
+        'email': request.user.email,
+        'open_jobs_count': open_jobs_count,
+        'total_candidates': total_candidates,
+        'shortlisted_count': shortlisted_count,
+        'avg_score': avg_score,
+        'active_jobs': active_jobs_data,
+        'funnel': funnel,
     }
 
     cache.set(cache_key, payload, 20)
