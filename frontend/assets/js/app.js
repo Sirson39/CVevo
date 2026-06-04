@@ -9,26 +9,40 @@
 
     if (!burger || !links) return;
 
+    const setBurgerIcon = (open) => {
+      burger.classList.toggle("is-open", open);
+      burger.innerHTML = open
+        ? `
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6 6l12 12"></path>
+            <path d="M18 6L6 18"></path>
+          </svg>
+        `
+        : `
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="4" y1="6" x2="20" y2="6"></line>
+            <line x1="7" y1="12" x2="20" y2="12"></line>
+            <line x1="10" y1="18" x2="20" y2="18"></line>
+          </svg>
+        `;
+      burger.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+      burger.setAttribute("aria-expanded", String(open));
+    };
+
     if (!burger.dataset.iconized) {
-      burger.innerHTML = `
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <line x1="4" y1="6" x2="20" y2="6"></line>
-          <line x1="7" y1="12" x2="20" y2="12"></line>
-          <line x1="10" y1="18" x2="20" y2="18"></line>
-        </svg>
-      `;
+      setBurgerIcon(false);
       burger.dataset.iconized = "1";
     }
 
     burger.addEventListener("click", () => {
       const open = links.classList.toggle("open");
-      burger.setAttribute("aria-expanded", String(open));
+      setBurgerIcon(open);
     });
 
     links.querySelectorAll("a").forEach((a) => {
       a.addEventListener("click", () => {
         links.classList.remove("open");
-        burger.setAttribute("aria-expanded", "false");
+        setBurgerIcon(false);
       });
     });
   }

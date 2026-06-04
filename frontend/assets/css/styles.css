@@ -116,11 +116,25 @@ a{ color: inherit; text-decoration: none; }
   display: none;
   width: 42px;
   height: 42px;
-  border: 1px solid var(--border);
-  background: #fff;
+  border: 1px solid rgba(230,234,238,.95);
+  background: rgba(255,255,255,.96);
   border-radius: 14px;
-  padding: 10px;
+  padding: 0;
   cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 22px rgba(15,23,42,.08);
+  color: #1e293b;
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease, background .16s ease, color .16s ease;
+}
+.burger:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(15,23,42,.12);
+}
+.burger.is-open{
+  background: linear-gradient(180deg, rgba(47,143,122,.10), rgba(47,143,122,.04));
+  border-color: rgba(47,143,122,.28);
+  color: var(--green);
 }
 .burger span{
   display: block;
@@ -128,6 +142,9 @@ a{ color: inherit; text-decoration: none; }
   background: #1f2a44;
   margin: 5px 0;
   border-radius: 999px;
+}
+.burger svg{
+  display: block;
 }
 
 .reveal{
@@ -603,12 +620,13 @@ html.js .reveal:nth-child(3){ transition-delay: .18s; }
     left: 24px;
     right: 24px;
     top: 72px;
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 14px;
-    gap: 10px;
-    box-shadow: var(--shadow);
+    background: rgba(255,255,255,.98);
+    border: 1px solid rgba(230,234,238,.95);
+    border-radius: 22px;
+    padding: 12px;
+    gap: 8px;
+    box-shadow: 0 24px 60px rgba(15,23,42,.14);
+    backdrop-filter: blur(12px);
   }
   .nav-links.open a{
     padding: 12px 12px;
@@ -869,8 +887,8 @@ a:focus-visible, button:focus-visible, .btn:focus-visible{
   }
 
   .burger{
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
   }
 }
 
@@ -1256,11 +1274,9 @@ header nav a::after{
     flex-direction: column;
     justify-content: center;
     flex: 0 0 auto;
-    width: 38px;
-    height: 38px;
-    padding: 0;
-    border-radius: 12px;
-    background: rgba(255,255,255,.92);
+    width: 40px;
+    height: 40px;
+    border-radius: 13px;
   }
 
   .nav-links.open{
@@ -1271,8 +1287,13 @@ header nav a::after{
     top: auto;
     width: 100%;
     margin-top: 2px;
-    padding: 12px;
-    border-radius: 20px;
+    padding: 10px;
+    gap: 8px;
+    border-radius: 22px;
+    background: rgba(255,255,255,.98);
+    border: 1px solid rgba(230,234,238,.95);
+    box-shadow: 0 22px 60px rgba(15,23,42,.12);
+    backdrop-filter: blur(10px);
   }
 
   .nav-links.open a{
