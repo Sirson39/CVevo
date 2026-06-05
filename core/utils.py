@@ -54,6 +54,31 @@ VAGUE_SINGLE_WORDS = {
     "efficient", "robust", "scalable", "modern", "simple"
 }
 
+def _normalize_requirement_phrase(phrase: str) -> str:
+    if not phrase:
+        return ""
+    phrase = clean_and_normalize_text(phrase).strip()
+    if not phrase:
+        return ""
+    for prefix in GENERIC_KEYWORD_PREFIXES:
+        if phrase.startswith(prefix):
+            phrase = phrase[len(prefix):].strip()
+    phrase = re.sub(r"^[\W_]+|[\W_]+$", "", phrase).strip()
+    return phrase
+
+def _is_meaningful_requirement_phrase(phrase: str) -> bool:
+    phrase = _normalize_requirement_phrase(phrase)
+    if not phrase:
+        return False
+    words = phrase.split()
+    if not words or len(words) > 4:
+        return False
+    if len(words) == 1 and words[0] in VAGUE_SINGLE_WORDS:
+        return False
+    if any(word in {"focus", "writing", "write", "written"} for word in words):
+        return False
+    return True
+
 # Import new AI/NLP module
 try:
     from ai_nlp.pipeline import process_resume_against_jd
@@ -176,16 +201,7 @@ def calculate_ats_score(resume_text, job_requirements, **kwargs):
             "implementing", "maintain", "maintaining", "support", "supporting"
         }
         for chunk in re.split(r"[,;\n•]+", text or ""):
-            cleaned = re.sub(r"\s+", " ", chunk.lower()).strip()
-            if not cleaned:
-                continue
-            for prefix in generic_prefixes:
-                if cleaned.startswith(prefix):
-                    cleaned = cleaned[len(prefix):].strip()
-            for prefix in GENERIC_KEYWORD_PREFIXES:
-                if cleaned.startswith(prefix):
-                    cleaned = cleaned[len(prefix):].strip()
-            cleaned = cleaned.strip(" .:-")
+            cleaned = _normalize_requirement_phrase(chunk)
             if not cleaned:
                 continue
             words = cleaned.split()
@@ -197,7 +213,7 @@ def calculate_ats_score(resume_text, job_requirements, **kwargs):
                 continue
             if cleaned in {"responsibilities", "requirements", "experience", "skills"}:
                 continue
-            if len(words) == 1 and words[0] in VAGUE_SINGLE_WORDS:
+            if not _is_meaningful_requirement_phrase(cleaned):
                 continue
             terms.append(cleaned)
         return terms

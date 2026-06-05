@@ -205,6 +205,30 @@ def _is_meaningful_keyword_phrase(phrase: str, jd_skills: List[str]) -> bool:
     return all(word not in STOP_WORDS for word in words)
 
 
+def _extract_requirement_keywords(requirements_text: str, jd_skills: List[str]) -> List[str]:
+    """
+    Turn comma-separated ATS keywords into a clean, phrase-level list.
+    Drops instruction-like fragments such as "focus on writing clean".
+    """
+    if not requirements_text:
+        return []
+
+    phrases = []
+    for chunk in re.split(r"[,;\n•]+", requirements_text):
+        candidate = _normalize_keyword_phrase(chunk)
+        if _is_meaningful_keyword_phrase(candidate, jd_skills):
+            phrases.append(candidate)
+
+    # Preserve stable ordering while removing duplicates.
+    seen = set()
+    cleaned = []
+    for phrase in phrases:
+        if phrase and phrase not in seen:
+            seen.add(phrase)
+            cleaned.append(phrase)
+    return cleaned
+
+
 # -----------------------------
 # JD Parsing
 # -----------------------------
@@ -426,7 +450,7 @@ def calculate_ats_score(resume_data: Dict, jd_text: str = "", jd_fields: Dict = 
             jd_data["skills"] = normalize_list(extract_skills(jd_fields["tools_and_technologies"])) + jd_data["critical_skills"]
         if jd_fields.get("requirements"):
             # Keywords from the specific "ATS scanning keywords" field
-            kws = [k.strip().lower() for k in jd_fields["requirements"].split(',') if k.strip()]
+            kws = _extract_requirement_keywords(jd_fields["requirements"], jd_data.get("skills", []))
             jd_data["keywords"] = normalize_list(kws)
     else:
         jd_data = parse_job_description(jd_text)
