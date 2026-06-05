@@ -13,7 +13,16 @@ def clean_extracted_text(text: str) -> str:
     text = re.sub(r"\n{3,}", "\n\n", text)
     return text.strip()
 
-def extract_text_from_pdf(file_path: str) -> str:
+def _rewind_source(source):
+    if hasattr(source, "seek"):
+        try:
+            source.seek(0)
+        except Exception:
+            pass
+    return source
+
+def extract_text_from_pdf(file_path) -> str:
+    file_path = _rewind_source(file_path)
     text = []
     try:
         with pdfplumber.open(file_path) as pdf:
@@ -26,7 +35,8 @@ def extract_text_from_pdf(file_path: str) -> str:
         return ""
     return clean_extracted_text("\n".join(text))
 
-def extract_text_from_docx(file_path: str) -> str:
+def extract_text_from_docx(file_path) -> str:
+    file_path = _rewind_source(file_path)
     try:
         doc = docx.Document(file_path)
         text = "\n".join(p.text for p in doc.paragraphs if p.text.strip())
@@ -35,11 +45,17 @@ def extract_text_from_docx(file_path: str) -> str:
         print(f"Error extracting DOCX: {e}")
         return ""
 
-def get_text_from_file(file_path: str) -> str:
-    if not file_path or not os.path.exists(file_path):
+def get_text_from_file(file_path) -> str:
+    if not file_path:
         return ""
 
-    ext = os.path.splitext(file_path)[1].lower()
+    if isinstance(file_path, (str, os.PathLike)):
+        if not os.path.exists(file_path):
+            return ""
+        ext = os.path.splitext(file_path)[1].lower()
+    else:
+        ext = os.path.splitext(getattr(file_path, "name", ""))[1].lower()
+
     if ext == ".pdf":
         return extract_text_from_pdf(file_path)
     if ext == ".docx":

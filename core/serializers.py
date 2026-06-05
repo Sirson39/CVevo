@@ -191,9 +191,9 @@ class ATSResultSerializer(serializers.ModelSerializer):
 
         if not text:
             try:
-                ext = (resume.filename or "").split(".")[-1].lower()
-                file_path = resume.file.path
-                text = extract_text_from_pdf(file_path) if ext == "pdf" else extract_text_from_docx(file_path)
+                file_name = resume.filename or getattr(resume.file, "name", "")
+                ext = file_name.split(".")[-1].lower()
+                text = extract_text_from_pdf(resume.file) if ext == "pdf" else extract_text_from_docx(resume.file)
             except Exception:
                 text = ""
 
@@ -239,7 +239,7 @@ class ATSResultSerializer(serializers.ModelSerializer):
         try:
             import json
             data = json.loads(obj.score_breakdown)
-            pillars = data.get('pillars', data) # Fallback to entire object if no pillars key
+            pillars = data.get('pillars') or data.get('breakdown') or data
             if pillars:
                 return pillars
         except:

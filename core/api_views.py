@@ -1133,9 +1133,9 @@ class ResumeViewSet(viewsets.ModelViewSet):
         resume = serializer.save(jobseeker=self.request.user.jobseeker_profile)
         # Auto-parse logic
         try:
-            file_path = resume.file.path
-            ext = file_path.split('.')[-1].lower()
-            text = extract_text_from_pdf(file_path) if ext == 'pdf' else extract_text_from_docx(file_path)
+            file_name = resume.filename or resume.file.name
+            ext = file_name.split('.')[-1].lower()
+            text = extract_text_from_pdf(resume.file) if ext == 'pdf' else extract_text_from_docx(resume.file)
             if text:
                 parsed = parse_resume_text(text)
                 ParsedResumeData.objects.create(resume=resume, extracted_text=text, **parsed)
@@ -1387,8 +1387,8 @@ class QuickAnalysisView(APIView):
             parsed_data = getattr(resume, 'parsed_data', None)
             text = parsed_data.extracted_text if parsed_data else ""
             if not text:
-                ext = resume.filename.split('.')[-1].lower()
-                text = extract_text_from_pdf(resume.file.path) if ext == 'pdf' else extract_text_from_docx(resume.file.path)
+                ext = (resume.filename or resume.file.name).split('.')[-1].lower()
+                text = extract_text_from_pdf(resume.file) if ext == 'pdf' else extract_text_from_docx(resume.file)
 
             if not text:
                 return Response({'error': 'Text extraction failed'}, status=400)
@@ -1401,7 +1401,11 @@ class QuickAnalysisView(APIView):
             # 3. Save Result
             full_breakdown = {
                 'pillars': analysis.get('pillars', {}),
-                'suggestions': analysis.get('suggestions', [])
+                'breakdown': analysis.get('pillars', {}),
+                'suggestions': analysis.get('suggestions', []),
+                'strengths': analysis.get('strengths', []),
+                'recommendations': analysis.get('weaknesses', []),
+                'quality_issues': analysis.get('quality_issues', []),
             }
 
             print(f"DEBUG: ATS Match -> {analysis.get('matched_keywords')}")
@@ -1480,8 +1484,8 @@ class GeneralAnalysisView(APIView):
             parsed_data = getattr(resume, 'parsed_data', None)
             text = parsed_data.extracted_text if parsed_data else ""
             if not text:
-                ext = resume.filename.split('.')[-1].lower()
-                text = extract_text_from_pdf(resume.file.path) if ext == 'pdf' else extract_text_from_docx(resume.file.path)
+                ext = (resume.filename or resume.file.name).split('.')[-1].lower()
+                text = extract_text_from_pdf(resume.file) if ext == 'pdf' else extract_text_from_docx(resume.file)
 
             if not text:
                 _notify_jobseeker(
@@ -1496,11 +1500,12 @@ class GeneralAnalysisView(APIView):
                 return Response({'error': 'No text found'}, status=400)
 
             # 2. Run Real General Quality Scan
-            scan = calculate_general_score(text, resume.file.size, resume.filename.split('.')[-1])
+            scan = calculate_general_score(text, resume.file.size, (resume.filename or resume.file.name).split('.')[-1])
 
             # Save to history so it appears in dashboard
             full_breakdown = {
                 'pillars': scan.get('breakdown', {}),
+                'breakdown': scan.get('breakdown', {}),
                 'suggestions': scan.get('suggestions', []),
                 'strengths': scan.get('strengths', []),
                 'recommendations': scan.get('recommendations', []),
@@ -1827,8 +1832,8 @@ class HRBulkUploadView(APIView):
             ext = file.name.split('.')[-1].lower()
             text = ""
             try:
-                if ext == 'pdf': text = extract_text_from_pdf(resume.file.path)
-                else: text = extract_text_from_docx(resume.file.path)
+                if ext == 'pdf': text = extract_text_from_pdf(resume.file)
+                else: text = extract_text_from_docx(resume.file)
             except: pass
 
             if text:
@@ -1842,7 +1847,11 @@ class HRBulkUploadView(APIView):
                 # Combine breakdown for storage
                 full_breakdown = {
                     'pillars': analysis.get('pillars', {}),
-                    'suggestions': analysis.get('suggestions', [])
+                    'breakdown': analysis.get('pillars', {}),
+                    'suggestions': analysis.get('suggestions', []),
+                    'strengths': analysis.get('strengths', []),
+                    'recommendations': analysis.get('weaknesses', []),
+                    'quality_issues': analysis.get('quality_issues', [])
                 }
                 
                 res = ATSResult.objects.create(
