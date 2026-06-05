@@ -21,6 +21,39 @@ def _basic_clean_and_normalize_text(text: str) -> str:
     text = re.sub(r"\s+", " ", text).strip()
     return text
 
+GENERIC_KEYWORD_PREFIXES = (
+    "focus on ",
+    "focus to ",
+    "ability to ",
+    "able to ",
+    "experience in ",
+    "experience with ",
+    "working with ",
+    "working on ",
+    "work with ",
+    "work on ",
+    "responsible for ",
+    "proficient in ",
+    "knowledge of ",
+    "familiar with ",
+    "hands on ",
+    "hands-on ",
+    "strong ",
+    "good ",
+    "excellent ",
+    "learn ",
+    "learning ",
+    "using ",
+    "use ",
+    "support ",
+    "ensure ",
+)
+
+VAGUE_SINGLE_WORDS = {
+    "clean", "strong", "good", "excellent", "basic", "advanced",
+    "efficient", "robust", "scalable", "modern", "simple"
+}
+
 # Import new AI/NLP module
 try:
     from ai_nlp.pipeline import process_resume_against_jd
@@ -149,6 +182,9 @@ def calculate_ats_score(resume_text, job_requirements, **kwargs):
             for prefix in generic_prefixes:
                 if cleaned.startswith(prefix):
                     cleaned = cleaned[len(prefix):].strip()
+            for prefix in GENERIC_KEYWORD_PREFIXES:
+                if cleaned.startswith(prefix):
+                    cleaned = cleaned[len(prefix):].strip()
             cleaned = cleaned.strip(" .:-")
             if not cleaned:
                 continue
@@ -160,6 +196,8 @@ def calculate_ats_score(resume_text, job_requirements, **kwargs):
             if cleaned.startswith(("we ", "you ", "our ", "the ", "a ", "an ")) and len(words) > 2:
                 continue
             if cleaned in {"responsibilities", "requirements", "experience", "skills"}:
+                continue
+            if len(words) == 1 and words[0] in VAGUE_SINGLE_WORDS:
                 continue
             terms.append(cleaned)
         return terms

@@ -41,6 +41,55 @@ CRITICAL_SKILL_HINTS = {
     "machine learning", "data analysis", "rest api", "git"
 }
 
+GENERIC_PHRASE_PREFIXES = (
+    "focus on ",
+    "focus to ",
+    "ability to ",
+    "able to ",
+    "experience in ",
+    "experience with ",
+    "working with ",
+    "working on ",
+    "work with ",
+    "work on ",
+    "responsible for ",
+    "proficient in ",
+    "knowledge of ",
+    "familiar with ",
+    "hands on ",
+    "hands-on ",
+    "strong ",
+    "good ",
+    "excellent ",
+    "learn ",
+    "learning ",
+    "using ",
+    "use ",
+    "support ",
+    "ensure ",
+)
+
+GENERIC_PHRASE_WORDS = {
+    "focus", "writing", "write", "written", "responsible", "proficient",
+    "knowledge", "familiar", "strong", "good", "excellent", "learn",
+    "learning", "using", "use", "support", "ensure", "building",
+    "developing", "maintaining", "managing"
+}
+
+VAGUE_SINGLE_WORDS = {
+    "clean", "strong", "good", "excellent", "basic", "advanced",
+    "efficient", "robust", "scalable", "modern", "simple"
+}
+
+TECH_PHRASE_ANCHORS = {
+    "api", "apis", "code", "coding", "django", "flask", "react", "postgresql",
+    "mysql", "mongodb", "sql", "aws", "azure", "gcp", "docker", "kubernetes",
+    "git", "python", "javascript", "typescript", "backend", "frontend",
+    "devops", "security", "testing", "rest", "graphql", "cloud", "database",
+    "software", "system", "application", "web", "mobile", "data", "ui", "ux",
+    "product", "manager", "managers", "development"
+}
+
 
 # -----------------------------
 # Helper Functions
@@ -102,6 +151,60 @@ def get_semantic_similarity(text1: str, text2: str) -> float:
         return 0.0
 
 
+def _normalize_keyword_phrase(phrase: str) -> str:
+    if not phrase:
+        return ""
+
+    normalized = clean_and_normalize_text(phrase)
+    if not normalized:
+        return ""
+
+    for prefix in GENERIC_PHRASE_PREFIXES:
+        if normalized.startswith(prefix):
+            normalized = normalized[len(prefix):].strip()
+
+    parts = [part for part in normalized.split() if part]
+    while parts and parts[0] in GENERIC_PHRASE_WORDS:
+        parts.pop(0)
+
+    normalized = " ".join(parts).strip()
+    normalized = re.sub(r"^[\W_]+|[\W_]+$", "", normalized).strip()
+    return normalized
+
+
+def _is_meaningful_keyword_phrase(phrase: str, jd_skills: List[str]) -> bool:
+    phrase = _normalize_keyword_phrase(phrase)
+    if not phrase:
+        return False
+
+    words = phrase.split()
+    if not words or len(words) > 4:
+        return False
+
+    if phrase in STOP_WORDS:
+        return False
+
+    if any(word in GENERIC_PHRASE_WORDS for word in words):
+        if not any(anchor in words for anchor in TECH_PHRASE_ANCHORS):
+            return False
+
+    if any(skill in phrase for skill in jd_skills):
+        return True
+
+    if len(words) == 1:
+        return (
+            len(words[0]) > 2 and
+            words[0] not in STOP_WORDS and
+            words[0] not in VAGUE_SINGLE_WORDS
+        )
+
+    if any(anchor in words for anchor in TECH_PHRASE_ANCHORS):
+        return True
+
+    # Keep short non-generic noun phrases such as "product managers"
+    return all(word not in STOP_WORDS for word in words)
+
+
 # -----------------------------
 # JD Parsing
 # -----------------------------
@@ -126,10 +229,15 @@ def parse_job_description(jd_text: str) -> Dict:
     # Extract technical skills from parser skill list
     jd_skills = normalize_list(extract_skills(jd_text))
 
-    # Extract general keywords
+    # Extract general keywords, but keep them phrase-level and filter out
+    # instruction-like fragments such as "focus on writing clean code".
     keywords = set()
     if nlp:
         doc = nlp(jd_text)
+        for chunk in doc.noun_chunks:
+            candidate = chunk.text.strip()
+            if _is_meaningful_keyword_phrase(candidate, jd_skills):
+                keywords.add(_normalize_keyword_phrase(candidate))
         for token in doc:
             word = token.text.lower().strip()
             if (
@@ -137,10 +245,14 @@ def parse_job_description(jd_text: str) -> Dict:
                 len(word) > 2 and
                 word not in STOP_WORDS
             ):
-                keywords.add(word)
+                candidate = _normalize_keyword_phrase(word)
+                if _is_meaningful_keyword_phrase(candidate, jd_skills):
+                    keywords.add(candidate)
     else:
-        words = re.findall(r'\b[a-zA-Z][a-zA-Z0-9+.#-]{2,}\b', jd_text.lower())
-        keywords = {w for w in words if w not in STOP_WORDS}
+        for raw_chunk in re.split(r"[,;\n•]+", jd_text.lower()):
+            candidate = _normalize_keyword_phrase(raw_chunk)
+            if _is_meaningful_keyword_phrase(candidate, jd_skills):
+                keywords.add(candidate)
 
     # Critical skills = important technical items from JD
     critical_skills = []
