@@ -20,7 +20,9 @@ STOP_WORDS = {
     "required", "preferred", "candidates", "environment", "description",
     "ability", "abilities", "knowledge", "role", "position", "job",
     "candidate", "year", "years", "strong", "good", "excellent",
-    "understanding", "including", "must", "should", "using"
+    "understanding", "including", "must", "should", "using",
+    "and", "or", "the", "with", "for", "to", "in", "of", "a", "an",
+    "we", "you", "our", "by", "from"
 }
 
 ACTION_VERBS = {
@@ -79,6 +81,11 @@ GENERIC_PHRASE_WORDS = {
 VAGUE_SINGLE_WORDS = {
     "clean", "strong", "good", "excellent", "basic", "advanced",
     "efficient", "robust", "scalable", "modern", "simple"
+}
+
+LEADING_CONNECTOR_WORDS = {
+    "and", "or", "the", "with", "for", "to", "in", "of", "a", "an",
+    "we", "you", "our", "by", "from"
 }
 
 TECH_PHRASE_ANCHORS = {
@@ -164,7 +171,7 @@ def _normalize_keyword_phrase(phrase: str) -> str:
             normalized = normalized[len(prefix):].strip()
 
     parts = [part for part in normalized.split() if part]
-    while parts and parts[0] in GENERIC_PHRASE_WORDS:
+    while parts and (parts[0] in GENERIC_PHRASE_WORDS or parts[0] in LEADING_CONNECTOR_WORDS):
         parts.pop(0)
 
     normalized = " ".join(parts).strip()
@@ -182,6 +189,9 @@ def _is_meaningful_keyword_phrase(phrase: str, jd_skills: List[str]) -> bool:
         return False
 
     if phrase in STOP_WORDS:
+        return False
+
+    if words[0] in LEADING_CONNECTOR_WORDS:
         return False
 
     if any(word in GENERIC_PHRASE_WORDS for word in words):

@@ -54,6 +54,11 @@ VAGUE_SINGLE_WORDS = {
     "efficient", "robust", "scalable", "modern", "simple"
 }
 
+LEADING_CONNECTOR_WORDS = {
+    "and", "or", "the", "with", "for", "to", "in", "of", "a", "an",
+    "we", "you", "our", "by", "from"
+}
+
 def _normalize_requirement_phrase(phrase: str) -> str:
     if not phrase:
         return ""
@@ -63,6 +68,10 @@ def _normalize_requirement_phrase(phrase: str) -> str:
     for prefix in GENERIC_KEYWORD_PREFIXES:
         if phrase.startswith(prefix):
             phrase = phrase[len(prefix):].strip()
+    parts = [part for part in phrase.split() if part]
+    while parts and parts[0] in LEADING_CONNECTOR_WORDS:
+        parts.pop(0)
+    phrase = " ".join(parts).strip()
     phrase = re.sub(r"^[\W_]+|[\W_]+$", "", phrase).strip()
     return phrase
 
@@ -72,6 +81,8 @@ def _is_meaningful_requirement_phrase(phrase: str) -> bool:
         return False
     words = phrase.split()
     if not words or len(words) > 4:
+        return False
+    if words[0] in LEADING_CONNECTOR_WORDS:
         return False
     if len(words) == 1 and words[0] in VAGUE_SINGLE_WORDS:
         return False
