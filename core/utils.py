@@ -13,14 +13,24 @@ class OverwriteStorage(FileSystemStorage):
             self.delete(name)
         return name
 
+def _basic_clean_and_normalize_text(text: str) -> str:
+    if not text:
+        return ""
+    text = text.lower()
+    text = re.sub(r"[^\w\s+#./-]", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
 # Import new AI/NLP module
 try:
     from ai_nlp.pipeline import process_resume_against_jd
     from ai_nlp.extractor import get_text_from_file, extract_text_from_pdf as new_extract_pdf, extract_text_from_docx as new_extract_docx
     from ai_nlp.parser import parse_resume
     from ai_nlp.analyzer import calculate_ats_score as new_ats_score
+    from ai_nlp.parser import clean_and_normalize_text
     AI_NLP_AVAILABLE = True
 except ImportError:
+    clean_and_normalize_text = _basic_clean_and_normalize_text
     AI_NLP_AVAILABLE = False
 
 def extract_text_from_pdf(file_path):
@@ -115,17 +125,37 @@ def calculate_ats_score(resume_text, job_requirements, **kwargs):
             "missing_skills": [],
             "feedback": "No requirements provided for comparison.",
             "pillars": {},
+            "strengths": [],
+            "weaknesses": [],
+            "quality_issues": [],
             "suggestions": []
         }
 
     def _fallback_keyword_terms(text):
         terms = []
+        generic_prefixes = (
+            "and ", "or ", "with ", "to ", "for ", "of ", "in ", "on ",
+            "the ", "a ", "an ", "we ", "you ", "our "
+        )
+        generic_verbs = {
+            "develop", "developing", "developer", "build", "building", "create",
+            "creating", "design", "designing", "manage", "managing", "implement",
+            "implementing", "maintain", "maintaining", "support", "supporting"
+        }
         for chunk in re.split(r"[,;\n•]+", text or ""):
             cleaned = re.sub(r"\s+", " ", chunk.lower()).strip()
             if not cleaned:
                 continue
+            for prefix in generic_prefixes:
+                if cleaned.startswith(prefix):
+                    cleaned = cleaned[len(prefix):].strip()
+            cleaned = cleaned.strip(" .:-")
+            if not cleaned:
+                continue
             words = cleaned.split()
-            if len(words) > 4 or len(cleaned) > 40:
+            if len(words) > 4 or len(cleaned) > 42:
+                continue
+            if words[0] in generic_verbs:
                 continue
             if cleaned.startswith(("we ", "you ", "our ", "the ", "a ", "an ")) and len(words) > 2:
                 continue
@@ -156,13 +186,129 @@ def calculate_ats_score(resume_text, job_requirements, **kwargs):
     else:
         feedback += " Excellent match with all requirements!"
 
+    # Build a structured breakdown so the frontend still renders properly
+    resume_sections = {
+        "summary": "",
+        "experience": "",
+        "education": "",
+        "projects": "",
+        "skills": "",
+    }
+
+    section_patterns = {
+        "summary": r"(?is)(summary|objective|profile|about me|professional summary)(.*?)(experience|education|skills|projects|certifications|$)",
+        "experience": r"(?is)(experience|work experience|employment|professional experience)(.*?)(education|skills|projects|summary|certifications|$)",
+        "education": r"(?is)(education|academic background|qualifications|qualification)(.*?)(experience|skills|projects|summary|certifications|$)",
+        "projects": r"(?is)(projects|project experience|personal projects|academic projects)(.*?)(experience|education|skills|summary|certifications|$)",
+        "skills": r"(?is)(skills|technical skills|core skills|expertise|competencies)(.*?)(experience|education|projects|summary|certifications|$)",
+    }
+    for name, pattern in section_patterns.items():
+        match = re.search(pattern, resume_text)
+        if match:
+            resume_sections[name] = clean_and_normalize_text(match.group(2))
+
+    normalized_resume = clean_and_normalize_text(resume_text)
+    normalized_jd = clean_and_normalize_text(job_requirements)
+    resume_tokens = set(re.findall(r"\b[a-z0-9+#.]{2,}\b", normalized_resume))
+    jd_tokens = set(re.findall(r"\b[a-z0-9+#.]{2,}\b", normalized_jd))
+    token_overlap = resume_tokens.intersection(jd_tokens)
+    semantic_score = min(10, round((len(token_overlap) / len(jd_tokens)) * 10, 2)) if jd_tokens else 5
+
+    resume_has_email = bool(re.search(r'[\w\.-]+@[\w\.-]+\.\w+', resume_text))
+    resume_has_phone = bool(re.search(r'\+?\d[\d\s().-]{7,}\d', resume_text))
+    resume_has_name = len((resume_text.splitlines()[0] if resume_text.splitlines() else "").split()) >= 2
+
+    completeness_hits = sum([
+        1 if resume_sections["summary"] else 0,
+        1 if resume_sections["experience"] else 0,
+        1 if resume_sections["education"] else 0,
+        1 if resume_sections["skills"] else 0,
+        1 if resume_has_email else 0,
+    ])
+    completeness_score = round((completeness_hits / 5) * 5, 2)
+
+    # Quality score reused from the general scan logic for a stable fallback.
+    try:
+        file_size = len(resume_text.encode("utf-8"))
+        file_ext = "txt"
+        quality_result = calculate_general_score(resume_text, file_size, file_ext)
+        quality_pillar_score = round((quality_result["quality_score"] / 100) * 10, 2)
+        quality_issues = quality_result.get("issues_found", [])
+        quality_suggestions = quality_result.get("recommendations", [])
+    except Exception:
+        quality_result = {"quality_score": 60, "issues_found": [], "recommendations": []}
+        quality_pillar_score = 6
+        quality_issues = []
+        quality_suggestions = []
+
+    core_skills_score = round(min(30, (len(matched) / len(req_keywords)) * 30), 2) if req_keywords else 20
+    tools_score = round(min(10, (len(token_overlap) / len(jd_tokens)) * 10), 2) if jd_tokens else 8
+    experience_score = 7 if resume_sections["experience"] else 0
+    project_score = 4 if resume_sections["projects"] else 0
+    education_score = 5 if resume_sections["education"] else 0
+
+    final_score = round(min(
+        100,
+        core_skills_score +
+        tools_score +
+        experience_score +
+        project_score +
+        education_score +
+        semantic_score +
+        completeness_score +
+        quality_pillar_score
+    ), 2)
+
+    if final_score >= 80:
+        match_level = "Strong Fit"
+    elif final_score >= 60:
+        match_level = "Moderate Fit"
+    else:
+        match_level = "Low Fit"
+
+    strengths = []
+    if matched:
+        strengths.append(f"Matches {len(matched)} job requirements.")
+    if resume_sections["experience"]:
+        strengths.append("Experience section is present.")
+    if resume_has_email:
+        strengths.append("Contact details are present.")
+    if quality_result.get("quality_score", 0) >= 75:
+        strengths.append("Resume quality is solid.")
+
+    weaknesses = []
+    if missing:
+        weaknesses.append("Some job requirements are not covered in the resume.")
+    if not resume_sections["skills"]:
+        weaknesses.append("Skills section is missing or hard to detect.")
+    if not resume_sections["projects"]:
+        weaknesses.append("Projects section is missing or hard to detect.")
+    if quality_result.get("quality_score", 0) < 60:
+        weaknesses.append("Resume quality and completeness need improvement.")
+
     return {
-        "ats_score": round(score, 2),
+        "ats_score": final_score,
+        "quality_score": quality_result.get("quality_score", 0),
+        "final_score": final_score,
+        "match_level": match_level,
         "matched_keywords": matched,
         "missing_skills": missing,
         "feedback": feedback,
-        "pillars": {},
-        "suggestions": []
+        "pillars": {
+            "Core Skills": core_skills_score,
+            "Tools & Frameworks": tools_score,
+            "Experience Relevance": experience_score,
+            "Project Relevance": project_score,
+            "Education Match": education_score,
+            "Semantic Similarity": semantic_score,
+            "Resume Completeness": completeness_score,
+            "Resume Quality": quality_pillar_score,
+        },
+        "suggestions": quality_suggestions or [],
+        "strengths": strengths,
+        "weaknesses": weaknesses,
+        "quality_issues": quality_issues,
+        "missing_critical_skills": missing[:5]
     }
 
 
