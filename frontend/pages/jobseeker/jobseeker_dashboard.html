@@ -87,11 +87,40 @@
 
     .js-table-wrap {
       width: 100%;
+      overflow: hidden;
     }
 
     .js-table {
       width: 100%;
       border-collapse: collapse;
+      min-width: 0 !important;
+      table-layout: fixed;
+    }
+
+    .js-table thead th,
+    .js-table tbody td {
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+
+    .js-table thead th:nth-child(1),
+    .js-table tbody td:nth-child(1) {
+      width: 54%;
+    }
+
+    .js-table thead th:nth-child(2),
+    .js-table tbody td:nth-child(2) {
+      width: 22%;
+    }
+
+    .js-table thead th:nth-child(3),
+    .js-table tbody td:nth-child(3) {
+      width: 12%;
+    }
+
+    .js-table thead th:nth-child(4),
+    .js-table tbody td:nth-child(4) {
+      width: 12%;
     }
 
     @media (max-width: 920px) {
@@ -109,7 +138,7 @@
       }
 
       .js-table-wrap {
-        overflow-x: auto;
+        overflow: hidden;
         -webkit-overflow-scrolling: touch;
         margin: 0;
         padding: 0;
@@ -150,7 +179,7 @@
       }
 
       .js-table {
-        min-width: 100%;
+        min-width: 0 !important;
         table-layout: fixed;
       }
 

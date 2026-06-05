@@ -918,6 +918,47 @@ class HRProfileViewSet(viewsets.ModelViewSet):
         return Response(serializer.errors, status=400)
 
 class JobseekerDashboardView(APIView):
+    def _calculate_strength(self, profile, resumes_qs):
+        score = 0
+
+        # Core profile identity
+        if profile.full_name.strip():
+            score += 10
+        if profile.email.strip():
+            score += 10
+
+        # Contact and headline
+        if profile.phone.strip():
+            score += 10
+        if profile.location.strip():
+            score += 10
+        if profile.position.strip():
+            score += 10
+        if profile.summary.strip():
+            score += 10
+
+        # Supporting profile links
+        if profile.linkedin.strip():
+            score += 10
+        if profile.portfolio.strip():
+            score += 10
+
+        # Profile content
+        if profile.educations.exists():
+            score += 5
+        if profile.experiences.exists():
+            score += 5
+        if profile.skills.exists():
+            score += 5
+        if profile.projects.exists():
+            score += 5
+
+        # Resume activity
+        if resumes_qs.exists():
+            score += 10
+
+        return min(100, score)
+
     def get(self, request):
         from django.db.models import Avg
         from django.utils import timezone
@@ -936,12 +977,8 @@ class JobseekerDashboardView(APIView):
             analyzed_at__month=now.month
         ).count()
         
-        strength_score = 0
-        if profile.educations.exists(): strength_score += 25
-        if profile.experiences.exists(): strength_score += 25
-        if profile.skills.exists(): strength_score += 25
-        if profile.projects.exists(): strength_score += 25
-        
+        strength_score = self._calculate_strength(profile, resumes_qs)
+
         strength_label = "Low"
         if strength_score >= 75: strength_label = "Advanced"
         elif strength_score >= 50: strength_label = "Improving"
