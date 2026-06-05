@@ -128,11 +128,13 @@
     .chart-wrapper {
       height: 300px;
       position: relative;
+      min-width: 0;
     }
 
     .chart-mini {
       height: 180px;
       margin-top: 20px;
+      min-width: 0;
     }
 
     .insight-row {
@@ -194,6 +196,49 @@
       .dashboard-grid { grid-template-columns: 1fr; }
       .grid-card.wide { grid-column: span 1; }
       .admin-dashboard-container { padding: 20px; }
+    }
+
+    @media (max-width: 560px) {
+      .admin-dashboard-container {
+        padding: 12px;
+      }
+
+      .summary-grid {
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      .summary-card,
+      .grid-card {
+        padding: 16px;
+        border-radius: 16px;
+      }
+
+      .dashboard-grid {
+        gap: 12px;
+      }
+
+      .grid-card-header {
+        margin-bottom: 16px;
+        gap: 10px;
+      }
+
+      .grid-card-header h3 {
+        font-size: 1rem;
+      }
+
+      .chart-wrapper {
+        height: 260px;
+      }
+
+      .chart-mini {
+        height: 160px;
+      }
+
+      .activity-item,
+      .ml-item {
+        align-items: flex-start;
+      }
     }
   </style>
 </head>

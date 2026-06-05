@@ -68,6 +68,39 @@
       gap: 0.8rem;
     }
 
+    .funnel-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .funnel-item {
+      min-width: 0;
+    }
+
+    .funnel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.85rem;
+      margin-bottom: 0.4rem;
+      min-width: 0;
+    }
+
+    .funnel-label {
+      font-weight: 600;
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .funnel-value {
+      color: #64748b;
+      flex: 0 0 auto;
+      white-space: nowrap;
+      text-align: right;
+    }
+
     .tool-card {
       display: block;
       padding: 14px 16px;
@@ -113,6 +146,16 @@
       line-height: 1.35;
     }
 
+    .table-responsive {
+      width: 100%;
+    }
+
+    .jobs-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+    }
+
     @media (max-width: 1200px) {
       .hr-stats-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -130,8 +173,60 @@
         flex-direction: column;
       }
 
+      .hr-panel {
+        padding: 16px;
+        border-radius: 16px;
+        overflow: hidden;
+      }
+
       .hr-stats-grid {
         grid-template-columns: 1fr;
+      }
+
+      .hr-main-grid {
+        gap: 14px;
+      }
+
+      .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 0 -4px;
+        padding: 0 4px 2px;
+      }
+
+      .jobs-table {
+        min-width: 640px;
+      }
+
+      .tool-card {
+        padding: 12px 14px;
+      }
+
+      .tool-card-row {
+        gap: 0.75rem;
+      }
+
+      .tool-ico {
+        padding: 0.55rem;
+        border-radius: 12px;
+      }
+
+      .tool-title {
+        font-size: 0.95rem;
+      }
+
+      .tool-desc {
+        font-size: 0.78rem;
+      }
+
+      .funnel-head {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.2rem;
+      }
+
+      .funnel-value {
+        text-align: left;
       }
     }
   </style>
@@ -175,7 +270,7 @@
             <h4 style="margin: 0 0 1.25rem 0; font-size: 16px; font-weight: 800; color: #0f172a;">Active Job
               Listings</h4>
             <div class="table-responsive">
-              <table style="width: 100%; border-collapse: collapse;">
+              <table class="jobs-table">
                 <thead>
                   <tr style="border-bottom: 1px solid #f1f5f9; text-align: left;">
                     <th
@@ -244,32 +339,29 @@
             <div class="card hr-panel">
               <h4 style="margin: 0 0 1.25rem 0; font-size: 16px; font-weight: 800; color: #0f172a;">Selection
                 Funnel</h4>
-              <div class="stack" style="gap: 1rem;">
-                <div>
-                  <div
-                    style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.4rem;">
-                    <span style="font-weight: 600;">Applications</span>
-                    <span id="funnelAppsText" class="muted">0%</span>
+              <div class="funnel-list">
+                <div class="funnel-item">
+                  <div class="funnel-head">
+                    <span class="funnel-label">Applications</span>
+                    <span id="funnelAppsText" class="funnel-value">0%</span>
                   </div>
                   <div style="height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden;">
                     <div id="funnelAppsBar" style="width: 0%; height: 100%; background: #10b981;"></div>
                   </div>
                 </div>
-                <div>
-                  <div
-                    style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.4rem;">
-                    <span style="font-weight: 600;">Screening Passed</span>
-                    <span id="funnelScreeningText" class="muted">0%</span>
+                <div class="funnel-item">
+                  <div class="funnel-head">
+                    <span class="funnel-label">Screening Passed</span>
+                    <span id="funnelScreeningText" class="funnel-value">0%</span>
                   </div>
                   <div style="height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden;">
                     <div id="funnelScreeningBar" style="width: 0%; height: 100%; background: #f59e0b;"></div>
                   </div>
                 </div>
-                <div>
-                  <div
-                    style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.4rem;">
-                    <span style="font-weight: 600;">Interviewing</span>
-                    <span id="funnelInterviewingText" class="muted">0%</span>
+                <div class="funnel-item">
+                  <div class="funnel-head">
+                    <span class="funnel-label">Interviewing</span>
+                    <span id="funnelInterviewingText" class="funnel-value">0%</span>
                   </div>
                   <div style="height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden;">
                     <div id="funnelInterviewingBar" style="width: 0%; height: 100%; background: #3b82f6;"></div>

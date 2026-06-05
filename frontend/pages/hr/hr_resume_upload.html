@@ -13,6 +13,13 @@
   <link rel="stylesheet" href="../../assets/css/dashboard.css">
 
   <style>
+    .bulk-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
     .upload-area {
       border: 2px dashed #cbd5e1;
       border-radius: 16px;
@@ -71,6 +78,86 @@
       border-radius: 999px;
       font-weight: 700;
     }
+
+    @media (max-width: 920px) {
+      .bulk-layout {
+        grid-template-columns: 1fr !important;
+        gap: 1.25rem !important;
+      }
+
+      .bulk-layout > section {
+        min-width: 0;
+      }
+
+      .job-select-card {
+        padding: 1rem;
+      }
+
+      .upload-area {
+        padding: 1.5rem 1rem;
+        border-radius: 18px;
+        margin-bottom: 1rem;
+      }
+
+      .upload-icon {
+        font-size: 2.25rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .upload-area h4 {
+        font-size: 1rem;
+      }
+
+      .upload-area p {
+        font-size: 0.82rem !important;
+        line-height: 1.45;
+      }
+
+      .file-list {
+        max-height: 180px;
+      }
+
+      #submit-btn {
+        width: 100%;
+        padding: 0.95rem 1rem !important;
+        font-size: 0.95rem;
+      }
+
+      .hr-upload-note {
+        margin-top: 1rem !important;
+        padding: 1rem !important;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .bulk-layout {
+        gap: 1rem !important;
+      }
+
+      .dash-head {
+        margin-bottom: 1.25rem !important;
+      }
+
+      .dash-welcome {
+        font-size: 1.7rem;
+      }
+
+      .dash-sub {
+        font-size: 0.92rem;
+      }
+
+      .job-select-card {
+        margin-bottom: 0.75rem;
+      }
+
+      .status-badge {
+        font-size: 9px;
+      }
+
+      .file-item {
+        font-size: 0.8rem;
+      }
+    }
   </style>
 </head>
 
@@ -93,7 +180,7 @@
         </div>
 
         <form id="bulkUploadForm">
-          <div class="grid grid-2" style="grid-template-columns: 1fr 1.5fr; gap: 3rem; align-items: start;">
+          <div class="bulk-layout">
             <section>
               <h3 style="margin: 0 0 1.5rem 0; font-size: 1.1rem;">1. Select Target Job</h3>
               <div id="jobCardsBox" class="stack"></div>
@@ -120,7 +207,7 @@
 
               <div id="uploadMsg" style="display:none; margin-top: 14px; font-size: 13px;"></div>
 
-              <div class="card pad-lg" style="margin-top: 2rem; background: #fffbeb; border-color: #fef3c7;">
+              <div class="card pad-lg hr-upload-note" style="margin-top: 2rem; background: #fffbeb; border-color: #fef3c7;">
                 <h4 style="margin: 0 0 0.5rem 0; color: #92400e;">Batch Processing</h4>
                 <p style="font-size: 0.85rem; color: #92400e; line-height: 1.5; margin: 0;">
                   The system will extract text from each resume and compare it against your selected job's requirements automatically.

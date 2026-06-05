@@ -63,6 +63,9 @@
       border-radius: 12px;
       border: 1px solid #f1f5f9;
       align-self: start;
+      min-width: 0;
+      max-width: 100%;
+      overflow: hidden;
     }
 
     .js-table-head {
@@ -82,15 +85,95 @@
       align-self: start;
     }
 
+    .js-table-wrap {
+      width: 100%;
+    }
+
+    .js-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
     @media (max-width: 920px) {
       .js-main-grid {
         grid-template-columns: 1fr;
+      }
+
+      .js-side-stack {
+        gap: 12px;
+      }
+
+      .js-panel {
+        padding: 14px;
+        border-radius: 16px;
+      }
+
+      .js-table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 0;
+        padding: 0;
+      }
+
+      .js-table {
+        min-width: 100%;
+        table-layout: fixed;
       }
     }
 
     @media (max-width: 560px) {
       .js-head {
         flex-direction: column;
+      }
+
+      .js-head h1 {
+        font-size: 1.45rem;
+      }
+
+      .js-head p {
+        font-size: 0.9rem;
+      }
+
+      .js-kpi {
+        padding: 12px 14px;
+        min-height: 80px;
+      }
+
+      .js-panel {
+        padding: 12px;
+      }
+
+      .js-table-head {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+
+      .js-table {
+        min-width: 100%;
+        table-layout: fixed;
+      }
+
+      .js-table thead th {
+        font-size: 9px !important;
+        padding-top: 8px !important;
+        padding-bottom: 8px !important;
+        word-break: break-word;
+      }
+
+      .js-table tbody td {
+        padding-top: 12px !important;
+        padding-bottom: 12px !important;
+        word-break: break-word;
+      }
+
+      .js-analysis .btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .js-analysis p {
+        font-size: 12.5px !important;
       }
     }
 
@@ -186,8 +269,8 @@
                 style="font-size: 13px; color: #10b981; font-weight: 700; text-decoration: none;">Manage all -></a>
             </div>
 
-            <div class="table-wrap">
-              <table class="table" style="width: 100%; border-collapse: collapse;">
+            <div class="table-wrap js-table-wrap">
+              <table class="table js-table">
                 <thead>
                   <tr style="border-bottom: 2px solid #f1f5f9;">
                     <th

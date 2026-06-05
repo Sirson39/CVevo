@@ -1981,6 +1981,11 @@ select {
     width: 100%;
     justify-content: flex-start;
   }
+
+  .rb-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 
@@ -3034,12 +3039,23 @@ select {
 
 /* ============ Mobile App Shell Overrides ============ */
 @media (max-width: 920px) {
+  html,
+  body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
+  }
+
   body.app-body {
     overflow-x: hidden;
   }
 
   .app {
     grid-template-columns: 1fr;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .sidebar {
@@ -3075,21 +3091,32 @@ select {
   .main {
     min-width: 0;
     width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .content {
     padding: 14px;
     height: calc(100dvh - 64px);
     overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
   }
 
   .topbar {
     padding: 0 14px;
     gap: 12px;
+    align-items: center;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .topbar-left {
     min-width: 0;
+    flex: 1 1 auto;
   }
 
   .page-title h1 {
@@ -3097,18 +3124,20 @@ select {
   }
 
   .page-title p {
-    font-size: 12px;
-    max-width: 22ch;
+    display: none;
   }
 
   .topbar-right {
     gap: 10px;
     min-width: 0;
+    margin-left: auto;
+    justify-content: flex-end;
+    justify-self: end;
+    flex: 0 0 auto;
   }
 
   .search {
-    width: 100%;
-    max-width: 180px;
+    display: none;
   }
 
   .search:focus-within {
@@ -3125,6 +3154,154 @@ select {
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+
+  .content > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .grid-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .actions-row {
+    width: 100%;
+  }
+
+  .actions-row .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .section-head,
+  .card-head,
+  .analysis-head,
+  .rb-head,
+  .ru-head,
+  .ex-head,
+  .tg-top,
+  .support-layout-head,
+  .js-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .section-head,
+  .card-head {
+    gap: 10px;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table {
+    min-width: 640px;
+  }
+
+  .results-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .info-card {
+    position: static;
+  }
+
+  .quality-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tg-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .qa-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  .rb-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  #builder-container {
+    grid-template-columns: 1fr !important;
+  }
+
+  .rb-right {
+    position: static;
+  }
+
+  .rb-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin-left: -14px;
+    margin-right: -14px;
+    padding-left: 14px;
+    padding-right: 14px;
+    scrollbar-width: none;
+  }
+
+  .rb-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .rb-tab {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  .rb-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ex-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  .support-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  .topic-chip-row {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .topic-chip-row .topic-chip {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .support-wrap {
+    padding: 0.5rem 0;
+  }
+
+  .form-section {
+    padding: 1.4rem;
+    border-radius: 24px;
+  }
+
+  .support-aside {
+    gap: 1rem;
+  }
+
+  .hero-center h1 {
+    font-size: clamp(2rem, 8vw, 3rem) !important;
+    line-height: 1.08;
+  }
+
+  .hero-center p {
+    font-size: 14px !important;
+    max-width: none;
+  }
 }
 
 @media (max-width: 560px) {
@@ -3133,7 +3310,11 @@ select {
     min-height: 64px;
     padding-top: 10px;
     padding-bottom: 10px;
-    align-items: flex-start;
+    align-items: center;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .topbar-left {
@@ -3148,6 +3329,9 @@ select {
     flex-wrap: nowrap;
     gap: 8px;
     margin-left: auto;
+    justify-content: flex-end;
+    align-items: center;
+    justify-self: end;
   }
 
   .search {
@@ -3165,10 +3349,40 @@ select {
   }
 
   .user-name {
-    max-width: 7ch;
+    display: none;
+  }
+
+  .avatar {
+    width: 30px;
+    height: 30px;
+    font-size: 13px;
   }
 
   .content {
     padding: 12px;
+  }
+
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .tg-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .topic-chip-row {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-center h1 {
+    font-size: 2rem;
+  }
+
+  .ex-preview-box {
+    margin-top: 1rem;
+  }
+
+  .ex-card {
+    padding: 16px;
   }
 }
